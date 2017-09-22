@@ -6,6 +6,8 @@ Azure ILB solves above problems, providing failover capabilities with zero integ
 
 This template deploys a VNet with 2 NGF instances with managed disks, an any-port ILB instance, and 2 empty subnets routed through NGF cluster.
 
+![Network diagram](https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/ha-ilb/HA%20ILB/Azure%20-%20ha%20ilb%20with%20subnets.png)
+
 ## Prerequisites
 
 Approve Barracuda NGF for programmatic deployments.
