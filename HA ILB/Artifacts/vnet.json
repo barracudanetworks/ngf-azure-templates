@@ -1,0 +1,115 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "0.0.1",
+  "parameters": {
+    "ilbAddr": {
+      "type": "string",
+      "defaultValue": "172.16.25.254"
+    },
+    "netAddr-gw": {
+      "type": "string",
+      "defaultValue": "172.16.25.0/24"
+    },
+    "netAddr-FE": {
+      "type": "string",
+      "defaultValue": "172.16.26.0/24"
+    },
+    "netAddr-BE": {
+      "type": "string",
+      "defaultValue": "172.16.27.0/24"
+    },
+    "prefix": {
+      "type": "string",
+      "defaultValue": "ngf-hailb"
+    }
+  },
+  "variables": {
+    "apiVersionNetwork": "2017-06-01",
+    "rtableName-toFE": "[concat( parameters('prefix'), '-rt-to-fe' )]",
+    "rtableName-toBE": "[concat( parameters('prefix'), '-rt-to-be' )]",
+    "vnetName": "[concat( parameters('prefix'), '-vnet' )]"
+  },
+  "resources": [
+    {
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[variables('vnetName')]",
+        "apiVersion": "[variables('apiVersionNetwork')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+            "addressSpace": {
+                "addressPrefixes": [
+                    "[parameters('netAddr-gw')]",
+                    "[parameters('netAddr-FE')]",
+                    "[parameters('netAddr-BE')]"
+                ]
+            },
+            "subnets": [
+                {
+                    "name": "gw",
+                    "properties": {
+                        "addressPrefix": "[parameters('netAddr-gw')]"
+                    }
+                },
+                {
+                    "name": "fe",
+                    "properties": {
+                        "addressPrefix": "[parameters('netAddr-FE')]",
+                        "routeTable": {
+                            "id": "[resourceId('Microsoft.Network/routeTables', variables('rtableName-toBE'))]"
+                        }
+                    }
+                },
+                {
+                    "name": "be",
+                    "properties": {
+                        "addressPrefix": "[parameters('netAddr-BE')]",
+                        "routeTable": {
+                            "id": "[resourceId('Microsoft.Network/routeTables', variables('rtableName-toFE'))]"
+                        }
+                    }
+                }
+            ]
+        },
+        "dependsOn": [
+          "[resourceId('Microsoft.Network/routeTables', variables('rtableName-toBE'))]",
+          "[resourceId('Microsoft.Network/routeTables', variables('rtableName-toFE'))]"
+        ]
+      },
+      {
+        "type": "Microsoft.Network/routeTables",
+        "name": "[variables('rtableName-toFE')]",
+        "apiVersion": "[variables('apiVersionNetwork')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "routes": [
+            {
+              "name": "to-fe",
+              "properties": {
+                "addressPrefix": "[parameters('netAddr-FE')]",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "[parameters('ilbAddr')]"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "Microsoft.Network/routeTables",
+        "name": "[variables('rtableName-toBE')]",
+        "apiVersion": "[variables('apiVersionNetwork')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "routes": [
+            {
+              "name": "to-be",
+              "properties": {
+                "addressPrefix": "[parameters('netAddr-BE')]",
+                "nextHopType": "VirtualAppliance",
+                "nextHopIpAddress": "[parameters('ilbAddr')]"
+              }
+            }
+          ]
+        }
+      }
+  ]
+}

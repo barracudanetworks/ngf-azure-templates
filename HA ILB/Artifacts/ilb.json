@@ -1,0 +1,94 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "0.0.1",
+  "parameters": {
+    "ilbAddr": {
+      "type": "string",
+      "defaultValue": "172.16.25.254"
+    },
+    "prefix": {
+      "type": "string",
+      "defaultValue": "ngf-hailb"
+    },
+    "netId-gw": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "ilbProbePort": {
+      "type": "int",
+      "defaultValue": 65500
+    }
+
+  },
+  "variables": {
+    "apiVersionNetwork": "2017-06-01",
+    "apiVersionLB": "2017-08-01",
+    "ilbName": "[concat( parameters('prefix'), '-ilb' )]",
+    "ilbPoolName": "NGFPool",
+    "ilbProbeName": "ngprobe"
+  },
+  "resources": [
+    {
+        "type": "Microsoft.Network/loadBalancers",
+        "name": "[variables('ilbName')]",
+        "apiVersion": "[variables('apiVersionLB')]",
+        "location": "[resourceGroup().location]",
+        "properties": {
+            "frontendIPConfigurations": [
+                {
+                    "name": "InternalLoadBalancerVIP",
+                    "properties": {
+                        "privateIPAddress": "[parameters('ilbAddr')]",
+                        "privateIPAllocationMethod": "Static",
+                        "subnet": {
+                            "id": "[parameters('netId-gw')]"
+                        }
+                    }
+                }
+            ],
+            "backendAddressPools": [
+                {
+                    "name": "[variables('ilbPoolName')]"
+                }
+            ],
+            "loadBalancingRules": [
+                {
+                    "name": "lbrule",
+                    "properties": {
+                        "frontendIPConfiguration": {
+                            "id": "[concat( resourceId('Microsoft.Network/loadBalancers', variables('ilbName')), '/frontendIpConfigurations/InternalLoadBalancerVIP' )]"
+                        },
+                        "frontendPort": 0,
+                        "backendPort": 0,
+                        "enableFloatingIP": false,
+                        "idleTimeoutInMinutes": 15,
+                        "protocol": "All",
+                        "loadDistribution": "Default",
+                        "backendAddressPool": {
+                            "id": "[concat( resourceId('Microsoft.Network/loadBalancers', variables('ilbName')), '/backendAddressPools/', variables('ilbPoolName'))]"
+                        },
+                        "probe": {
+                            "id": "[concat( resourceId('Microsoft.Network/loadBalancers', variables('ilbName')), '/probes/', variables('ilbProbeName'))]"
+                        }
+                    }
+                }
+            ],
+            "probes": [
+                {
+                    "name": "[variables('ilbProbeName')]",
+                    "properties": {
+                        "provisioningState": "Succeeded",
+                        "protocol": "Tcp",
+                        "port": "[parameters('ilbProbePort')]",
+                        "intervalInSeconds": 5,
+                        "numberOfProbes": 2
+                    }
+                }
+            ],
+            "inboundNatRules": [],
+            "outboundNatRules": [],
+            "inboundNatPools": []
+        }
+    }
+  ]
+}

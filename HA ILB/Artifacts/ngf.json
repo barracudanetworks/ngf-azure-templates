@@ -1,0 +1,188 @@
+  {
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "0.0.1",
+    "parameters": {
+      "prefix": {
+        "type": "string",
+        "defaultValue": "ngf-hailb"
+      },
+      "sizeNGF": {
+        "type": "string",
+        "defaultValue": "Standard_F1s"
+      },
+      "ngfPassword": {
+        "type": "secureString"
+      },
+      "ngfIpAddr1": {
+        "type": "string",
+        "defaultValue": "172.16.25.4"
+      },
+      "ngfIpMask": {
+        "type": "string",
+        "defaultValue": "24"
+      },
+      "ngfIpGw": {
+        "type": "string",
+        "defaultValue": "172.16.25.1"
+      },
+      "ngfIpAddr2": {
+        "type": "string",
+        "defaultValue": "172.16.25.5"
+      },
+      "netId-gw": {
+        "type": "string",
+        "defaultValue": ""
+      },
+      "ilbName": {
+        "type": "string",
+        "defaultValue": "ngf-hailb-ilb"
+      },
+      "pipAllocationMethod": {
+        "type": "string",
+        "defaultValue": "Dynamic"
+      }
+
+    },
+    "variables": {
+      "apiVersionAS": "2017-03-30",
+      "apiVersionVM": "2017-03-30",
+      "apiVersionNetwork": "2017-06-01",
+      "ngfName1": "[concat( parameters('prefix'), '-NGF')]",
+      "ngfName2": "[concat( parameters('prefix'), '-NGF-HA')]",
+      "ngfAsName": "[concat( parameters( 'prefix' ), '-haSet')]",
+      "ngfNicName1": "[concat( variables('ngfName1'), '_nic0_', uniqueString( resourceGroup().id ))]",
+      "ngfNicName2": "[concat( variables('ngfName2'), '_nic0_', uniqueString( resourceGroup().id ))]",
+      "singleQuotationMark": "'",
+      "ngfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', parameters( 'ngfIpAddr1' ), ' ', parameters( 'ngfIpMask' ), ' ', parameters( 'ngfIpGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'ngfPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', parameters( 'ngfIpAddr2' ), ' -n ', parameters( 'ngfIpMask' ), ' -g ', parameters( 'ngfIpGw' ), '\n'))]",
+      "ngfCustomData2": "[Base64('\n')]",
+      "ngfPipName1": "[concat( parameters( 'prefix' ), '-pip1' )]",
+      "ngfPipName2": "[concat( parameters( 'prefix' ), '-pip2' )]"
+
+    },
+    "resources": [
+      {
+          "type": "Microsoft.Compute/availabilitySets",
+          "name": "[variables('ngfAsName')]",
+          "apiVersion": "[variables('apiVersionAS')]",
+          "sku": {
+              "name": "Aligned"
+          },
+          "location": "[resourceGroup().location]",
+          "properties": {
+              "platformUpdateDomainCount": 3,
+              "platformFaultDomainCount": 2
+          }
+      },
+
+      {
+        "type": "Microsoft.Network/publicIPAddresses",
+        "name": "[variables( concat( 'ngfPipName', copyIndex(1)))]",
+        "apiVersion": "[variables('apiVersionNetwork')]",
+        "location": "[resourceGroup().location]",
+        "copy": {
+          "name": "pipCopyLoop",
+          "count": 2
+        },
+        "properties": {
+          "publicIpAllocationMethod": "[parameters( 'pipAllocationMethod' )]",
+          "publicIpAddressVersion": "IPv4"
+        }
+      },
+
+      {
+          "type": "Microsoft.Network/networkInterfaces",
+          "name": "[variables( concat( 'ngfNicName', copyIndex(1)))]",
+          "apiVersion": "[variables('apiVersionNetwork')]",
+          "location": "[resourceGroup().location]",
+          "copy": {
+            "name": "nicCopyLoop",
+            "count": 2
+          },
+          "properties": {
+              "ipConfigurations": [
+                  {
+                      "name": "ipconfig1",
+                      "properties": {
+                          "privateIPAddress": "[parameters( concat('ngfIpAddr', copyIndex(1)))]",
+                          "privateIPAllocationMethod": "Static",
+                          "subnet": {
+                              "id": "[parameters('netId-gw')]"
+                          },
+                          "privateIPAddressVersion": "IPv4",
+                          "publicIpAddress": {
+                            "id": "[resourceId( 'Microsoft.Network/publicIPAddresses', variables( concat( 'ngfPipName', copyIndex(1))))]"
+                          },
+                          "loadBalancerBackendAddressPools": [
+                              {
+                                  "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('ilbName')), '/backendAddressPools/NGFPool')]"
+                              }
+                          ]
+                      }
+                  }
+              ],
+              "enableAcceleratedNetworking": false,
+              "enableIPForwarding": true
+          },
+          "dependsOn": [
+            "[resourceId( 'Microsoft.Network/publicIPAddresses', variables( concat( 'ngfPipName', copyIndex(1))))]"
+          ]
+      },
+
+      {
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "[variables('apiVersionVM')]",
+        "name": "[variables( concat( 'ngfName', copyIndex(1)))]",
+        "location": "[resourceGroup().location]",
+        "copy": {
+          "name": "vmHaCopyLoop",
+          "count": 2
+        },
+        "plan": {
+          "name": "byol",
+          "product": "barracuda-ng-firewall",
+          "publisher": "barracudanetworks"
+        },
+        "properties": {
+          "availabilitySet": {
+            "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('ngfAsName'))]"
+          },
+          "hardwareProfile": {
+            "vmSize": "[parameters('sizeNGF')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "barracudanetworks",
+              "offer": "barracuda-ng-firewall",
+              "sku": "byol",
+              "version": "latest"
+            },
+            "osDisk": {
+              "osType": "Linux",
+              "createOption": "FromImage",
+              "managedDisk": {
+                "storageAccountType": "Premium_LRS"
+              }
+            },
+            "dataDisks": []
+          },
+          "osProfile": {
+            "computerName": "[variables( concat( 'ngfName', copyIndex(1)))]",
+            "adminUsername": "will-be-replaced-by-root",
+            "adminPassword": "[parameters('ngfPassword')]",
+            "customData": "[variables( concat( 'ngfCustomData', copyIndex(1)))]"
+            },
+          "networkProfile": {
+            "networkInterfaces": [
+                {
+                  "id": "[resourceId('Microsoft.Network/networkInterfaces', variables( concat( 'ngfNicName', copyIndex(1))))]"
+                }
+              ]
+          }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/availabilitySets', variables('ngfAsName'))]",
+            "[resourceId('Microsoft.Network/networkInterfaces', variables( concat( 'ngfNicName', copyIndex(1))))]"
+          ]
+        }
+      ]
+    }
