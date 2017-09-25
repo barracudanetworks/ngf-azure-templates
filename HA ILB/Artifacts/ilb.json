@@ -32,9 +32,6 @@
         "type": "Microsoft.Network/loadBalancers",
         "name": "[variables('ilbName')]",
         "apiVersion": "[variables('apiVersionLB')]",
-        "sku": {
-            "name": "Standard"
-        },
         "location": "[resourceGroup().location]",
         "properties": {
             "frontendIPConfigurations": [
