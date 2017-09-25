@@ -22,7 +22,7 @@
   },
   "variables": {
     "apiVersionNetwork": "2017-06-01",
-    "apiVersionLB": "2016-03-30",
+    "apiVersionLB": "2017-08-01",
     "ilbName": "[concat( parameters('prefix'), '-ilb' )]",
     "ilbPoolName": "NGFPool",
     "ilbProbeName": "ngprobe"
@@ -32,6 +32,9 @@
         "type": "Microsoft.Network/loadBalancers",
         "name": "[variables('ilbName')]",
         "apiVersion": "[variables('apiVersionLB')]",
+        "sku": {
+            "name": "Standard"
+        },
         "location": "[resourceGroup().location]",
         "properties": {
             "frontendIPConfigurations": [
