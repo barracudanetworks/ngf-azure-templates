@@ -12,7 +12,7 @@
     },
     "netId-gw": {
       "type": "string",
-      "defaultValue": "/subscriptions/bde58b49-9951-466e-90e2-592c0920ce77/resourceGroups/bam-ilb2/providers/Microsoft.Network/virtualNetworks/bam-ilb2-vnet/subnets/gw"
+      "defaultValue": ""
     },
     "ilbProbePort": {
       "type": "int",

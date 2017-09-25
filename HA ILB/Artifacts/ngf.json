@@ -31,7 +31,7 @@
       },
       "netId-gw": {
         "type": "string",
-        "defaultValue": "/subscriptions/bde58b49-9951-466e-90e2-592c0920ce77/resourceGroups/bam-hailb0/providers/Microsoft.Network/virtualNetworks/bam-hailb0-vnet/subnets/gw"
+        "defaultValue": ""
       },
       "ilbName": {
         "type": "string",
