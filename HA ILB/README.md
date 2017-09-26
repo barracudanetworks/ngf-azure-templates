@@ -22,8 +22,10 @@ After successful deployment you can manage them using NextGen Admin application 
 
 ## Post Deployment Configuration
 
-You need to create manually a firewall *App Redirect* rule for ILB Probe traffic. The connection will use the port you indicated during template deployment and it will originate from
+You need to create manually a firewall *App Redirect* rule for ILB Probe traffic. The connection will use the port you indicated during template deployment and it will originate from 168.63.129.16 and can be redirected to any service running locally on NGF (e.g. 127.0.0.1:451 for firewall authentication service)
+
+![Example firewall probe redirection rule](https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/ha-ilb/HA%20ILB/Probe%20Firewall%20Rule.png)
 
 For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/nextgenfirewallf/article/NGF71/FWCreateAppRedirRule/)
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Box ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/nextgenfirewallf/article/NGF71/ChangeRootPWandMgmtACL/)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/nextgenfirewallf/article/NGF71/ChangeRootPWandMgmtACL/)
