@@ -79,6 +79,9 @@
         "name": "[variables( concat( 'ngfPipName', copyIndex(1)))]",
         "apiVersion": "[variables('apiVersionNetwork')]",
         "location": "[resourceGroup().location]",
+        "sku": {
+            "name": "Standard"
+        },
         "copy": {
           "name": "pipCopyLoop",
           "count": 2
@@ -88,7 +91,6 @@
           "publicIpAddressVersion": "IPv4"
         }
       },
-
       {
           "type": "Microsoft.Network/networkInterfaces",
           "name": "[variables( concat( 'ngfNicName', copyIndex(1)))]",
