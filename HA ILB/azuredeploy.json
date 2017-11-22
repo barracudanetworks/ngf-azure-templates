@@ -59,9 +59,9 @@
   },
   "variables": {
     "apiNetwork": "2017-08-01",
-    "vnetTemplateUrl": "[uri(deployment().properties.templateLink.uri, 'Artifacts/vnet.json')]",
-    "ngfTemplateUrl": "[uri(deployment().properties.templateLink.uri, 'Artifacts/ngf.json')]",
-    "ilbTemplateUrl": "[uri(deployment().properties.templateLink.uri, 'Artifacts/ilb.json')]",
+    "vnetTemplateUrl": "[uri(uriComponent(deployment().properties.templateLink.uri), 'Artifacts/vnet.json')]",
+    "ngfTemplateUrl": "[uri(uriComponent(deployment().properties.templateLink.uri), 'Artifacts/ngf.json')]",
+    "ilbTemplateUrl": "[uri(uriComponent(deployment().properties.templateLink.uri), 'Artifacts/ilb.json')]",
     "netId-gw": "[concat( resourceId( 'Microsoft.Network/virtualNetworks', concat( parameters('deploymentPrefix'), '-vnet' )), '/subnets/gw' )]",
     "netGwCidrSplit": "[split( parameters( 'firewallSubnetAddress' ), '/' )]",
     "netGwAddrSplit": "[split( variables( 'netGwCidrSplit' )[0], '.' )]",
