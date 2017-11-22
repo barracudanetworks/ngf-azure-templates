@@ -118,7 +118,7 @@
       ]
     },
     {
-      "apiVersion": "[variables('apiVersionDeployments')]",
+      "apiVersion": "[variables('apiNetwork')]",
       "type": "Microsoft.Resources/deployments",
       "name": "ILB",
       "properties": {
