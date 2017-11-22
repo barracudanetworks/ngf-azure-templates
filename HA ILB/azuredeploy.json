@@ -74,7 +74,7 @@
   },
   "resources": [
     {
-      "apiVersion": "[variables('apiVersionDeployments')]",
+      "apiVersion": "[variables('apiNetwork')]",
       "type": "Microsoft.Resources/deployments",
       "name": "Network",
       "properties": {
@@ -92,7 +92,7 @@
       }
     },
     {
-      "apiVersion": "[variables('apiVersionDeployments')]",
+      "apiVersion": "[variables('apiNetwork')]",
       "type": "Microsoft.Resources/deployments",
       "name": "Firewalls",
       "properties": {
