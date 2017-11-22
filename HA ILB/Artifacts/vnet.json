@@ -24,7 +24,7 @@
     }
   },
   "variables": {
-    "apiVersionNetwork": "2017-06-01",
+    "apiVersionNetwork": "2017-08-01",
     "rtableName-toFE": "[concat( parameters('prefix'), '-rt-to-fe' )]",
     "rtableName-toBE": "[concat( parameters('prefix'), '-rt-to-be' )]",
     "vnetName": "[concat( parameters('prefix'), '-vnet' )]",
