@@ -27,9 +27,34 @@
     "apiVersionNetwork": "2017-06-01",
     "rtableName-toFE": "[concat( parameters('prefix'), '-rt-to-fe' )]",
     "rtableName-toBE": "[concat( parameters('prefix'), '-rt-to-be' )]",
-    "vnetName": "[concat( parameters('prefix'), '-vnet' )]"
+    "vnetName": "[concat( parameters('prefix'), '-vnet' )]",
+    "nsgName": "[concat( parameters('prefix'), '-nsg' )]"
   },
   "resources": [
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('nsgName')]",
+      "apiVersion": "[variables('apiVersionNetwork')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowAny",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
     {
         "type": "Microsoft.Network/virtualNetworks",
         "name": "[variables('vnetName')]",
@@ -47,7 +72,10 @@
                 {
                     "name": "gw",
                     "properties": {
-                        "addressPrefix": "[parameters('netAddr-gw')]"
+                        "addressPrefix": "[parameters('netAddr-gw')]",
+                        "networkSecurityGroup": {
+                          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+                        }
                     }
                 },
                 {
