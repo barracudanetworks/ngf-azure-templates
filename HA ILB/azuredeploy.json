@@ -59,9 +59,10 @@
   },
   "variables": {
     "apiNetwork": "2017-08-01",
-    "vnetTemplateUrl": "[uri(uriComponent(deployment().properties.templateLink.uri), 'Artifacts/vnet.json')]",
-    "ngfTemplateUrl": "[uri(uriComponent(deployment().properties.templateLink.uri), 'Artifacts/ngf.json')]",
-    "ilbTemplateUrl": "[uri(uriComponent(deployment().properties.templateLink.uri), 'Artifacts/ilb.json')]",
+    "urlBase": "https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/master/HA%20ILB/Artifacts/",
+    "vnetTemplateUrl": "[uri(variables( 'urlBase' ), 'Artifacts/vnet.json')]",
+    "ngfTemplateUrl": "[uri(variables( 'urlBase' ), 'Artifacts/ngf.json')]",
+    "ilbTemplateUrl": "[uri(variables( 'urlBase' ), 'Artifacts/ilb.json')]",
     "netId-gw": "[concat( resourceId( 'Microsoft.Network/virtualNetworks', concat( parameters('deploymentPrefix'), '-vnet' )), '/subnets/gw' )]",
     "netGwCidrSplit": "[split( parameters( 'firewallSubnetAddress' ), '/' )]",
     "netGwAddrSplit": "[split( variables( 'netGwCidrSplit' )[0], '.' )]",
