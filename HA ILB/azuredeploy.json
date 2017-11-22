@@ -108,7 +108,7 @@
           "ngfIpMask": { "value": "[variables( 'netGwMask' )]" },
           "ngfIpGw": { "value": "[variables( 'netGwDefaultGw' )]" },
           "netId-gw": { "value": "[variables( 'netId-gw' )]" },
-          "ilbName": { "value": "[concat( parameters('deploymentPrefix'), '-ilb' )]" },
+          "ilbName": { "value": "[concat( parameters('deploymentPrefix'), '-ilb' )]" }
         },
         "mode": "Incremental"
       },
