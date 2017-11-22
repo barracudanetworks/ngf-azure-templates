@@ -4,7 +4,7 @@
   "parameters": {
     "deploymentPrefix": {
       "type": "string",
-      "defaultValue": "bam-ha-ilb",
+      "defaultValue": "cuda-ha-ilb",
       "metadata": {
         "description": "Prefix to be prepended to all created resources."
       }
@@ -22,11 +22,6 @@
       "metadata": {
         "description": "Administrative password for NextGen Firewall instances"
       }
-    },
-    "publicIpAllocationMethod": {
-      "type": "string",
-      "defaultValue": "Dynamic",
-      "allowedValues": [ "Dynamic", "Static" ]
     },
     "ilbProbePort": {
       "type": "int",
@@ -114,7 +109,6 @@
           "ngfIpGw": { "value": "[variables( 'netGwDefaultGw' )]" },
           "netId-gw": { "value": "[variables( 'netId-gw' )]" },
           "ilbName": { "value": "[concat( parameters('deploymentPrefix'), '-ilb' )]" },
-          "pipAllocationMethod": { "value": "[parameters( 'publicIpAllocationMethod' )]" }
         },
         "mode": "Incremental"
       },

@@ -37,11 +37,6 @@
         "type": "string",
         "defaultValue": "ngf-hailb-ilb"
       },
-      "pipAllocationMethod": {
-        "type": "string",
-        "defaultValue": "Dynamic"
-      }
-
     },
     "variables": {
       "apiVersionAS": "2017-03-30",
@@ -87,7 +82,7 @@
           "count": 2
         },
         "properties": {
-          "publicIpAllocationMethod": "[parameters( 'pipAllocationMethod' )]",
+          "publicIpAllocationMethod": "Static",
           "publicIpAddressVersion": "IPv4"
         }
       },
