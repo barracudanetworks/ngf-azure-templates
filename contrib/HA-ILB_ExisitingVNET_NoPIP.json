@@ -99,8 +99,6 @@
     "singleQuotationMark": "'",
     "ngfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', parameters( 'ngfIpAddr1' ), ' ', parameters( 'ngfIpMask' ), ' ', parameters( 'ngfIpGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'ngfPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', parameters( 'ngfIpAddr2' ), ' -n ', parameters( 'ngfIpMask' ), ' -g ', parameters( 'ngfIpGw' ), '\n'))]",
     "ngfCustomData2": "[Base64('\n')]",
-    "ngfPipName1": "[concat( parameters( 'prefix' ), '-pip1' )]",
-    "ngfPipName2": "[concat( parameters( 'prefix' ), '-pip2' )]",
     "apiVersionLB": "2018-01-01",
     "ilbName": "[concat( parameters('prefix'), '-ilb' )]",
     "ilbPoolName": "NGFPool",
