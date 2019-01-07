@@ -1,0 +1,23 @@
+resources: 
+- repo: self
+
+pool:
+  vmImage: 'vs2017-win2016'
+  demands: azureps
+
+steps:
+- task: AzurePowerShell@2
+  displayName: 'Azure PowerShell script: FilePath'
+  inputs:
+    azureSubscription: 'AzureSubscription'
+    ScriptPath: 'NGF-Quickstart-HA-1NIC-AS-ELB-ILB-STD/test/invokePester.ps1'
+    ScriptArguments: '-templatename NGF-Quickstart-HA-1NIC-AS-ELB-ILB-STD'
+    azurePowerShellVersion: LatestVersion
+
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results **\TEST-*.xml'
+  inputs:
+    testRunner: NUnit
+    testResultsFiles: '**\TEST-*.xml'
+    testRunTitle: 'CUDA ARM Template test NGF QS HA 1NIC AS ELB ILB STD'

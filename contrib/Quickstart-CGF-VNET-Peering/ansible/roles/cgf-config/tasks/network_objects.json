@@ -1,0 +1,147 @@
+{
+  "objects": [
+    {
+      "included": [
+          {
+              "entry": {
+                  "ip": "168.63.129.16"
+              }
+          }
+      ],
+      "excluded": [],
+      "name": "Azure-Virtual-IP",
+      "comment": "The IP address 168.63.129.16 is a virtual public IP address that is used to facilitate a communication channel to internal Azure platform resources.",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+          {
+              "entry": {
+                  "ip": "172.16.136.0/24"
+              }
+          }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-SUBNET-CGF",
+      "comment": "CGF",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+          {
+              "entry": {
+                  "ip": "172.16.138.0/24"
+              }
+          }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-SUBNET-GREEN",
+      "comment": "Green",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+          {
+              "entry": {
+                  "ip": "172.16.140.0/24"
+              }
+          }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-SUBNET-SPOKE1",
+      "comment": "Spoke1 Subnet",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+        {
+          "entry": {
+            "ip": "172.16.142.0/24"
+          }
+        }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-SUBNET-SPOKE2",
+      "comment": "Spoke2 Subnet",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+          {
+              "entry": {
+                  "ip": "172.16.137.0/24"
+              }
+          }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-SUBNET-RED",
+      "comment": "Red",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+          {
+              "references": "{{ cgf_prefix }}-SUBNET-CGF"
+          },
+          {
+              "references": "{{ cgf_prefix }}-SUBNET-GREEN"
+          },
+          {
+              "references": "{{ cgf_prefix }}-SUBNET-RED"
+          }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-VNET",
+      "type": "generic",
+      "color": "#ff0000",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+          {
+              "references": "{{ cgf_prefix }}-SUBNET-SPOKE2"
+          }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-VNET-SPOKE2",
+      "comment": "Spoke2 VNET",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    },
+    {
+      "included": [
+          {
+              "references": "{{ cgf_prefix }}-SUBNET-SPOKE1"
+          }
+      ],
+      "excluded": [],
+      "name": "{{ cgf_prefix }}-VNET-SPOKE1",
+      "comment": "Spoke1 VNET",
+      "color": "#ff0000",
+      "type": "generic",
+      "shared": false,
+      "dynamic": false
+    }
+  ]
+}
