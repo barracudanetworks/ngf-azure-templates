@@ -1,0 +1,16 @@
+#### CGF Get item ###
+- name: "Get {{ request_name }}"
+  uri:
+    url: "{{ request_url }}{{ request_path }}"
+    method: GET
+    timeout: 60
+    headers:
+      Content-Type: "application/json"
+      X-API-Token: "{{ request_token }}"
+    status_code: 200
+    validate_certs: False
+  register: result
+  until: result.status != -1
+
+- debug:
+    msg: "CGF Get {{ request_name }} result: {{ result }}"
