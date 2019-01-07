@@ -119,17 +119,17 @@ then
     # Input prefix 
     echo -n "Enter the name of the NGF Subnet: "
     stty_orig=`stty -g` # save original terminal setting.
-    read subnetnamengf         # read the variable
+    read subnetnamecgf         # read the variable
     stty $stty_orig     # restore terminal setting.
-    if [ -z "$subnetnamengf" ] 
+    if [ -z "$subnetnamecgf" ] 
     then
-        subnetnamengf="CUDA-SUBNET-NGF"
+        subnetnamecgf="CUDA-SUBNET-NGF"
     fi
 else
-    subnetnamengf="$DEPLOY_SUBNETNAMENGF"
+    subnetnamecgf="$DEPLOY_SUBNETNAMENGF"
 fi
 echo ""
-echo "--> Using prefix $subnetnamengf for all resources ..."
+echo "--> Using prefix $subnetnamecgf for all resources ..."
 echo ""
 
 if [ -z "$DEPLOY_SUBNETNGF" ]
@@ -137,17 +137,17 @@ then
     # Input prefix 
     echo -n "Enter the IP range of the NGF Subnet (e.g. 172.16.136.0/24): "
     stty_orig=`stty -g` # save original terminal setting.
-    read subnetngf         # read the variable
+    read subnetcgf         # read the variable
     stty $stty_orig     # restore terminal setting.
-    if [ -z "$subnetngf" ] 
+    if [ -z "$subnetcgf" ] 
     then
-        subnetnamengf="172.16.136.0/24"
+        subnetnamecgf="172.16.136.0/24"
     fi
 else
-    subnetnamengf="$DEPLOY_SUBNETNGF"
+    subnetnamecgf="$DEPLOY_SUBNETNGF"
 fi
 echo ""
-echo "--> Using prefix $subnetngf for all resources ..."
+echo "--> Using prefix $subnetcgf for all resources ..."
 echo ""
 
 # Create resource group for NextGen Firewall resources
@@ -161,7 +161,7 @@ az group deployment validate --verbose --resource-group "$rg_ngf" \
                            --template-file azuredeploy.json \
                            --parameters "@azuredeploy.parameters.json" \
                            --parameters adminPassword=$passwd prefix=$prefix vNetResourceGroup=$vnetresourcegroup \
-                                        vNetName=$vnetname subnetNameNGF=$subnetnamengf subnetNGF=$subnetngf
+                                        vNetName=$vnetname subnetNameCGF=$subnetnamecgf subnetCGF=$subnetcgf
 result=$? 
 if [ $result != 0 ]; 
 then 
@@ -175,7 +175,7 @@ az group deployment create --resource-group "$rg_ngf" \
                            --template-file azuredeploy.json \
                            --parameters "@azuredeploy.parameters.json" \
                            --parameters adminPassword=$passwd prefix=$prefix vNetResourceGroup=$vnetresourcegroup \
-                                        vNetName=$vnetname subnetNameNGF=$subnetnamengf subnetNGF=$subnetngf
+                                        vNetName=$vnetname subnetNameCGF=$subnetnamecgf subnetCGF=$subnetcgf
 result=$? 
 if [[ $result != 0 ]]; 
 then 

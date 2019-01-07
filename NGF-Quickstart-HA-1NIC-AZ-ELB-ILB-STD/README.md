@@ -57,7 +57,7 @@ It is also recommended you harden management access by enabling multifactor or k
 adminPassword | Password for the Next Gen Admin tool 
 prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-NGF (Max 19 char, no spaces, [A-Za-z0-9]
 vNetAddressSpace | Network range of the VNET (e.g. 172.16.136.0/22)
-subnetNGF | Network range of the subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)
+subnetCGF | Network range of the subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)
 subnetRed | Network range of the red subnet (e.g. 172.16.137.0/24)
 subnetGreen | Network range of the green subnet (e.g. 172.16.138.0/24)
 imageSKU | SKU Hourly (PAYG) or BYOL (Bring your own license)
