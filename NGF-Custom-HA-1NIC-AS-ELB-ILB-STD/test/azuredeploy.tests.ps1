@@ -90,7 +90,7 @@ Describe "[$templateName] Template validation & test" {
                                           'imageSKU',
                                           'prefix',
                                           'subnetGreen',
-                                          'subnetNGF',
+                                          'subnetCGF',
                                           'subnetRed',
                                           'version',
                                           'vmSize',
