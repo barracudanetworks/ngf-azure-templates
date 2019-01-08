@@ -1,0 +1,43 @@
+---
+# Configuration of the Barracuda CloudGen Firewall 8.0 REST API
+# Steps
+#  - Wait for login page
+#  - Change admin password
+#  - Create REST API admin 
+
+### Set CGF base URL ###
+- set_fact:
+    cgf_base_url: "https://{{ hostvars[inventory_hostname].ansible_host }}:{{ hostvars[inventory_hostname].ansible_port }}"
+    cgf_rest_admin: restadmin
+
+- name: Wait 300 seconds for port {{ hostvars[inventory_hostname].ansible_port }} to become open on the host, don't start checking for 5 seconds
+  wait_for:
+    host: "{{ hostvars[inventory_hostname].ansible_host }}"
+    port: "{{ hostvars[inventory_hostname].ansible_port }}"
+    timeout: 600
+  become: no
+  delegate_to: localhost
+
+- debug:
+    msg: "List of CGFs {{ ansible_play_hosts }}"
+    
+- debug:
+    msg: "Current CGF {{ inventory_hostname }}"
+
+## Change root password
+- include_tasks: cgf-change-password.yml
+  vars:
+    request_user: "root"
+    request_password: "{{ cgf_password }}"
+    request_new_password: "{{ cgf_password }}"
+    request_url: "{{ cgf_base_url }}"
+
+### Create REST API admin
+- include_tasks: cgf-create-user.yml
+  vars:
+    request_comment: "Create REST API admin"
+    request_url: "{{ cgf_base_url }}"
+    request_user: "root"
+    request_password: "{{ cgf_password }}"
+    request_new_user: "{{ cgf_rest_admin }}"
+    request_new_password: "{{ cgf_password }}"

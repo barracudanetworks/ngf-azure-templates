@@ -1,0 +1,265 @@
+{
+  "rules": [
+    {
+      "position": {
+        "placement": "top"
+      },
+      "source": {
+          "references": "Azure-Virtual-IP"
+      },
+      "destination": {
+          "references": "All Firewall IPs"
+      },
+      "service": {
+          "explicit": {
+              "entries": [
+                  {
+                      "entry": {
+                          "tcp": {
+                              "clientPortUsed": {
+                                  "from": 1024,
+                                  "to": 65535
+                              },
+                              "ports": [
+                                  "65000"
+                              ]
+                          },
+                          "protocolProtection": {
+                              "protocols": [],
+                              "action": "none",
+                              "policy": "whitelist"
+                          },
+                          "protocol": "TCP",
+                          "sessionTimeout": 86400
+                      }
+                  }
+              ],
+              "name": "<explicit>"
+          }
+      },
+      "policies": {
+          "ips": "Default"
+      },
+      "action": {
+          "target": {
+              "address": "127.0.0.9",
+              "port": 450
+          },
+          "type": "appredirect"
+      },
+      "name": "CLOUD-LB-PROBE",
+      "comment": "Redirect probes from the loadbalancer TCP port 65000 to fwauth on port 450.",
+      "deactivated": false,
+      "dynamic": false,
+      "ipVersion": "IPv4"
+    },
+    {
+      "position": {
+        "placement": "after",
+        "reference": "CLOUD-LB-PROBE"
+      },
+      "source": {
+        "references": "{{ cgf_prefix }}-VNET"
+      },
+      "destination": {
+        "explicit": {
+          "included": [
+            {
+              "references": "{{ cgf_prefix }}-VNET"
+            },
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE1"
+            },
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE2"
+            }
+          ],
+          "excluded": [],
+          "name": "<explicit>",
+          "type": "generic"
+        }
+      },
+      "service": {
+        "references": "Any"
+      },
+      "policies": {
+        "ips": "Default"
+      },
+      "action": {
+        "connection": {
+          "references": "Original Source IP"
+        },
+        "type": "pass"
+      },
+      "name": "HUB-2-SPOKE",
+      "bidirectional": false,
+      "deactivated": false,
+      "dynamic": false,
+      "ipVersion": "IPv4"
+    },
+    {
+      "position": {
+        "placement": "after",
+        "reference": "CLOUD-LB-PROBE"
+      },
+       "source": {
+        "explicit": {
+          "included": [
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE1"
+            },
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE2"
+            }
+          ],
+          "excluded": [],
+          "name": "<explicit>",
+          "type": "generic"
+        }
+      },
+      "destination": {
+        "references": "{{ cgf_prefix }}-VNET"
+      },
+      "service": {
+        "references": "Any"
+      },
+      "policies": {
+        "ips": "Default"
+      },
+      "action": {
+        "connection": {
+          "references": "Original Source IP"
+        },
+        "type": "pass"
+      },
+      "name": "SPOKE-2-HUB",
+      "bidirectional": false,
+      "deactivated": false,
+      "dynamic": false,
+      "ipVersion": "IPv4"
+    },
+    {
+      "position": {
+        "placement": "after",
+        "reference": "CLOUD-LB-PROBE"
+      },
+      "source": {
+        "explicit": {
+          "included": [
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE1"
+            },
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE2"
+            }
+          ],
+          "excluded": [],
+          "name": "<explicit>",
+          "type": "generic"
+        }
+      },
+      "destination": {
+        "explicit": {
+          "included": [
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE1"
+            },
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE2"
+            }
+          ],
+          "excluded": [],
+          "name": "<explicit>",
+          "type": "generic"
+        }
+      },
+      "service": {
+        "references": "Any"
+      },
+      "policies": {
+        "ips": "Default"
+      },
+      "action": {
+        "connection": {
+          "references": "Original Source IP"
+        },
+        "type": "pass"
+      },
+      "name": "SPOKE-2-SPOKE",
+      "bidirectional": false,
+      "deactivated": false,
+      "dynamic": false,
+      "ipVersion": "IPv4"
+    },
+    {
+      "position": {
+        "placement": "after",
+        "reference": "CLOUD-LB-PROBE"
+      },
+      "source": {
+        "references": "{{ cgf_prefix }}-VNET"
+      },
+      "destination": {
+        "references": "Internet"
+      },
+      "service": {
+        "references": "Any"
+      },
+      "policies": {
+        "ips": "Default"
+      },
+      "action": {
+        "connection": {
+          "references": "Dynamic NAT"
+        },
+        "type": "pass"
+      },
+      "name": "HUB-2-INTERNET",
+      "bidirectional": false,
+      "deactivated": false,
+      "dynamic": false,
+      "ipVersion": "IPv4"
+    },
+    {
+      "position": {
+        "placement": "after",
+        "reference": "CLOUD-LB-PROBE"
+      },
+      "source": {
+        "explicit": {
+          "included": [
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE1"
+            },
+            {
+              "references": "{{ cgf_prefix }}-VNET-SPOKE2"
+            }
+          ],
+          "excluded": [],
+          "name": "<explicit>",
+          "type": "generic"
+        }
+      },
+      "destination": {
+        "references": "Internet"
+      },
+      "service": {
+        "references": "Any"
+      },
+      "policies": {
+        "ips": "Default"
+      },
+      "action": {
+        "connection": {
+          "references": "Dynamic NAT"
+        },
+        "type": "pass"
+      },
+      "name": "SPOKE-2-INTERNET",
+      "bidirectional": false,
+      "deactivated": false,
+      "dynamic": false,
+      "ipVersion": "IPv4"
+    }
+  ]
+}

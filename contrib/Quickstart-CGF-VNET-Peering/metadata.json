@@ -1,0 +1,8 @@
+{
+  "itemDisplayName": "Barracuda NGF VM + data disk",
+  "description": "This template allows you to deploy a simple Barracuda NGF VM with a static IP",
+  "summary": "This template takes a minimum amount of parameters",
+  "githubUsername": "jvhoof",
+  "dateUpdated": "2018-01-28",
+  "helo2": "test3"
+}
