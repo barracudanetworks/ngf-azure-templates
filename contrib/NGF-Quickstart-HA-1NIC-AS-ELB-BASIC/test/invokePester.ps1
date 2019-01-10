@@ -23,5 +23,5 @@ if (-not(Test-Path $modulePath)) {
 Import-Module $modulePath -DisableNameChecking
  
 $outputFile = Join-Path $SourceDir "TEST-pester.xml";
- 
+Write-Verbose -Message "SourcePath: $($SourceDir) " -Verbose
 Invoke-Pester -Path $SourceDir -PassThru -OutputFile $outputFile -OutputFormat NUnitXml -EnableExit
