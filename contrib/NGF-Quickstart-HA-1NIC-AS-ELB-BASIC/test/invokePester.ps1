@@ -3,7 +3,6 @@ param (
 )
 
 $SourceDir = "$env:BUILD_SOURCESDIRECTORY\$templatename"
-Write-Host ($env:BUILD_SOURCESDIRECTORY)
 $TempDir = $env:TEMP
  
 $modulePath = Join-Path $TempDir Pester-master\Pester.psm1
