@@ -1,0 +1,3 @@
+---
+# Variables
+cgf_base_url: "http://{{ hostvars[inventory_hostname].ansible_host }}:8000"

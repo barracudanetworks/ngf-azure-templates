@@ -1,0 +1,48 @@
+### Create new user ###
+
+- name: "CGF - Check existance user {{ request_new_user }}"
+  uri:
+    url: "{{ request_url }}/rest/config/v1/box/admins/{{ request_new_user }}"
+    method: GET
+    user: "{{ request_user }}"
+    password: "{{ request_password }}"
+    headers:
+      Content-Type: "application/json"
+    status_code: 200
+    validate_certs: False
+  register: result
+  ignore_errors: True
+  until: result.status != -1
+#- debug:
+#    msg: "{{service.json}}"
+
+- name: "CGF - Create new user {{ request_new_user }}"
+  when: result is failed
+  uri:
+    url: "{{ request_url }}/rest/config/v1/box/admins"
+    method: POST
+    user: "{{ request_user }}"
+    password: "{{ request_password }}"
+    body: |
+      {
+        "roles": [
+          "Manager"
+        ],
+        "name": "{{ request_new_user }}",
+        "password": "{{ request_new_password }}",
+        "fullName": "REST Administrator",
+        "enabled": true,
+        "systemLevelAccess": "noOsLogin",
+        "authenticationLevel": "password",
+        "passwordValidation": "localPassword",
+        "enforcePasswordChange": false,
+        "loginEvent": "silent"
+      }
+    body_format: json
+    timeout: 60
+    headers:
+      Content-Type: "application/json"
+    status_code: 204
+    validate_certs: False
+  register: result
+  until: result.status != -1
