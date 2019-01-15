@@ -2,7 +2,7 @@ param (
     [string]$templatename
 )
 
-$SourceDir = "$env:BUILD_SOURCESDIRECTORY\$templatename"
+$SourceDir = "$env:BUILD_SOURCESDIRECTORY\contrib\$templatename"
 $TempDir = $env:TEMP
  
 $modulePath = Join-Path $TempDir Pester-master\Pester.psm1

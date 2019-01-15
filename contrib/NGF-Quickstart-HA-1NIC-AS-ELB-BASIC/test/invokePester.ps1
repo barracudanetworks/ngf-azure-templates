@@ -2,7 +2,7 @@ param (
     [string]$templatename
 )
 
-$SourceDir = "$env:BUILD_SOURCESDIRECTORY\$templatename"
+$SourceDir = "$env:BUILD_SOURCESDIRECTORY\contrib\$templatename"
 $TempDir = $env:TEMP
  
 $modulePath = Join-Path $TempDir Pester-master\Pester.psm1
@@ -23,5 +23,5 @@ if (-not(Test-Path $modulePath)) {
 Import-Module $modulePath -DisableNameChecking
  
 $outputFile = Join-Path $SourceDir "TEST-pester.xml";
- 
+Write-Verbose -Message "SourcePath: $($SourceDir) " -Verbose
 Invoke-Pester -Path $SourceDir -PassThru -OutputFile $outputFile -OutputFormat NUnitXml -EnableExit

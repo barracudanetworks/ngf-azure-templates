@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/VSWorkspaceState.json
+/.vs/config/applicationhost.config
+/.vs/slnx.sqlite
+/.vs/ngf-azure-templates/v15/.suo
+/contrib/NGF-Quickstart-VWAN/azure-pipelines.yml
+/contrib/NGF-Quickstart-VWAN
