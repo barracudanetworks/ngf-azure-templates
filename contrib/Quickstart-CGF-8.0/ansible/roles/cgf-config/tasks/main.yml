@@ -1,0 +1,231 @@
+---
+# Configuration of the Barracuda CloudGen Firewall 8.0 REST API
+# Steps
+#  - Wait for login page
+#  - Change admin password
+#  - Create REST API admin 
+#  - Get an REST API token
+#  - Add network object, DST NAT rule
+#  - Delete REST API token
+
+### Set CGF base URL ###
+- set_fact:
+    cgf_base_url: "https://{{ hostvars[inventory_hostname].ansible_host }}:{{ hostvars[inventory_hostname].ansible_port }}"
+    cgf_rest_admin: "restadmin"
+    cgf_access_token_name: "CGFQuickstartToken"
+
+- name: Wait 300 seconds for port {{ hostvars[inventory_hostname].ansible_port }} to become open on the host, don't start checking for 5 seconds
+  wait_for:
+    host: "{{ hostvars[inventory_hostname].ansible_host }}"
+    port: "{{ hostvars[inventory_hostname].ansible_port }}"
+    timeout: 600
+  become: no
+  delegate_to: localhost
+
+- debug:
+    msg: "List of CGFs {{ ansible_play_hosts }}"
+    
+- debug:
+    msg: "Current CGF {{ inventory_hostname }}"
+
+### CGF Auth Token ###
+- include_tasks: cgf-api-token-get.yml
+  vars:
+    request_url: "{{ cgf_base_url }}"
+    request_user: "{{ cgf_rest_admin }}"
+    request_password: "{{ cgf_password }}"
+    request_tokenname: "{{ cgf_access_token_name }}"
+
+- debug:
+    msg: "Received API token {{ cgf_access_token }}"
+
+### CGF Enable IPS ###
+- include_tasks: cgf-patch-item.yml
+  vars:
+    request_name: "Enable IPS"
+    request_url: "{{ cgf_base_url }}"
+    request_path: "/rest/config/v1/forwarding-firewall/ips"
+    request_token: "{{ cgf_access_token }}"
+    request_body: |
+        {
+            "rcsMessage": "Enabling IPS",
+            "enable": true,
+            "reportOnly": false,
+            "scanSsl": true
+        }
+
+### CGF Enable IPS ###
+- include_tasks: cgf-get-item.yml
+  vars:
+    request_name: "Check IPS"
+    request_url: "{{ cgf_base_url }}"
+    request_path: "/rest/config/v1/forwarding-firewall/ips"
+    request_token: "{{ cgf_access_token }}"
+
+### CGF Create network object for Azure Virtual IP ###
+- include_tasks: cgf-create-replace-item.yml
+  vars:
+    request_name: "Azure-Virtual-IP"
+    request_url: "{{ cgf_base_url }}"
+    request_path: "/rest/config/v1/forwarding-firewall/objects/networks"
+    request_token: "{{ cgf_access_token }}"
+    request_body: |
+        {
+        
+        "included": [
+            {
+            "entry": {
+                "ip": "168.63.129.16"
+            }
+            }
+        ],
+        "name": "Azure-Virtual-IP",
+        "comment": "The IP address 168.63.129.16 is a virtual public IP address that is used to facilitate a communication channel to internal platform resources.",
+        "color": "#ff0000",
+        "type": "singleIPv4Address"
+        }
+
+### CGF Create network object for webserver ###
+- include_tasks: cgf-create-replace-item.yml
+  vars:
+    request_name: "{{ cgf_prefix }}-VM-WEB"
+    request_url: "{{ cgf_base_url }}"
+    request_path: "/rest/config/v1/forwarding-firewall/objects/networks"
+    request_token: "{{ cgf_access_token }}"
+    request_body: |
+        {
+        
+        "included": [
+            {
+            "entry": {
+                "ip": "172.16.138.4"
+            }
+            }
+        ],
+        "name": "{{ cgf_prefix }}-VM-WEB",
+        "comment": "Webserver in the green tier",
+        "color": "#ff0000",
+        "type": "singleIPv4Address"
+        }
+
+### CGF Create firewall rule for ILB probe ###
+- include_tasks: cgf-create-replace-item.yml
+  vars:
+    request_name: "CLOUD-AZURE-VIRTUAL-IP-HEALTH-PROBE"
+    request_url: "{{ cgf_base_url }}"
+    request_path: "/rest/config/v1/forwarding-firewall/rules"
+    request_token: "{{ cgf_access_token }}"
+    request_body: |
+        {
+            "position": {
+                "placement": "top",
+                "index": 7,
+            },
+            "source": {
+                "references": "Azure-Virtual-IP"
+            },
+            "destination": {
+                "references": "All Firewall IPs"
+            },
+            "service": {
+                "explicit": {
+                    "entries": [
+                        {
+                            "entry": {
+                                "tcp": {
+                                    "clientPortUsed": {
+                                        "from": 1024,
+                                        "to": 65535
+                                    },
+                                    "ports": [
+                                        "65500"
+                                    ]
+                                },
+                                "protocolProtection": {
+                                    "protocols": [],
+                                    "action": "none",
+                                    "policy": "whitelist"
+                                },
+                                "protocol": "TCP",
+                                "sessionTimeout": 86400
+                            }
+                        }
+                    ],
+                    "name": "<explicit>"
+                }
+            },
+            "policies": {
+                "ips": "No Scan"
+            },
+            "action": {
+                "target": {
+                    "address": "127.0.0.1",
+                    "port": 450
+                },
+                "type": "appredirect"
+            },
+            "name": "CLOUD-AZURE-VIRTUAL-IP-HEALTH-PROBE",
+            "deactivated": false,
+            "dynamic": false,
+            "ipVersion": "IPv4"
+        }
+
+### CGF Create firewall rule for ILB probe ###
+- include_tasks: cgf-create-replace-item.yml
+  vars:
+    request_name: "INTERNET-2-WEB"
+    request_url: "{{ cgf_base_url }}"
+    request_path: "/rest/config/v1/forwarding-firewall/rules"
+    request_token: "{{ cgf_access_token }}"
+    request_body: |
+        {
+            "position": {
+                "placement": "top",
+            },
+            "source": {
+                "references": "Internet"
+            },
+            "destination": {
+                "references": "All Firewall IPs"
+            },
+            "service": {
+                "references": "HTTP+S"
+            },
+            "policies": {
+                "ips": "Default"
+            },
+            "action": {
+                "connection": {
+                    "references": "Original Source IP"
+                },
+                "targets": {
+                    "criticalPorts" : [ 80, 443 ],
+                    "references": "{{ cgf_prefix }}-VM-WEB"
+                },
+                "type": "dnat"
+            },
+            "name": "INTERNET-2-WEB",
+            "deactivated": false,
+            "dynamic": false,
+            "ipVersion": "IPv4"
+        }
+
+### CGF Auth Token delete ###
+- include_tasks: cgf-api-token-delete.yml
+  vars:
+    request_url: "{{ cgf_base_url }}"
+    request_user: "{{ cgf_rest_admin }}"
+    request_token: "{{ cgf_access_token }}"
+    request_tokenname: "{{ cgf_access_token_name }}"
+
+### WAF Join cluster ###
+#- include_tasks: waf-set-item.yml
+#  vars:
+#    request_comment: "Join cluster"
+#    request_url: "{{ waf_base_url }}"
+#    request_path: "/restapi/v3/cluster/nodes"
+#    request_body: '{ "ip-address": "{{ hostvars[ansible_play_hosts[0]].ansible_host }}" }'
+#    body_format: json
+#  when: inventory_hostname.find("VM-WAF-0") == -1
+#  when: inventory_hostname != ansible_play_hosts[0]
+

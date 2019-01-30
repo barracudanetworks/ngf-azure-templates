@@ -1,0 +1,15 @@
+#### CGF Patch item ###
+- name: "Patch {{ request_name }}"
+  uri:
+    url: "{{ request_url }}{{ request_path }}"
+    method: PATCH
+    body: "{{ request_body }}"
+    body_format: json
+    timeout: 60
+    headers:
+      Content-Type: "application/json"
+      X-API-Token: "{{ request_token }}"
+    status_code: 204
+    validate_certs: False
+  register: result
+  until: result.status != -1
