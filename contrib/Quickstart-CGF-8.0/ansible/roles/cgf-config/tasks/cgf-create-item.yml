@@ -1,0 +1,34 @@
+#### WAF Create item if it doesn't exist ###
+- name: "{{ request_comment }}"
+  uri:
+    url: "{{ request_url }}{{ request_path }}/{{ request_name }}"
+    method: GET
+    user: "{{ cgf_token }}"
+    password: ""
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    status_code: 200
+  register: service
+  ignore_errors: True
+  until: service.status != -1
+
+#- debug:
+#    msg: "{{service.json}}"
+
+- name: Create "{{ request_name }}"
+  when: service is failed
+  uri:
+    url: "{{ request_url }}{{ request_path }}"
+    method: POST
+    user: "{{ cgf_token }}"
+    password: ""
+    force_basic_auth: yes
+    body: "{{ request_body }}"
+    body_format: json
+    timeout: 60
+    headers:
+      Content-Type: "application/json"
+    status_code: 201
+  register: result
+  until: result.status != -1
