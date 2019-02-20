@@ -1,0 +1,36 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "prefix": {
+      "value": "CUDA"
+    },
+    "vNetResourceGroup": {
+      "value": "CUDA-RG-VNET"
+    },
+    "vNetName": {
+      "value": "CUDA-VNET"
+    },
+    "subnetNameCC": {
+      "value": "CUDA-SUBNET-CC"
+    },
+    "subnetCC": {
+      "value": "172.16.137.0/25"
+    },
+    "imageSKU": {
+      "value": "byol"
+    },
+    "imageVersion": {
+      "value": "latest"
+    },
+    "vmSize": {
+      "value": "Standard_DS1_v2"
+    },
+    "ipAddressCC": {
+      "value": "172.16.137.4"
+    }
+  }
+}
