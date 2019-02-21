@@ -1,0 +1,1159 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "prefix": {
+      "type": "string",
+      "metadata": {
+        "description": "identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-CGF (Max 19 char, no spaces, [A-Za-z0-9]"
+      }
+    },
+    "vNetResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Resource Group of the VNET (e.g. CUDA-RG-VNET)"
+      }
+    },
+    "vNetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the VNET (e.g. CUDA-VNET)"
+      }
+    },
+    "subnetCGF": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the Subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)"
+      },
+      "defaultValue": "172.16.136.0/24"
+    },
+    "subnetCC": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the red subnet (e.g. 172.16.137.0/24)"
+      },
+      "defaultValue": "172.16.137.0/25"
+    },
+    "subnetSAC": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the green subnet (e.g. 172.16.138.0/24)"
+      },
+      "defaultValue": "172.16.137.128/25"
+    },
+    "imageSKU": {
+      "type": "string",
+      "metadata": {
+        "description": "SKU Hourly (PAYG) or BYOL (Bring your own license)"
+      },
+      "allowedValues": [
+        "hourly",
+        "byol"
+      ],
+      "defaultValue": "byol"
+    },
+    "version": {
+      "type": "string",
+      "metadata": {
+        "description": "Version of the Barracuda CloudGen Firewall to install"
+      },
+      "allowedValues": [ "7.2.3016101" ],
+      "defaultValue": "7.2.3016101"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_F1s",
+      "allowedValues": [ "Standard_F1s", "Standard_F2s", "Standard_F4s", "Standard_F8s", "Standard_D1_v2", "Standard_D2_v2", "Standard_D3_v2", "Standard_D4_v2", "Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS3_v2", "Standard_DS4_v2", "Standard_D2_v3", "Standard_D4_v3", "Standard_D8_v3", "Standard_D2S_v3", "Standard_D4S_v3", "Standard_D8S_v3" ],
+      "metadata": {
+        "description": "Size of the VMs to be created"
+      }
+    },
+    "subnetNameCGF": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      }
+    },
+    "subnetNameCC": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      }
+    },
+    "subnetCC": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
+      }
+    },
+    "subnetNameSAC": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      }
+    },
+    "subnetSAC": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
+      }
+    },
+    "version": {
+      "type": "string",
+      "metadata": {
+        "description": "Version of the Barracuda CloudGen Firewall to install"
+      },
+      "allowedValues": ["7.2.3016101", "7.2.205701", "7.2.112901", "7.1.306101", "7.1.210401" ],
+      "defaultValue": "latest"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS1_v2",
+      "allowedValues": [ "Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS4_v2", "Standard_DS8_v2" ],
+      "metadata": {
+        "description": "Size of the VMs to be created"
+      }
+    },
+    "networkCCManagement": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range that the CC Management network will use"
+      }
+    },
+    "networkSCDevices": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range that the SC devices are to be available on"
+      }
+    }
+  },
+  "variables": {
+    "computeApiVersion": "2017-03-30",
+    "networkApiVersion": "2017-08-01",
+
+    "imagePublisher": "barracudanetworks",
+    "imageOffer": "barracuda-ng-firewall",
+
+    "CGFnsgName": "[concat(parameters('prefix'),'-NSG-CGF')]",
+    "ccnsgName": "[concat(parameters('prefix'),'-NSG-CC')]",
+    "sacnsgName": "[concat(parameters('prefix'),'-NSG-SAC')]",
+    "CGFavName": "[concat(parameters('prefix'),'-AV-CGF')]",
+    "vNetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vNetName'))]",
+
+    "subnetRefCGF": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCGF'))]",
+    "subnetRefCC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCC'))]",
+    "subnetRefSAC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameSAC'))]",
+    "rtableNameFW": "[concat( parameters('prefix'), '-RT-FOR-Firewall' )]",
+    "rtableNameExample": "[concat( parameters('prefix'), '-RT-FOR-Subnets' )]",
+    "rtableNameCC": "[concat( parameters('prefix'), '-RT-FOR-ControlCenter' )]",
+    "rtableRefCC": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameCC'))]",
+    "rtableNameSAC": "[concat( parameters('prefix'), '-RT-FOR-SecureAccessConcentrator' )]",
+    "rtableRefSAC": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameSAC'))]",
+    "rtableRefFW": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameFW'))]",
+
+
+    "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
+    "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
+    "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
+    "cgfNicName2": "[concat(variables('cgfVmName2'),'-NIC')]",
+    "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
+    "cgfPIPAddressName2": "[concat(variables('cgfVmName2'),'-PIP')]",
+    "PIPAddressType": "Static",
+
+    "ccVmName": "[concat(parameters('prefix'),'-VM-CC')]",
+    "sacVmName": "[concat(parameters('prefix'),'-VM-SAC')]",
+    "ccNicName": "[concat(variables('ccVmName'),'-NIC')]",
+    "sacNicName": "[concat(variables('sacVmName'),'-NIC')]",
+    "ccPIPAddressName": "[concat(variables('ccVmName'),'-PIP')]",
+    "sacPIPAddressName": "[concat(variables('sacVmName'),'-PIP')]",
+
+
+    "lbPIPAddressName": "[concat(parameters('prefix'),'-CGF-LB-PIP')]",
+    "dnsNameForCGF": "[toLower( concat( parameters('prefix'), '-cgf-', uniqueString(resourceGroup().id) ) )]",
+    "lbName-external": "[concat(parameters('prefix'),'-ELB-CGF')]",
+    "lbName-internal": "[concat(parameters('prefix'),'-ILB-CGF')]",
+    "lbID-external": "[resourceId('Microsoft.Network/loadBalancers',variables('lbName-external'))]",
+    "lbID-internal": "[resourceId('Microsoft.Network/loadBalancers',variables('lbName-internal'))]",
+    "lbPIPID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbPIPAddressName'))]",
+    "lbFrontEndPoolID-external": "[concat(variables('lbID-external'),'/frontendIPConfigurations/loadBalancerFrontend')]",
+    "lbFrontEndPoolID-internal": "[concat(variables('lbID-internal'),'/frontendIPConfigurations/loadBalancerFrontend')]",
+    "lbBackEndPoolID-external": "[concat(variables('lbID-external'),'/backendAddressPools/loadBalancerBackend')]",
+    "lbBackEndPoolID-internal": "[concat(variables('lbID-internal'),'/backendAddressPools/loadBalancerBackend')]",
+    "lbProbeID-external": "[concat(variables('lbID-external'),'/probes/HAProbe')]",
+    "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
+    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 10 ))]",
+
+    "adminUsername": "notused",
+    "singleQuotationMark": "'",
+
+    "cgfSubnetSplit": "[split( parameters( 'subnetCGF' ), '/' )]",
+    "ccSubnetSplit": "[split( parameters( 'subnetCC' ), '/' )]",
+    "sacSubnetSplit": "[split( parameters( 'subnetSAC' ), '/' )]",
+    "cgfSubnetAddrSplit": "[split( variables( 'cgfSubnetSplit' )[0], '.' )]",
+    "ccSubnetAddrSplit": "[split( variables( 'ccSubnetSplit' )[0], '.' )]",
+    "sacSubnetAddrSplit": "[split( variables( 'sacSubnetSplit' )[0], '.' )]",
+    "cgfSubnetMask": "[variables( 'cgfSubnetSplit' )[1]]",
+    "ccSubnetMask": "[variables( 'ccSubnetSplit' )[1]]",
+    "sacSubnetMask": "[variables( 'sacSubnetSplit' )[1]]",
+    "cgfSubnetDefaultGw": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 1 ))]",
+    "sacSubnetDefaultGw": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 1 ))]",
+    "ccSubnetDefaultGw": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 1 ))]",
+
+    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
+    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "ccVmAddress": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 4 ))]",
+    "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 5 ))]",
+
+    "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -n ', variables( 'cgfSubnetMask' ), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
+    "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark')))]",
+    "ccCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ccVmAddress'), ' ', variables( 'ccSubnetMask' ), ' ', variables( 'ccSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark')))]",
+    "cgfCustomData2": "[Base64('\n')]"
+
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('ccPIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('PIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('ccNicName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCC'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('ccPIPAddressName'))]"
+      ],
+      "properties": {
+        "enableIPForwarding": true,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ccnsgName'))]"
+        },
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'ccVmAddress' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('ccPIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefCC')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('ccVmName')]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "byol",
+        "Product": "barracuda-ng-cc",
+        "Publisher": "[variables('imagePublisher')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('ccNicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('ccVmName')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "barracuda-ng-cc",
+            "sku": "byol",
+            "version": "[parameters('version')]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('ccVmName'),'-osdisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('ccNicName'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('ccnsgName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowAnyInboundMGMT",
+            "properties": {
+              "description": "Allow Inbound Management",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "800-812",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowAnyInboundMIP",
+            "properties": {
+              "description": "Allow Inbound Management Tunnels",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "692",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowAnyOutbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCGF'))]",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('CGFnsgName'))]"
+      ],
+      "properties": {
+        "addressPrefix": "[parameters('subnetCGF')]",
+        "routeTable": {
+          "id": "[variables('rtableRefFW')]"
+        },
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('CGFnsgName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCC'))]",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]"
+      ],
+      "properties": {
+        "addressPrefix": "[parameters('subnetCC')]",
+        "routeTable": {
+          "id": "[variables('rtableRefCC')]"
+        },
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ccnsgName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameSAC'))]",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]"
+      ],
+      "properties": {
+        "addressPrefix": "[parameters('subnetSAC')]",
+        "routeTable": {
+          "id": "[variables('rtableRefSAC')]"
+        },
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables( 'networkApiVersion' )]",
+      "type": "Microsoft.Network/routeTables",
+      "name": "[variables('rtableNameCC')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "to-Internet",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('lbIPAddress-internal')]"
+            }
+          },
+          {
+            "name": "to-SAC",
+            "properties": {
+              "addressPrefix": "[parameters('networkSCDevices')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables( 'networkApiVersion' )]",
+      "type": "Microsoft.Network/routeTables",
+      "name": "[variables('rtableNameSAC')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "to-CCMIP",
+            "properties": {
+              "addressPrefix": "[parameters('networkCCManagement')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('ccVmAddress')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables( 'networkApiVersion' )]",
+      "type": "Microsoft.Network/routeTables",
+      "name": "[variables('rtableNameFW')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "route-to-SCNetwork",
+            "properties": {
+              "addressPrefix": "[parameters('networkSCDevices')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
+            }
+          },
+          {
+            "name": "route-to-CCManagement",
+            "properties": {
+              "addressPrefix": "[parameters('networkCCManagement')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('ccVmAddress')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables( 'networkApiVersion' )]",
+      "type": "Microsoft.Network/routeTables",
+      "name": "[variables('rtableNameExample')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "route-to-internet",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('lbIPAddress-internal')]"
+            }
+          },
+          {
+            "name": "route-to-SCNetwork",
+            "properties": {
+              "addressPrefix": "[parameters('networkSCDevices')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
+            }
+          },
+          {
+            "name": "route-to-CCManagement",
+            "properties": {
+              "addressPrefix": "[parameters('networkCCManagement')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('ccVmAddress')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('CGFavName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [],
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 5
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('lbPIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('PIPAddressType')]",
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dnsNameForCGF')]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "name": "[variables('lbName-external')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "comments": "External LoadBalancer for the Barracuda Next Gen Firewall F cluster",
+      "tags": {
+        "displayName": "CGFLB-External"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('lbPIPAddressName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[variables('lbPIPID')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "loadBalancerBackend"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "IPSEC-IKE",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('lbFrontEndPoolID-external')]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('lbBackEndPoolID-external')]"
+              },
+              "protocol": "Udp",
+              "frontendPort": 500,
+              "backendPort": 500,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[variables('lbProbeID-external')]"
+              }
+            }
+          },
+          {
+            "name": "IPSEC-NATT",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('lbFrontEndPoolID-external')]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('lbBackEndPoolID-external')]"
+              },
+              "protocol": "Udp",
+              "frontendPort": 4500,
+              "backendPort": 4500,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[variables('lbProbeID-external')]"
+              }
+            }
+          },
+          {
+            "name": "TINA-UDP",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('lbFrontEndPoolID-external')]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('lbBackEndPoolID-external')]"
+              },
+              "protocol": "Udp",
+              "frontendPort": 691,
+              "backendPort": 691,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[variables('lbProbeID-external')]"
+              }
+            }
+          },
+          {
+            "name": "TINA-TCP",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('lbFrontEndPoolID-external')]"
+              },
+              "backendAddressPool": {
+                "id": "[variables('lbBackEndPoolID-external')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 691,
+              "backendPort": 691,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 5,
+              "probe": {
+                "id": "[variables('lbProbeID-external')]"
+              }
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "HAProbe",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 65000,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "name": "[variables('lbName-internal')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]"
+      ],
+      "comments": "Internal LoadBalancer for the Barracuda Next Gen Firewall F cluster",
+      "tags": {
+        "displayName": "CGFLB-Internal"
+      },
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd",
+            "properties": {
+              "privateIPAddress": "[variables('lbIPAddress-internal')]",
+              "privateIPAllocationMethod": "Static",
+              "subnet": {
+                "id": "[variables('subnetRefCGF')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "loadBalancerBackend"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "lbrule",
+            "properties": {
+              "frontendIPConfiguration": {
+                "id": "[variables('lbFrontEndPoolID-internal')]"
+              },
+              "frontendPort": 0,
+              "backendPort": 0,
+              "enableFloatingIP": false,
+              "idleTimeoutInMinutes": 15,
+              "protocol": "All",
+              "loadDistribution": "Default",
+              "backendAddressPool": {
+                "id": "[variables('lbBackEndPoolID-internal')]"
+              },
+              "probe": {
+                "id": "[variables('lbProbeID-internal')]"
+              }
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name": "HAProbe",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 65000,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('cgfPIPAddressName1')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('PIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('cgfPIPAddressName2')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('PIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('cgfNicName1')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName1'))]",
+        "[variables('lbID-external')]",
+        "[variables('lbID-internal')]"
+      ],
+      "properties": {
+        "enableIPForwarding": true,
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'cgfVmAddress1' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('cgfPIPAddressName1'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefCGF')]"
+              },
+              "primary": true,
+              "loadBalancerBackendAddressPools": [
+                { "id": "[variables('lbBackEndPoolID-external')]" },
+                { "id": "[variables('lbBackEndPoolID-internal')]" }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('cgfNicName2')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName2'))]",
+        "[variables('lbID-external')]",
+        "[variables('lbID-internal')]"
+      ],
+      "properties": {
+        "enableIPForwarding": true,
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'cgfVmAddress2' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('cgfPIPAddressName2'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefCGF')]"
+              },
+              "primary": true,
+              "loadBalancerBackendAddressPools": [
+                { "id": "[variables('lbBackEndPoolID-external')]" },
+                { "id": "[variables('lbBackEndPoolID-internal')]" }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "name": "[variables('cgfVmName1')]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "[parameters('imageSKU')]",
+        "Product": "[variables('imageOffer')]",
+        "Publisher": "[variables('imagePublisher')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('cgfNicName1'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('CGFavName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('CGFavName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('cgfVmName1')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables('cgfCustomData1')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('imageSKU')]",
+            "version": "[parameters('version')]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('cgfVmName1'),'-osdisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('cgfNicName1'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "name": "[variables('cgfVmName2')]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "[parameters('imageSKU')]",
+        "Product": "[variables('imageOffer')]",
+        "Publisher": "[variables('imagePublisher')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('cgfNicName2'))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('CGFavName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('CGFavName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('cgfVMName2')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables('cgfCustomData2')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('imageSKU')]",
+            "version": "[parameters('version')]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('cgfVMName2'),'-osdisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('cgfNicName2'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('CGFnsgName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowAnyInbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowAnyOutbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('sacPIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "[variables('PIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('sacNicName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameSAC'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('sacPIPAddressName'))]"
+      ],
+      "properties": {
+        "enableIPForwarding": true,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
+        },
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'sacVmAddress' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('sacPIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefsac')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('SACnsgName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowInboundMGMT",
+            "properties": {
+              "description": "Allow Inbound SAC Management",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "807",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSACMGMT",
+            "properties": {
+              "description": "Allow Inbound SC Management",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "888-889",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCConnections",
+            "properties": {
+              "description": "Allow SC Connections",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "692",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowAnyOutbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('sacVmName')]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "byol",
+        "Product": "[variables('imageOffer')]",
+        "Publisher": "[variables('imagePublisher')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('sacNicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('sacVmName')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "byol",
+            "version": "[parameters('version')]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('sacVmName'),'-osdisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('sacNicName'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "CGF-A": {
+      "type": "string",
+      "value": "[reference(variables('cgfPIPAddressName1')).ipAddress]"
+    },
+    "CGF-B": {
+      "type": "string",
+      "value": "[reference(variables('cgfPIPAddressName2')).ipAddress]"
+    },
+    "CGF-LB": {
+      "type": "string",
+      "value": "[reference(variables('lbPIPAddressName')).dnsSettings.fqdn]"
+    },
+    "CC": {
+      "type": "string",
+      "value": "[reference(variables('ccPIPAddressName')).ipAddress]"
+    },
+    "SAC": {
+      "type": "string",
+      "value": "[reference(variables('sacPIPAddressName')).ipAddress]"
+    }
+  }
+}
