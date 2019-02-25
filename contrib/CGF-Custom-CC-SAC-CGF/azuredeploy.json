@@ -26,6 +26,12 @@
         "description": "Name of the VNET (e.g. CUDA-VNET)"
       }
     },
+    "subnetNameCGF": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      }
+    },
     "subnetCGF": {
       "type": "string",
       "metadata": {
@@ -33,17 +39,29 @@
       },
       "defaultValue": "172.16.136.0/24"
     },
+    "subnetNameCC": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      }
+    },
     "subnetCC": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the red subnet (e.g. 172.16.137.0/24)"
+        "description": "Network range that the subnet for Control Center"
       },
       "defaultValue": "172.16.137.0/25"
+    },
+    "subnetNameSAC": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing for the Secure Access Controller (e.g. CUDA-SUBNET-SAC)"
+      }
     },
     "subnetSAC": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the green subnet (e.g. 172.16.138.0/24)"
+        "description": "Network range that the subnet for the Secure Access Controller"
       },
       "defaultValue": "172.16.137.128/25"
     },
@@ -74,30 +92,15 @@
         "description": "Size of the VMs to be created"
       }
     },
-    "subnetNameCGF": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
-    },
-    "subnetNameCC": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
-    },
+
+
     "subnetCC": {
       "type": "string",
       "metadata": {
         "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
       }
     },
-    "subnetNameSAC": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
-    },
+
     "subnetSAC": {
       "type": "string",
       "metadata": {
