@@ -374,7 +374,8 @@
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]"
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]"
       ],
       "properties": {
         "addressPrefix": "[parameters('subnetCC')]",
@@ -392,7 +393,8 @@
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]"
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCC'))]"
       ],
       "properties": {
         "addressPrefix": "[parameters('subnetSAC')]",
@@ -401,6 +403,7 @@
         },
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
+
         }
       }
     },
