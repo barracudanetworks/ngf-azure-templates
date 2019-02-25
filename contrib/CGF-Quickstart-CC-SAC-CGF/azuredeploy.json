@@ -14,7 +14,7 @@
         "description": "identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-CGF (Max 19 char, no spaces, [A-Za-z0-9]"
       }
     },
-    "vNetResourceGroup": {
+    "vNetAddressSpace": {
       "type": "string",
       "metadata": {
         "description": "Name of the Resource Group of the VNET (e.g. CUDA-RG-VNET)"
@@ -74,25 +74,8 @@
         "description": "Size of the VMs to be created"
       }
     },
-    "subnetNameCGF": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
-    },
-    "subnetNameCC": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
-    },
-    "subnetCC": {
-      "type": "string",
-      "metadata": {
-        "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
-      }
-    },
-    "subnetNameSAC": {
+  
+    "SACsubnetName": {
       "type": "string",
       "metadata": {
         "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
@@ -103,6 +86,14 @@
       "metadata": {
         "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
       }
+    },
+    "version": {
+      "type": "string",
+      "metadata": {
+        "description": "Version of the Barracuda CloudGen Firewall to install"
+      },
+      "allowedValues": ["7.2.3016101", "7.2.205701", "7.2.112901", "7.1.306101", "7.1.210401" ],
+      "defaultValue": "latest"
     },
     "vmSize": {
       "type": "string",
@@ -132,15 +123,20 @@
     "imagePublisher": "barracudanetworks",
     "imageOffer": "barracuda-ng-firewall",
 
+    "vnetName": "[concat(parameters('prefix'),'-VNET')]",
     "CGFnsgName": "[concat(parameters('prefix'),'-NSG-CGF')]",
     "ccnsgName": "[concat(parameters('prefix'),'-NSG-CC')]",
     "sacnsgName": "[concat(parameters('prefix'),'-NSG-SAC')]",
+    "CGFsubnetName": "[concat(parameters('prefix'),'-SUBNET-CGF')]",
+    "subnetNameCC": "[concat(parameters('prefix'),'-SUBNET-CC')]",
+    "sacsubnetName": "[concat(parameters('prefix'),'-SUBNET-SAC')]",
+    "subnetNameGreen": "[concat(parameters('prefix'),'-SUBNET-GREEN')]",
     "CGFavName": "[concat(parameters('prefix'),'-AV-CGF')]",
     "vNetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vNetName'))]",
 
-    "subnetRefCGF": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCGF'))]",
-    "subnetRefCC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCC'))]",
-    "subnetRefSAC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameSAC'))]",
+    "subnetRefCGF": "[resourceID('Microsoft.Network/virtualNetworks/subnets',variables('vNetName'),variables('CGFsubnetName'))]",
+    "subnetRefCC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',variables('vNetName'),variables('subnetNameCC'))]",
+    "subnetRefSAC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',variables('vNetName'),variables('SACsubnetName'))]",
     "rtableNameFW": "[concat( parameters('prefix'), '-RT-FOR-Firewall' )]",
     "rtableNameExample": "[concat( parameters('prefix'), '-RT-FOR-Subnets' )]",
     "rtableNameCC": "[concat( parameters('prefix'), '-RT-FOR-ControlCenter' )]",
@@ -224,7 +220,7 @@
       "name": "[variables('ccNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCC'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('subnetNameCC'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('ccPIPAddressName'))]"
       ],
@@ -349,59 +345,72 @@
         ]
       }
     },
-
     {
       "apiVersion": "[variables('networkApiVersion')]",
-      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCGF'))]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vNetName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('CGFnsgName'))]"
-      ],
-      "properties": {
-        "addressPrefix": "[parameters('subnetCGF')]",
-        "routeTable": {
-          "id": "[variables('rtableRefFW')]"
-        },
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('CGFnsgName'))]"
-        }
-      }
-    },
-    {
-      "apiVersion": "[variables('networkApiVersion')]",
-      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCC'))]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]"
-      ],
-      "properties": {
-        "addressPrefix": "[parameters('subnetCC')]",
-        "routeTable": {
-          "id": "[variables('rtableRefCC')]"
-        },
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ccnsgName'))]"
-        }
-      }
-    },
-    {
-      "apiVersion": "[variables('networkApiVersion')]",
-      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameSAC'))]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('CGFnsgName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]"
       ],
       "properties": {
-        "addressPrefix": "[parameters('subnetSAC')]",
-        "routeTable": {
-          "id": "[variables('rtableRefSAC')]"
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vNetAddressSpace')]"
+          ]
         },
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
-        }
+        "subnets": [
+          {
+            "name": "[variables('CGFsubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetCGF')]",
+              "routeTable": {
+                "id": "[variables('rtableRefFW')]"
+              },
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('CGFnsgName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('subnetNameCC')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetCC')]",
+              "routeTable": {
+                "id": "[variables('rtableRefCC')]"
+              },
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ccnsgName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('SACsubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetSAC')]",
+              "routeTable": {
+                "id": "[variables('rtableRefSAC')]"
+              },
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('subnetNameGreen')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetGreen')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgname'))]"
+              },
+              "routeTable": {
+                "id": "[variables('rtableRefGreen')]"
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -668,7 +677,7 @@
         "name": "Standard"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('CGFsubnetName'))]"
       ],
       "comments": "Internal LoadBalancer for the Barracuda Next Gen Firewall F cluster",
       "tags": {
@@ -757,7 +766,7 @@
       "name": "[variables('cgfNicName1')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('CGFsubnetName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName1'))]",
         "[variables('lbID-external')]",
         "[variables('lbID-internal')]"
@@ -792,7 +801,7 @@
       "name": "[variables('cgfNicName2')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('CGFsubnetName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName2'))]",
         "[variables('lbID-external')]",
         "[variables('lbID-internal')]"
@@ -985,7 +994,7 @@
       "name": "[variables('sacNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameSAC'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('SACsubnetName'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('sacPIPAddressName'))]"
       ],
@@ -1042,7 +1051,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 110,
+              "priority": 100,
               "direction": "Inbound"
             }
           },
@@ -1056,7 +1065,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 120,
+              "priority": 100,
               "direction": "Inbound"
             }
           },
@@ -1070,7 +1079,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 130,
+              "priority": 100,
               "direction": "Outbound"
             }
           }

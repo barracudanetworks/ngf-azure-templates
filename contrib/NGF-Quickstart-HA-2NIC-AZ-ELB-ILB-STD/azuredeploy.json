@@ -109,10 +109,10 @@
     "nsgName": "[concat(parameters('prefix'),'-NSG-CGF')]",
     "vNetName": "[concat(parameters('prefix'),'-VNET')]",
     "vNetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetName'))]",
-    "subnetNameCGF-external": "[concat(parameters('prefix'),'-SUBNET-CGF-EXTERNAL')]",
-    "subnetNameCGF-internal": "[concat(parameters('prefix'),'-SUBNET-CGF-INTERNAL')]",
-    "subnetRefCGF-external": "[concat(variables('vnetID'),'/subnets/',variables('subnetNameCGF-external'))]",
-    "subnetRefCGF-internal": "[concat(variables('vnetID'),'/subnets/',variables('subnetNameCGF-internal'))]",
+    "CGFsubnetName-external": "[concat(parameters('prefix'),'-SUBNET-CGF-EXTERNAL')]",
+    "CGFsubnetName-internal": "[concat(parameters('prefix'),'-SUBNET-CGF-INTERNAL')]",
+    "subnetRefCGF-external": "[concat(variables('vnetID'),'/subnets/',variables('CGFsubnetName-external'))]",
+    "subnetRefCGF-internal": "[concat(variables('vnetID'),'/subnets/',variables('CGFsubnetName-internal'))]",
     "subnetNameRed": "[concat(parameters('prefix'),'-SUBNET-RED')]",
     "subnetRefRed": "[concat(variables('vnetID'),'/subnets/',variables('subnetNameRed'))]",
     "subnetNameGreen": "[concat(parameters('prefix'),'-SUBNET-GREEN')]",
@@ -215,7 +215,7 @@
         },
         "subnets": [
           {
-            "name": "[variables('subnetNameCGF-external')]",
+            "name": "[variables('CGFsubnetName-external')]",
             "properties": {
               "addressPrefix": "[parameters('subnetCGF-external')]",
               "networkSecurityGroup": {
@@ -224,7 +224,7 @@
             }
           },
           {
-            "name": "[variables('subnetNameCGF-internal')]",
+            "name": "[variables('CGFsubnetName-internal')]",
             "properties": {
               "addressPrefix": "[parameters('subnetCGF-internal')]",
               "networkSecurityGroup": {
