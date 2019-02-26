@@ -1,0 +1,48 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "prefix": {
+      "value": "GEN-PREFIX"
+    },
+    "vNetResourceGroup": {
+      "value": "VNET-RESOURCEGRPUP"
+    },
+    "vNetName": {
+      "value": "VNET-NAME"
+    },
+    "subnetCGF": {
+      "value": "172.16.137.0/24"
+    },
+    "subnetSAC": {
+      "value": "172.16.138.0/25"
+    },
+    "subnetCC": {
+      "value": "172.16.138.128/25"
+    },
+    "imageSKU": {
+      "value": "byol"
+    },
+    "vmSize": {
+      "value": "Standard_DS1_v2"
+    },
+    "subnetNameCGF": {
+      "value": "FW"
+    },
+    "subnetNameCC": {
+      "value": "CC"
+    },
+    "subnetNameSAC": {
+      "value": "SAC"
+    },
+    "networkCCManagement": {
+      "value": "10.255.0.0/16"
+    },
+    "networkSCDevices": {
+      "value": "10.254.0.0/16"
+    }
+  }
+}
