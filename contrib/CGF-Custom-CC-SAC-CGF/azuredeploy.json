@@ -115,16 +115,16 @@
         "description": "Size of the VMs to be created"
       }
     },
-    "networkCCManagement": {
+    "networkSCManagement": {
       "type": "string",
       "metadata": {
-        "description": "Network range that the CC Management network will use"
+        "description": "Network range that the Secure Connector Management network will use"
       }
     },
     "networkSCDevices": {
       "type": "string",
       "metadata": {
-        "description": "Network range that the SC devices are to be available on"
+        "description": "Network range that the Secure Connector data network will use."
       }
     }
   },
@@ -322,6 +322,20 @@
             }
           },
           {
+            "name": "AllowAnyInboundSCManagement",
+            "properties": {
+              "description": "Allow Inbound SC Management traffic",
+              "protocol": "UDP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "888-889",
+              "sourceAddressPrefix": "[parameters('networkSCManagement')]",
+              "destinationAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
             "name": "AllowAnyInboundMIP",
             "properties": {
               "description": "Allow Inbound Management Tunnels",
@@ -331,7 +345,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 110,
+              "priority": 120,
               "direction": "Inbound"
             }
           },
@@ -426,29 +440,19 @@
             }
           },
           {
-            "name": "to-SAC",
+            "name": "to-SCData",
             "properties": {
               "addressPrefix": "[parameters('networkSCDevices')]",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[variables( 'networkApiVersion' )]",
-      "type": "Microsoft.Network/routeTables",
-      "name": "[variables('rtableNameSAC')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "routes": [
+          },
           {
-            "name": "to-CCMIP",
+            "name": "to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -462,7 +466,7 @@
       "properties": {
         "routes": [
           {
-            "name": "route-to-SCNetwork",
+            "name": "route-to-SCData",
             "properties": {
               "addressPrefix": "[parameters('networkSCDevices')]",
               "nextHopType": "VirtualAppliance",
@@ -470,11 +474,11 @@
             }
           },
           {
-            "name": "route-to-CCManagement",
+            "name": "route-to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -496,7 +500,7 @@
             }
           },
           {
-            "name": "route-to-SCNetwork",
+            "name": "route-to-SCData",
             "properties": {
               "addressPrefix": "[parameters('networkSCDevices')]",
               "nextHopType": "VirtualAppliance",
@@ -504,11 +508,11 @@
             }
           },
           {
-            "name": "route-to-CCManagement",
+            "name": "route-to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -1039,20 +1043,6 @@
             }
           },
           {
-            "name": "AllowInboundSACMGMT",
-            "properties": {
-              "description": "Allow Inbound SC Management",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "888-889",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 110,
-              "direction": "Inbound"
-            }
-          },
-          {
             "name": "AllowInboundSCConnections",
             "properties": {
               "description": "Allow SC Connections",
@@ -1061,6 +1051,20 @@
               "destinationPortRange": "692",
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCManagement",
+            "properties": {
+              "description": "Allow SC Management Connections",
+              "protocol": "UDP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "888-889",
+              "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "destinationAddressPrefix": "[parameters('networkSCManagement')]",
               "access": "Allow",
               "priority": 120,
               "direction": "Inbound"

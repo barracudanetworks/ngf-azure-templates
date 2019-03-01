@@ -38,7 +38,7 @@
     "subnetNameSAC": {
       "value": "SAC"
     },
-    "networkCCManagement": {
+    "networkSCManagement": {
       "value": "10.255.0.0/16"
     },
     "networkSCDevices": {
