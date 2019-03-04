@@ -92,39 +92,16 @@
         "description": "Size of the VMs to be created"
       }
     },
-
-
-    "subnetCC": {
+    "networkSCManagement": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
+        "description": "Network range that the Secure Connector Management network will use"
       }
     },
-
-    "subnetSAC": {
+    "networkSCData": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
-      }
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_DS1_v2",
-      "allowedValues": [ "Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS4_v2", "Standard_DS8_v2" ],
-      "metadata": {
-        "description": "Size of the VMs to be created"
-      }
-    },
-    "networkCCManagement": {
-      "type": "string",
-      "metadata": {
-        "description": "Network range that the CC Management network will use"
-      }
-    },
-    "networkSCDevices": {
-      "type": "string",
-      "metadata": {
-        "description": "Network range that the SC devices are to be available on"
+        "description": "Network range that the Secure Connector data network will use."
       }
     }
   },
@@ -206,8 +183,8 @@
     "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 5 ))]",
 
     "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -n ', variables( 'cgfSubnetMask' ), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
-    "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark')))]",
-    "ccCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ccVmAddress'), ' ', variables( 'ccSubnetMask' ), ' ', variables( 'ccSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark')))]",
+    "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' )))]",
+    "ccCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ccVmAddress'), ' ', variables( 'ccSubnetMask' ), ' ', variables( 'ccSubnetDefaultGw' )))]",
     "cgfCustomData2": "[Base64('\n')]"
 
   },
@@ -273,7 +250,8 @@
         "osProfile": {
           "computerName": "[variables('ccVmName')]",
           "adminUsername": "[variables('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables('ccCustomData')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -322,6 +300,20 @@
             }
           },
           {
+            "name": "AllowAnyInboundSCManagement",
+            "properties": {
+              "description": "Allow Inbound SC Management traffic",
+              "protocol": "udp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "888-889",
+              "sourceAddressPrefix": "[parameters('networkSCManagement')]",
+              "destinationAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
             "name": "AllowAnyInboundMIP",
             "properties": {
               "description": "Allow Inbound Management Tunnels",
@@ -331,7 +323,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 110,
+              "priority": 120,
               "direction": "Inbound"
             }
           },
@@ -401,9 +393,6 @@
       ],
       "properties": {
         "addressPrefix": "[parameters('subnetSAC')]",
-        "routeTable": {
-          "id": "[variables('rtableRefSAC')]"
-        },
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
 
@@ -426,29 +415,19 @@
             }
           },
           {
-            "name": "to-SAC",
+            "name": "to-SCData",
             "properties": {
-              "addressPrefix": "[parameters('networkSCDevices')]",
+              "addressPrefix": "[parameters('networkSCData')]",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[variables( 'networkApiVersion' )]",
-      "type": "Microsoft.Network/routeTables",
-      "name": "[variables('rtableNameSAC')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "routes": [
+          },
           {
-            "name": "to-CCMIP",
+            "name": "to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -462,19 +441,19 @@
       "properties": {
         "routes": [
           {
-            "name": "route-to-SCNetwork",
+            "name": "route-to-SCData",
             "properties": {
-              "addressPrefix": "[parameters('networkSCDevices')]",
+              "addressPrefix": "[parameters('networkSCData')]",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           },
           {
-            "name": "route-to-CCManagement",
+            "name": "route-to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -496,19 +475,19 @@
             }
           },
           {
-            "name": "route-to-SCNetwork",
+            "name": "route-to-SCData",
             "properties": {
-              "addressPrefix": "[parameters('networkSCDevices')]",
+              "addressPrefix": "[parameters('networkSCData')]",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           },
           {
-            "name": "route-to-CCManagement",
+            "name": "route-to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -1039,20 +1018,6 @@
             }
           },
           {
-            "name": "AllowInboundSACMGMT",
-            "properties": {
-              "description": "Allow Inbound SC Management",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "888-889",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 110,
-              "direction": "Inbound"
-            }
-          },
-          {
             "name": "AllowInboundSCConnections",
             "properties": {
               "description": "Allow SC Connections",
@@ -1061,6 +1026,20 @@
               "destinationPortRange": "692",
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCManagement",
+            "properties": {
+              "description": "Allow SC Management Connections",
+              "protocol": "UDP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "888-889",
+              "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "destinationAddressPrefix": "[parameters('networkSCManagement')]",
               "access": "Allow",
               "priority": 120,
               "direction": "Inbound"
@@ -1103,8 +1082,8 @@
         "osProfile": {
           "computerName": "[variables('sacVmName')]",
           "adminUsername": "[variables('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables('sacCustomData')]"
         },
         "storageProfile": {
           "imageReference": {
