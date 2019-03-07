@@ -30,7 +30,8 @@
       "type": "string",
       "metadata": {
         "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
+      },
+      "defaultValue": "CGF"
     },
     "subnetCGF": {
       "type": "string",
@@ -43,7 +44,8 @@
       "type": "string",
       "metadata": {
         "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
+      },
+      "defaultValue": "CC"
     },
     "subnetCC": {
       "type": "string",
@@ -56,7 +58,8 @@
       "type": "string",
       "metadata": {
         "description": "Name of the Subnet containing for the Secure Access Controller (e.g. CUDA-SUBNET-SAC)"
-      }
+      },
+      "defaultValue": "SAC"
     },
     "subnetSAC": {
       "type": "string",
@@ -303,7 +306,7 @@
             "name": "AllowAnyInboundSCManagement",
             "properties": {
               "description": "Allow Inbound SC Management traffic",
-              "protocol": "udp",
+              "protocol": "*",
               "sourcePortRange": "*",
               "destinationPortRange": "888-889",
               "sourceAddressPrefix": "[parameters('networkSCManagement')]",
@@ -1035,7 +1038,7 @@
             "name": "AllowInboundSCManagement",
             "properties": {
               "description": "Allow SC Management Connections",
-              "protocol": "UDP",
+              "protocol": "*",
               "sourcePortRange": "*",
               "destinationPortRange": "888-889",
               "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
@@ -1043,24 +1046,37 @@
               "access": "Allow",
               "priority": 120,
               "direction": "Inbound"
+            },
+            {
+              "name": "AllowInboundSCData",
+              "properties": {
+                "description": "Allow SC Data connections inbound",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "*",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "[parameters('networkSCData')]",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Inbound"
+              }
+            },
+            {
+              "name": "AllowAnyOutbound",
+              "properties": {
+                "description": "Allow Any",
+                "protocol": "*",
+                "sourcePortRange": "*",
+                "destinationPortRange": "1-65535",
+                "sourceAddressPrefix": "*",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Outbound"
+              }
             }
-          },
-          {
-            "name": "AllowAnyOutbound",
-            "properties": {
-              "description": "Allow Any",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "1-65535",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 130,
-              "direction": "Outbound"
-            }
+            ]
           }
-        ]
-      }
     },
     {
       "apiVersion": "[variables('computeApiVersion')]",
