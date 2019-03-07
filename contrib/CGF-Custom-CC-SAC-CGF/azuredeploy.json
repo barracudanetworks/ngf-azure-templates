@@ -1047,6 +1047,7 @@
               "priority": 120,
               "direction": "Inbound"
             },
+          },
             {
               "name": "AllowInboundSCData",
               "properties": {
@@ -1075,6 +1076,7 @@
                 "direction": "Outbound"
               }
             }
+          
             ]
           }
     },
