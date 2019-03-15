@@ -4,7 +4,7 @@
 
 The Barracuda CloudGen Firewall (CGF) can be installed in different ways into the Microsoft Azure platform. This repository contains different methods using existing supported methods as well as methods that are in Preview on the Microsoft Azure platform. In the table below you can see which ARM Template contains which features.
 
-![Network diagram](CGF-Quickstart-HA-1NIC-AS-ELB-ILB-STD/images/cgf-ha-1nic-elb-ilb.png)
+![Network diagram](CGF-Quickstart-HA-1NIC-AZ-ELB-ILB-STD/images/cgf-ha-1nic-elb-ilb.png)
 
 ## Template Parameters
 | Status | Name | In existing VNET | HighAvailability | ELB Basic | ELB Standard | ILB with HA Ports | Availability Zones | 1 NIC | 2 NIC 
