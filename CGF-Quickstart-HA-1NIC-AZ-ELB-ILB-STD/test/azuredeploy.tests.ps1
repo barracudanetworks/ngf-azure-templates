@@ -25,7 +25,7 @@ Function random-password ($length = 15)
     return $password
 }
 
-$templateName = "NGF-Quickstart-HA-1NIC-AZ-ELB-ILB-STD"
+$templateName = "CGF-Quickstart-HA-1NIC-AZ-ELB-ILB-STD"
 $sourcePath = "$env:BUILD_SOURCESDIRECTORY\$templateName"
 $scriptPath = "$env:BUILD_SOURCESDIRECTORY\$templateName\test"
 $templateFileName = "azuredeploy.json"
