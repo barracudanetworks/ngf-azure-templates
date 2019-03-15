@@ -30,6 +30,10 @@ Following resources will be created by the template:
 - Two Barracuda CloudGen Firewall virtual machines with 1 network interface each and public IP
 - One Barracuda Control Center virtual machine with 1 network interface and one public IP
 - One Barracuda Secure Access Concentrator virtual machine with 1 network interface and one public IP
+- Three Network Security Groups
+	- One attached to FW subnet that allows the firewall to manage access
+	- One attached to the SAC subnet that limits access to VPN's and internal management
+	- One attached to the CC subnet that allows all as the CC is internal and behind border firewalls
 - Three route tables
 		- One attached to the Control Center subnet that points the SC network range at the SAC device
 		- One attached to the SAC subnet that points the CC Management Network at the Control Center device
@@ -61,7 +65,7 @@ To deploy via Azure Cloud Shell you can connect via the Azure Portal or directly
 - Start up Azure Cloud Shell from the Azure Portal or go directly to [https://shell.azure.com](https://shell.azure.com/)
 - Download the latest version of the ARM templates in the persistant clouddrive:
 
-`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip | jar xv && cd ~/clouddrive/ngf-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/ && ./deploy.sh`
+`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/CGF-azure-templates/archive/master.zip | jar xv && cd ~/clouddrive/CGF-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/ && ./deploy.sh`
 
 - Answer the questions asked by the script on the following variables: location, prefix and password.
 
@@ -74,7 +78,7 @@ To deploy via Azure Cloud Shell you can connect to the Azure Cloud Shell via [ht
 - Start up Azure Cloud Shell from the Azure Portal or go directly to [https://shell.azure.com](https://shell.azure.com/)
 - Download the latest version of the ARM templates in the persistant clouddrive:
 
-`cd ~\clouddrive\; Invoke-WebRequest -Uri "https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip" -OutFile "~/clouddrive/master.zip"; jar xf master.zip; cd "~/clouddrive/ngf-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/"; .\deploy.ps1`
+`cd ~\clouddrive\; Invoke-WebRequest -Uri "https://github.com/barracudanetworks/CGF-azure-templates/archive/master.zip" -OutFile "~/clouddrive/master.zip"; jar xf master.zip; cd "~/clouddrive/CGF-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/"; .\deploy.ps1`
 
 - Answer the questions asked by the script on the following variables: location, prefix and password.
 

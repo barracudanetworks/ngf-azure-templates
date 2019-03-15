@@ -162,7 +162,7 @@
     "lbBackEndPoolID-internal": "[concat(variables('lbID-internal'),'/backendAddressPools/loadBalancerBackend')]",
     "lbProbeID-external": "[concat(variables('lbID-external'),'/probes/HAProbe')]",
     "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
-    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 10 ))]",
+    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
 
     "adminUsername": "notused",
     "singleQuotationMark": "'",
@@ -180,10 +180,10 @@
     "sacSubnetDefaultGw": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 1 ))]",
     "ccSubnetDefaultGw": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 1 ))]",
 
-    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
-    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 6 ))]",
     "ccVmAddress": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 4 ))]",
-    "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 5 ))]",
+    "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 4 ))]",
 
     "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -n ', variables( 'cgfSubnetMask' ), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
     "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' )))]",
@@ -1046,38 +1046,52 @@
               "access": "Allow",
               "priority": 120,
               "direction": "Inbound"
-            },
-          },
-            {
-              "name": "AllowInboundSCData",
-              "properties": {
-                "description": "Allow SC Data connections inbound",
-                "protocol": "*",
-                "sourcePortRange": "*",
-                "destinationPortRange": "*",
-                "sourceAddressPrefix": "*",
-                "destinationAddressPrefix": "[parameters('networkSCData')]",
-                "access": "Allow",
-                "priority": 130,
-                "direction": "Inbound"
-              }
-            },
-            {
-              "name": "AllowAnyOutbound",
-              "properties": {
-                "description": "Allow Any",
-                "protocol": "*",
-                "sourcePortRange": "*",
-                "destinationPortRange": "1-65535",
-                "sourceAddressPrefix": "*",
-                "destinationAddressPrefix": "*",
-                "access": "Allow",
-                "priority": 110,
-                "direction": "Outbound"
-              }
             }
-          
-            ]
+          },
+          {
+            "name": "AllowInboundSCFirmware",
+            "properties": {
+              "description": "Allow SC Firmware Management Connections",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "destinationAddressPrefix": "[variables( 'sacVmAddress' )]",
+              "access": "Allow",
+              "priority": 140,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCData",
+            "properties": {
+              "description": "Allow SC Data connections inbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "[parameters('networkSCData')]",
+              "access": "Allow",
+              "priority": 130,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowAnyOutbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Outbound"
+            }
+          }
+
+        ]
           }
     },
     {
