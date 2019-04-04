@@ -30,7 +30,8 @@
       "type": "string",
       "metadata": {
         "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
+      },
+      "defaultValue": "CGF"
     },
     "subnetCGF": {
       "type": "string",
@@ -43,7 +44,8 @@
       "type": "string",
       "metadata": {
         "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
-      }
+      },
+      "defaultValue": "CC"
     },
     "subnetCC": {
       "type": "string",
@@ -56,7 +58,8 @@
       "type": "string",
       "metadata": {
         "description": "Name of the Subnet containing for the Secure Access Controller (e.g. CUDA-SUBNET-SAC)"
-      }
+      },
+      "defaultValue": "SAC"
     },
     "subnetSAC": {
       "type": "string",
@@ -116,11 +119,11 @@
     "ccnsgName": "[concat(parameters('prefix'),'-NSG-CC')]",
     "sacnsgName": "[concat(parameters('prefix'),'-NSG-SAC')]",
     "CGFavName": "[concat(parameters('prefix'),'-AV-CGF')]",
-    "vNetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vNetName'))]",
+    "vNetID": "[resourceId(parameters('vNetResourceGroup'),'Microsoft.Network/virtualNetworks',parameters('vNetName'))]",
 
-    "subnetRefCGF": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCGF'))]",
-    "subnetRefCC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCC'))]",
-    "subnetRefSAC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameSAC'))]",
+    "subnetRefCGF": "[concat(variables('vNetID'),'/subnets/',parameters('subnetNameCGF'))]",
+    "subnetRefCC": "[concat(variables('vNetID'),'/subnets/',parameters('subnetNameCC'))]",
+    "subnetRefSAC": "[concat(variables('vNetID'),'/subnets/',parameters('subnetNameSAC'))]",
     "rtableNameFW": "[concat( parameters('prefix'), '-RT-FOR-Firewall' )]",
     "rtableNameExample": "[concat( parameters('prefix'), '-RT-FOR-Subnets' )]",
     "rtableNameCC": "[concat( parameters('prefix'), '-RT-FOR-ControlCenter' )]",
@@ -159,7 +162,7 @@
     "lbBackEndPoolID-internal": "[concat(variables('lbID-internal'),'/backendAddressPools/loadBalancerBackend')]",
     "lbProbeID-external": "[concat(variables('lbID-external'),'/probes/HAProbe')]",
     "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
-    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 10 ))]",
+    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
 
     "adminUsername": "notused",
     "singleQuotationMark": "'",
@@ -177,10 +180,10 @@
     "sacSubnetDefaultGw": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 1 ))]",
     "ccSubnetDefaultGw": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 1 ))]",
 
-    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
-    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 6 ))]",
     "ccVmAddress": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 4 ))]",
-    "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 5 ))]",
+    "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 4 ))]",
 
     "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -n ', variables( 'cgfSubnetMask' ), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
     "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' )))]",
@@ -204,7 +207,7 @@
       "name": "[variables('ccNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCC'))]",
+        "[concat('Microsoft.Resources/deployments/nestedTemplateCCSubnet')]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('ccPIPAddressName'))]"
       ],
@@ -283,6 +286,9 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[variables('ccnsgName')]",
       "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/nestedTemplateCGFSubnet')]"
+      ],
       "properties": {
         "securityRules": [
           {
@@ -303,7 +309,7 @@
             "name": "AllowAnyInboundSCManagement",
             "properties": {
               "description": "Allow Inbound SC Management traffic",
-              "protocol": "udp",
+              "protocol": "*",
               "sourcePortRange": "*",
               "destinationPortRange": "888-889",
               "sourceAddressPrefix": "[parameters('networkSCManagement')]",
@@ -346,64 +352,13 @@
     },
 
     {
-      "apiVersion": "[variables('networkApiVersion')]",
-      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCGF'))]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('CGFnsgName'))]"
-      ],
-      "properties": {
-        "addressPrefix": "[parameters('subnetCGF')]",
-        "routeTable": {
-          "id": "[variables('rtableRefFW')]"
-        },
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('CGFnsgName'))]"
-        }
-      }
-    },
-    {
-      "apiVersion": "[variables('networkApiVersion')]",
-      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCC'))]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]"
-      ],
-      "properties": {
-        "addressPrefix": "[parameters('subnetCC')]",
-        "routeTable": {
-          "id": "[variables('rtableRefCC')]"
-        },
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ccnsgName'))]"
-        }
-      }
-    },
-    {
-      "apiVersion": "[variables('networkApiVersion')]",
-      "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameSAC'))]",
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCC'))]"
-      ],
-      "properties": {
-        "addressPrefix": "[parameters('subnetSAC')]",
-        "networkSecurityGroup": {
-          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
-
-        }
-      }
-    },
-    {
       "apiVersion": "[variables( 'networkApiVersion' )]",
       "type": "Microsoft.Network/routeTables",
       "name": "[variables('rtableNameCC')]",
       "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/nestedTemplateCCSubnet')]"
+      ],
       "properties": {
         "routes": [
           {
@@ -438,6 +393,9 @@
       "type": "Microsoft.Network/routeTables",
       "name": "[variables('rtableNameFW')]",
       "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/nestedTemplateCGFSubnet')]"
+      ],
       "properties": {
         "routes": [
           {
@@ -653,7 +611,7 @@
         "name": "Standard"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]"
+        "[concat('Microsoft.Resources/deployments/nestedTemplateCGFSubnet')]"
       ],
       "comments": "Internal LoadBalancer for the Barracuda Next Gen Firewall F cluster",
       "tags": {
@@ -742,7 +700,7 @@
       "name": "[variables('cgfNicName1')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
+        "[concat('Microsoft.Resources/deployments/nestedTemplateCGFSubnet')]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName1'))]",
         "[variables('lbID-external')]",
         "[variables('lbID-internal')]"
@@ -777,7 +735,7 @@
       "name": "[variables('cgfNicName2')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
+        "[concat('Microsoft.Resources/deployments/nestedTemplateCGFSubnet')]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName2'))]",
         "[variables('lbID-external')]",
         "[variables('lbID-internal')]"
@@ -970,7 +928,7 @@
       "name": "[variables('sacNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameSAC'))]",
+        "[concat('Microsoft.Resources/deployments/nestedTemplateSACSubnet')]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('sacPIPAddressName'))]"
       ],
@@ -1001,6 +959,9 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[variables('SACnsgName')]",
       "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/nestedTemplateCCSubnet"
+      ],
       "properties": {
         "securityRules": [
           {
@@ -1035,13 +996,41 @@
             "name": "AllowInboundSCManagement",
             "properties": {
               "description": "Allow SC Management Connections",
-              "protocol": "UDP",
+              "protocol": "*",
               "sourcePortRange": "*",
               "destinationPortRange": "888-889",
               "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
               "destinationAddressPrefix": "[parameters('networkSCManagement')]",
               "access": "Allow",
               "priority": 120,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCFirmware",
+            "properties": {
+              "description": "Allow SC Firmware Management Connections",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "destinationAddressPrefix": "[variables( 'sacVmAddress' )]",
+              "access": "Allow",
+              "priority": 140,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCData",
+            "properties": {
+              "description": "Allow SC Data connections inbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "[parameters('networkSCData')]",
+              "access": "Allow",
+              "priority": 130,
               "direction": "Inbound"
             }
           },
@@ -1055,10 +1044,11 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 130,
+              "priority": 110,
               "direction": "Outbound"
             }
           }
+
         ]
       }
     },
@@ -1104,6 +1094,101 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('sacNicName'))]",
               "properties": {
                 "primary": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "nestedTemplateCGFSubnet",
+      "type": "Microsoft.Resources/deployments",
+      "resourceGroup": "[parameters('vNetResourceGroup')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCGF'))]",
+              "apiVersion": "[variables('networkApiVersion')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "addressPrefix": "[parameters('subnetCGF')]",
+                "routeTable": {
+                  "id": "[variables('rtableRefFW')]"
+                },
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('CGFnsgName'))]"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "nestedTemplateCCSubnet",
+      "type": "Microsoft.Resources/deployments",
+      "resourceGroup": "[parameters('vNetResourceGroup')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
+        "Microsoft.Resources/deployments/nestedTemplateCGFSubnet"
+      ],
+        "properties": {
+          "mode": "Incremental",
+          "template": {
+            "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+            "contentVersion": "1.0.0.0",
+            "resources": [
+              {
+                "type": "Microsoft.Network/virtualNetworks/subnets",
+                "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameCC'))]",
+                "apiVersion": "[variables('networkApiVersion')]",
+                "location": "[resourceGroup().location]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetCC')]",
+                  "routeTable": {
+                    "id": "[variables('rtableRefCC')]"
+                  },
+                  "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('ccnsgName'))]"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "nestedTemplateSACSubnet",
+      "type": "Microsoft.Resources/deployments",
+      "resourceGroup": "[parameters('vNetResourceGroup')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]",
+        "Microsoft.Resources/deployments/nestedTemplateCCSubnet"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/subnets",
+              "name": "[concat(parameters('vNETName'),'/',parameters('subnetNameSAC'))]",
+              "apiVersion": "[variables('networkApiVersion')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "addressPrefix": "[parameters('subnetSAC')]",
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('sacnsgName'))]"
+                }
               }
             }
           ]

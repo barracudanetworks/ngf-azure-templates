@@ -25,11 +25,15 @@ It is not possible to connect the Azure Basic Load Balancer and the Azure Standa
 
 Following resources will be created by the template:
 - Three Subnets into an existing VNET
-- One internal standard Azure Load Balancer as the default gateway for all traffic that needs inspection
+- One internal standard Azure Load Balancer as the default gateway for all traffic that needs inspection by the firewalls
 - One external standard Azure Load Balancer containing the deployed virtual machines with a public IP and services for IPSEC and TINA VPN tunnels available
 - Two Barracuda CloudGen Firewall virtual machines with 1 network interface each and public IP
-- Once Barracuda Control Center virtual machine with 1 network interface and one public IP
+- One Barracuda Control Center virtual machine with 1 network interface and one public IP
 - One Barracuda Secure Access Concentrator virtual machine with 1 network interface and one public IP
+- Three Network Security Groups
+	- One attached to FW subnet that allows the firewall to manage access
+	- One attached to the SAC subnet that limits access to VPN's and internal management
+	- One attached to the CC subnet that allows all as the CC is internal and behind border firewalls
 - Three route tables
 		- One attached to the Control Center subnet that points the SC network range at the SAC device
 		- One attached to the SAC subnet that points the CC Management Network at the Control Center device

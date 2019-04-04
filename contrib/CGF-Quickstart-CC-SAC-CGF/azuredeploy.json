@@ -14,38 +14,74 @@
         "description": "identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-CGF (Max 19 char, no spaces, [A-Za-z0-9]"
       }
     },
-    "vNetAddressSpace": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Resource Group of the VNET (e.g. CUDA-RG-VNET)"
-      }
-    },
     "vNetName": {
       "type": "string",
       "metadata": {
         "description": "Name of the VNET (e.g. CUDA-VNET)"
       }
     },
+    "vNetAddressSpace": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the VNET (e.g. CUDA-VNET)"
+      },
+      "defaultValue": "172.16.136.0/22"
+    },
+    "subnetNameCGF": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      },
+      "defaultValue": "CGF"
+    },
     "subnetCGF": {
       "type": "string",
       "metadata": {
         "description": "Network range of the Subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)"
       },
-      "defaultValue": "172.16.136.0/24"
+      "defaultValue": "172.16.136.0/27"
+    },
+    "subnetNameGreen": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      },
+      "defaultValue": "Green"
+    },
+    "subnetGreen": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the Subnet containing virtual machines"
+      },
+      "defaultValue": "172.16.137.0/24"
+    },
+    "subnetNameCC": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+      },
+      "defaultValue": "CC"
     },
     "subnetCC": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the red subnet (e.g. 172.16.137.0/24)"
+        "description": "Network range that the subnet for Control Center"
       },
-      "defaultValue": "172.16.137.0/25"
+      "defaultValue": "172.16.136.64/27"
+    },
+    "subnetNameSAC": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Subnet containing for the Secure Access Controller (e.g. CUDA-SUBNET-SAC)"
+      },
+      "defaultValue": "SAC"
     },
     "subnetSAC": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the green subnet (e.g. 172.16.138.0/24)"
+        "description": "Network range that the subnet for the Secure Access Controller"
       },
-      "defaultValue": "172.16.137.128/25"
+      "defaultValue": "172.16.136.128/27"
     },
     "imageSKU": {
       "type": "string",
@@ -74,45 +110,16 @@
         "description": "Size of the VMs to be created"
       }
     },
-  
-    "SACsubnetName": {
+    "networkSCManagement": {
       "type": "string",
       "metadata": {
-        "description": "Name of the Subnet containing the CloudGen Firewall (e.g. CUDA-SUBNET-CGF)"
+        "description": "Network range that the Secure Connector Management network will use"
       }
     },
-    "subnetSAC": {
+    "networkSCData": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
-      }
-    },
-    "version": {
-      "type": "string",
-      "metadata": {
-        "description": "Version of the Barracuda CloudGen Firewall to install"
-      },
-      "allowedValues": ["7.2.3016101", "7.2.205701", "7.2.112901", "7.1.306101", "7.1.210401" ],
-      "defaultValue": "latest"
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_DS1_v2",
-      "allowedValues": [ "Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS4_v2", "Standard_DS8_v2" ],
-      "metadata": {
-        "description": "Size of the VMs to be created"
-      }
-    },
-    "networkCCManagement": {
-      "type": "string",
-      "metadata": {
-        "description": "Network range that the CC Management network will use"
-      }
-    },
-    "networkSCDevices": {
-      "type": "string",
-      "metadata": {
-        "description": "Network range that the SC devices are to be available on"
+        "description": "Network range that the Secure Connector data network will use."
       }
     }
   },
@@ -123,22 +130,22 @@
     "imagePublisher": "barracudanetworks",
     "imageOffer": "barracuda-ng-firewall",
 
-    "vnetName": "[concat(parameters('prefix'),'-VNET')]",
     "CGFnsgName": "[concat(parameters('prefix'),'-NSG-CGF')]",
     "ccnsgName": "[concat(parameters('prefix'),'-NSG-CC')]",
+    "greennsgName": "[concat(parameters('prefix'),'-NSG-GREEN')]",
     "sacnsgName": "[concat(parameters('prefix'),'-NSG-SAC')]",
-    "CGFsubnetName": "[concat(parameters('prefix'),'-SUBNET-CGF')]",
-    "subnetNameCC": "[concat(parameters('prefix'),'-SUBNET-CC')]",
-    "sacsubnetName": "[concat(parameters('prefix'),'-SUBNET-SAC')]",
-    "subnetNameGreen": "[concat(parameters('prefix'),'-SUBNET-GREEN')]",
     "CGFavName": "[concat(parameters('prefix'),'-AV-CGF')]",
     "vNetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vNetName'))]",
+    "subnetNameGreen": "[concat(parameters('prefix'),'-Green')]",
 
-    "subnetRefCGF": "[resourceID('Microsoft.Network/virtualNetworks/subnets',variables('vNetName'),variables('CGFsubnetName'))]",
-    "subnetRefCC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',variables('vNetName'),variables('subnetNameCC'))]",
-    "subnetRefSAC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',variables('vNetName'),variables('SACsubnetName'))]",
+    "subnetRefCGF": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCGF'))]",
+    "subnetRefCC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameCC'))]",
+    "subnetRefSAC": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),parameters('subnetNameSAC'))]",
+    "subnetRefGreen": "[resourceID('Microsoft.Network/virtualNetworks/subnets',parameters('vNetName'),variables('subnetNameGreen'))]",
+
     "rtableNameFW": "[concat( parameters('prefix'), '-RT-FOR-Firewall' )]",
     "rtableNameExample": "[concat( parameters('prefix'), '-RT-FOR-Subnets' )]",
+    "rtableRefExample": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameExample'))]",
     "rtableNameCC": "[concat( parameters('prefix'), '-RT-FOR-ControlCenter' )]",
     "rtableRefCC": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameCC'))]",
     "rtableNameSAC": "[concat( parameters('prefix'), '-RT-FOR-SecureAccessConcentrator' )]",
@@ -156,8 +163,10 @@
 
     "ccVmName": "[concat(parameters('prefix'),'-VM-CC')]",
     "sacVmName": "[concat(parameters('prefix'),'-VM-SAC')]",
+    "greenVmName": "[concat(parameters('prefix'),'-VM-Green')]",
     "ccNicName": "[concat(variables('ccVmName'),'-NIC')]",
     "sacNicName": "[concat(variables('sacVmName'),'-NIC')]",
+    "greenNicName": "[concat(variables('greenVmName'),'-NIC')]",
     "ccPIPAddressName": "[concat(variables('ccVmName'),'-PIP')]",
     "sacPIPAddressName": "[concat(variables('sacVmName'),'-PIP')]",
 
@@ -175,7 +184,7 @@
     "lbBackEndPoolID-internal": "[concat(variables('lbID-internal'),'/backendAddressPools/loadBalancerBackend')]",
     "lbProbeID-external": "[concat(variables('lbID-external'),'/probes/HAProbe')]",
     "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
-    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 10 ))]",
+    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
 
     "adminUsername": "notused",
     "singleQuotationMark": "'",
@@ -193,14 +202,14 @@
     "sacSubnetDefaultGw": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 1 ))]",
     "ccSubnetDefaultGw": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 1 ))]",
 
-    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
-    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 6 ))]",
     "ccVmAddress": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 4 ))]",
-    "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 5 ))]",
+    "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 4 ))]",
 
     "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -n ', variables( 'cgfSubnetMask' ), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
-    "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark')))]",
-    "ccCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ccVmAddress'), ' ', variables( 'ccSubnetMask' ), ' ', variables( 'ccSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark')))]",
+    "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' )))]",
+    "ccCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ccVmAddress'), ' ', variables( 'ccSubnetMask' ), ' ', variables( 'ccSubnetDefaultGw' )))]",
     "cgfCustomData2": "[Base64('\n')]"
 
   },
@@ -220,7 +229,7 @@
       "name": "[variables('ccNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('subnetNameCC'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCC'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('ccPIPAddressName'))]"
       ],
@@ -266,7 +275,8 @@
         "osProfile": {
           "computerName": "[variables('ccVmName')]",
           "adminUsername": "[variables('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables('ccCustomData')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -315,6 +325,20 @@
             }
           },
           {
+            "name": "AllowAnyInboundSCManagement",
+            "properties": {
+              "description": "Allow Inbound SC Management traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "888-889",
+              "sourceAddressPrefix": "[parameters('networkSCManagement')]",
+              "destinationAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
             "name": "AllowAnyInboundMIP",
             "properties": {
               "description": "Allow Inbound Management Tunnels",
@@ -324,7 +348,7 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 110,
+              "priority": 120,
               "direction": "Inbound"
             }
           },
@@ -348,7 +372,7 @@
     {
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('vNetName')]",
+      "name": "[parameters('vNetName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('CGFnsgName'))]",
@@ -363,7 +387,7 @@
         },
         "subnets": [
           {
-            "name": "[variables('CGFsubnetName')]",
+            "name": "[parameters('subnetNameCGF')]",
             "properties": {
               "addressPrefix": "[parameters('subnetCGF')]",
               "routeTable": {
@@ -375,7 +399,7 @@
             }
           },
           {
-            "name": "[variables('subnetNameCC')]",
+            "name": "[parameters('subnetNameCC')]",
             "properties": {
               "addressPrefix": "[parameters('subnetCC')]",
               "routeTable": {
@@ -387,7 +411,7 @@
             }
           },
           {
-            "name": "[variables('SACsubnetName')]",
+            "name": "[parameters('subnetNameSAC')]",
             "properties": {
               "addressPrefix": "[parameters('subnetSAC')]",
               "routeTable": {
@@ -399,14 +423,14 @@
             }
           },
           {
-            "name": "[variables('subnetNameGreen')]",
+            "name": "[parameters('subnetNameCGF')]",
             "properties": {
               "addressPrefix": "[parameters('subnetGreen')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgname'))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('greennsgname'))]"
               },
               "routeTable": {
-                "id": "[variables('rtableRefGreen')]"
+                "id": "[variables('rtableRefExample')]"
               }
             }
           }
@@ -429,29 +453,19 @@
             }
           },
           {
-            "name": "to-SAC",
+            "name": "to-SCData",
             "properties": {
-              "addressPrefix": "[parameters('networkSCDevices')]",
+              "addressPrefix": "[parameters('networkSCData')]",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "[variables( 'networkApiVersion' )]",
-      "type": "Microsoft.Network/routeTables",
-      "name": "[variables('rtableNameSAC')]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "routes": [
+          },
           {
-            "name": "to-CCMIP",
+            "name": "to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -465,19 +479,19 @@
       "properties": {
         "routes": [
           {
-            "name": "route-to-SCNetwork",
+            "name": "route-to-SCData",
             "properties": {
-              "addressPrefix": "[parameters('networkSCDevices')]",
+              "addressPrefix": "[parameters('networkSCData')]",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           },
           {
-            "name": "route-to-CCManagement",
+            "name": "route-to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -499,19 +513,19 @@
             }
           },
           {
-            "name": "route-to-SCNetwork",
+            "name": "route-to-SCData",
             "properties": {
-              "addressPrefix": "[parameters('networkSCDevices')]",
+              "addressPrefix": "[parameters('networkSCData')]",
               "nextHopType": "VirtualAppliance",
               "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           },
           {
-            "name": "route-to-CCManagement",
+            "name": "route-to-SCManagement",
             "properties": {
-              "addressPrefix": "[parameters('networkCCManagement')]",
+              "addressPrefix": "[parameters('networkSCManagement')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('ccVmAddress')]"
+              "nextHopIpAddress": "[variables('sacVmAddress')]"
             }
           }
         ]
@@ -677,7 +691,7 @@
         "name": "Standard"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('CGFsubnetName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]"
       ],
       "comments": "Internal LoadBalancer for the Barracuda Next Gen Firewall F cluster",
       "tags": {
@@ -766,7 +780,7 @@
       "name": "[variables('cgfNicName1')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('CGFsubnetName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName1'))]",
         "[variables('lbID-external')]",
         "[variables('lbID-internal')]"
@@ -801,7 +815,7 @@
       "name": "[variables('cgfNicName2')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', variables('CGFsubnetName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameCGF'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName2'))]",
         "[variables('lbID-external')]",
         "[variables('lbID-internal')]"
@@ -940,7 +954,6 @@
         }
       }
     },
-
     {
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -981,6 +994,30 @@
     },
     {
       "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('greennsgName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": 
+          {
+            "name": "AllowAnyOutbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('sacPIPAddressName')]",
       "location": "[resourceGroup().location]",
@@ -994,7 +1031,7 @@
       "name": "[variables('sacNicName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('SACsubnetName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNETName'), '/subnets/', parameters('subnetNameSAC'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('sacnsgName'))]",
         "[concat('Microsoft.Network/publicIPAddresses/', variables('sacPIPAddressName'))]"
       ],
@@ -1042,20 +1079,6 @@
             }
           },
           {
-            "name": "AllowInboundSACMGMT",
-            "properties": {
-              "description": "Allow Inbound SC Management",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "888-889",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Inbound"
-            }
-          },
-          {
             "name": "AllowInboundSCConnections",
             "properties": {
               "description": "Allow SC Connections",
@@ -1065,7 +1088,49 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 100,
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCManagement",
+            "properties": {
+              "description": "Allow SC Management Connections",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "888-889",
+              "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "destinationAddressPrefix": "[parameters('networkSCManagement')]",
+              "access": "Allow",
+              "priority": 120,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCFirmware",
+            "properties": {
+              "description": "Allow SC Firmware Management Connections",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "sourceAddressPrefix": "[variables( 'ccVmAddress' )]",
+              "destinationAddressPrefix": "[variables( 'sacVmAddress' )]",
+              "access": "Allow",
+              "priority": 140,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowInboundSCData",
+            "properties": {
+              "description": "Allow SC Data connections inbound",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "[parameters('networkSCData')]",
+              "access": "Allow",
+              "priority": 130,
               "direction": "Inbound"
             }
           },
@@ -1079,10 +1144,11 @@
               "sourceAddressPrefix": "*",
               "destinationAddressPrefix": "*",
               "access": "Allow",
-              "priority": 100,
+              "priority": 110,
               "direction": "Outbound"
             }
           }
+
         ]
       }
     },
@@ -1106,8 +1172,8 @@
         "osProfile": {
           "computerName": "[variables('sacVmName')]",
           "adminUsername": "[variables('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables('sacCustomData')]"
         },
         "storageProfile": {
           "imageReference": {
