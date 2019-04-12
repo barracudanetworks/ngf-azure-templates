@@ -356,9 +356,6 @@
       "type": "Microsoft.Network/routeTables",
       "name": "[variables('rtableNameCC')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/nestedTemplateCCSubnet')]"
-      ],
       "properties": {
         "routes": [
           {
@@ -393,9 +390,6 @@
       "type": "Microsoft.Network/routeTables",
       "name": "[variables('rtableNameFW')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/nestedTemplateCGFSubnet')]"
-      ],
       "properties": {
         "routes": [
           {
@@ -1105,6 +1099,10 @@
       "name": "nestedTemplateCGFSubnet",
       "type": "Microsoft.Resources/deployments",
       "resourceGroup": "[parameters('vNetResourceGroup')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('CGFnsgName'))]",
+        "[concat('Microsoft.Network/routeTables/', variables('rtableNameFW'))]"
+      ],
       "properties": {
         "mode": "Incremental",
         "template": {
@@ -1137,7 +1135,8 @@
       "resourceGroup": "[parameters('vNetResourceGroup')]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkSecurityGroups/', variables('ccnsgName'))]",
-        "Microsoft.Resources/deployments/nestedTemplateCGFSubnet"
+        "Microsoft.Resources/deployments/nestedTemplateCGFSubnet",
+        "[concat('Microsoft.Network/routeTables/', variables('rtableNameCC'))]"
       ],
         "properties": {
           "mode": "Incremental",
