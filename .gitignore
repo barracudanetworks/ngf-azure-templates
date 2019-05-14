@@ -11,3 +11,5 @@
 /contrib/NGF-Custom-AA-1NIC-AS-ILB-STD
 /contrib/CGF-Custom-AA-1NIC-AS-ILB-STD
 /contrib/SE-1NIC-AZ-ELB-ILB-STD
+/.vs/ngf-azure-templates/config/applicationhost.config
+/.vs/ngf-azure-templates/v16
