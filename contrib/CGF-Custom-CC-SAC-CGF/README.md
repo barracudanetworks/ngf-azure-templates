@@ -10,6 +10,7 @@ The Secure Access Concentrator requires the SC physical devices in order to be f
 
 Please complete the form here to arrange a trial for the physical devices. [IoT Trial](https://www.barracuda.com/products/cloudgenfirewall?scroll=lead-form)
 
+![CGF Azure Network Architecture](images/cgf-custom-cc-sac-ha-cgf.png)
 
 ## Prerequisites
 

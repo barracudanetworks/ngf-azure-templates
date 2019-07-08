@@ -9,7 +9,7 @@
       "value": "CUDA"
     },
     "vNetResourceGroup": {
-      "value": "CUDA-RG-VNET"
+      "value": "CUDA-VNET-RG"
     },
     "vNetName": {
       "value": "CUDA-VNET"

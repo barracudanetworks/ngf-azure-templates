@@ -44,7 +44,7 @@ To deploy via Azure Cloud Shell you can connect via the Azure Portal or directly
 - Start up Azure Cloud Shell from the Azure Portal or go directly to [https://shell.azure.com](https://shell.azure.com/)
 - Download the latest version of the ARM templates in the persistant clouddrive:
 
-`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip | jar xv && cd ~/clouddrive/ngf-azure-templates-master/NGF-Custom-HA-1NIC-AS-ELB-ILB-STD/ && ./deploy.sh`
+`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip | jar xv && cd ~/clouddrive/ngf-azure-templates-master/CGF-Custom-HA-1NIC-AS-ELB-ILB-STD/ && ./deploy.sh`
 
 - Answer the questions asked by the script on the following variables: location, prefix and password.
 
