@@ -140,7 +140,7 @@
     "ngfSubnetDefaultGw": "[concat( variables( 'ngfSubnetAddrSplit' )[0], '.', variables( 'ngfSubnetAddrSplit' )[1], '.', variables( 'ngfSubnetAddrSplit' )[2], '.', add( int( variables( 'ngfSubnetAddrSplit' )[3]), 1 ))]",
     "ngfVmAddress1": "[concat( variables( 'ngfSubnetAddrSplit' )[0], '.', variables( 'ngfSubnetAddrSplit' )[1], '.', variables( 'ngfSubnetAddrSplit' )[2], '.', add( int( variables( 'ngfSubnetAddrSplit' )[3]), 4 ))]",
     "ngfVmAddress2": "[concat( variables( 'ngfSubnetAddrSplit' )[0], '.', variables( 'ngfSubnetAddrSplit' )[1], '.', variables( 'ngfSubnetAddrSplit' )[2], '.', add( int( variables( 'ngfSubnetAddrSplit' )[3]), 5 ))]",
-    "ngfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ngfVmAddress1'), ' ', variables( 'ngfSubnetMask' ), ' ', variables( 'ngfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('ngfVmAddress2'), ' -n ', variables( 'ngfSubnetMask' ), ' -g ', variables( 'ngfSubnetDefaultGw' ), '\n'))]",
+    "ngfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ngfVmAddress1'), ' ', variables( 'ngfSubnetMask' ), ' ', variables( 'ngfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('ngfVmAddress2'), ' -g ', variables( 'ngfSubnetDefaultGw' ), '\n'))]",
     "ngfCustomData2": "[Base64('\n')]"
   },
   "resources": [

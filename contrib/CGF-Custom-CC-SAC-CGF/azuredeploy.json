@@ -79,13 +79,21 @@
       ],
       "defaultValue": "byol"
     },
+    "enableREST": {
+      "type": "string",
+      "allowedValues": [
+        "yes",
+        "no"
+      ],
+      "defaultValue": "no"
+    },
     "version": {
       "type": "string",
       "metadata": {
         "description": "Version of the Barracuda CloudGen Firewall to install"
       },
-      "allowedValues": [ "7.2.3016101" ],
-      "defaultValue": "7.2.3016101"
+      "allowedValues": [ "latest","7.2.3016101" ],
+      "defaultValue": "latest"
     },
     "vmSize": {
       "type": "string",
@@ -185,11 +193,11 @@
     "ccVmAddress": "[concat( variables( 'ccSubnetAddrSplit' )[0], '.', variables( 'ccSubnetAddrSplit' )[1], '.', variables( 'ccSubnetAddrSplit' )[2], '.', add( int( variables( 'ccSubnetAddrSplit' )[3]), 4 ))]",
     "sacVmAddress": "[concat( variables( 'sacSubnetAddrSplit' )[0], '.', variables( 'sacSubnetAddrSplit' )[1], '.', variables( 'sacSubnetAddrSplit' )[2], '.', add( int( variables( 'sacSubnetAddrSplit' )[3]), 4 ))]",
 
-    "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -n ', variables( 'cgfSubnetMask' ), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
+    "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
     "sacCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('sacVmAddress'), ' ', variables( 'sacSubnetMask' ), ' ', variables( 'sacSubnetDefaultGw' )))]",
     "ccCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('ccVmAddress'), ' ', variables( 'ccSubnetMask' ), ' ', variables( 'ccSubnetDefaultGw' )))]",
-    "cgfCustomData2": "[Base64('\n')]"
-
+    "cgfCustomData2": "[Base64('\n')]",
+    "RESTenabled": "'\n/opb/cloud-enable-ssh\n/opb/cloud-enable-rest\n'"
   },
   "resources": [
     {
