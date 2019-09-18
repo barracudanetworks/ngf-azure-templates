@@ -25,7 +25,7 @@ Function random-password ($length = 15)
     return $password
 }
 
-$templateName = "NGF-Custom-HA-1NIC-AS-ELB-ILB-STD"
+$templateName = "CGF-Custom-HA-1NIC-AS-ELB-ILB-STD"
 $sourcePath = "$env:BUILD_SOURCESDIRECTORY\$templateName"
 $scriptPath = "$env:BUILD_SOURCESDIRECTORY\$templateName\test"
 $templateFileName = "azuredeploy.json"
@@ -110,6 +110,7 @@ Describe "[$templateName] Template validation & test" {
         $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
         $testsVM = "$testsPrefix-VM-NGF"
         $testsResourceGroupLocation = "East US2"
+
 
         # List of all scripts + parameter files
         $testsTemplateList=@()
