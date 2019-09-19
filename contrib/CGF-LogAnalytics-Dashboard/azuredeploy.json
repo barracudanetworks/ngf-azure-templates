@@ -1,0 +1,988 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Specify the workspace name"
+      }
+    }
+  },
+  "variables": {
+    "FwAvailabiltyView": {
+      "customSolution": {
+        "name": "Barracuda Firewall Monitoring Solution",
+        "solutionName": "[concat('BarracudaFWAvailabilty', '[', parameters('workspaceName'), ']')]",
+        "publisher": "Barracudanetworks",
+        "displayName": "Barracuda Firewall Availabity Statistics",
+        "description": "Monitor and analyze your Barracuda Firewalls",
+        "author": "Barracuda"
+      }
+    },
+    "FwPerformanceView": {
+      "customSolution": {
+        "name": "Barracuda Firewall Performance Monitoring Solution",
+        "solutionName": "[concat('BarracudaFWPerformance', '[', parameters('workspaceName'), ']')]",
+        "publisher": "Barracudanetworks",
+        "displayName": "Barracuda Firewall Performance Statistics",
+        "description": "Monitor and analyze your Barracuda Firewalls",
+        "author": "Barracuda"
+      }
+    },
+    "VPNStatusView": {
+      "customSolution": {
+        "name": "Barracuda Firewall VPN Monitoring Solution",
+        "solutionName": "[concat('BarracudaFWVPN', '[', parameters('workspaceName'), ']')]",
+        "publisher": "Barracudanetworks",
+        "displayName": "Barracuda Firewall VPN Statistics",
+        "description": "Monitor and analyze your Barracuda Firewall VPNs",
+        "author": "Barracuda"
+      }
+    },
+    "FWTrafficView": {
+      "customSolution": {
+        "name": "Barracuda Firewall Traffic Monitoring Solution",
+        "solutionName": "[concat('BarracudaFWTraffic', '[', parameters('workspaceName'), ']')]",
+        "publisher": "Barracudanetworks",
+        "displayName": "Barracuda Firewall Traffic Statistics",
+        "description": "Monitor and analyze your Barracuda Firewall Traffic",
+        "author": "Barracuda"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-11-01-preview",
+      "name": "[parameters('workspaceName')]",
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "location": "[resourceGroup().location]",
+      "resources": [
+        {
+          "apiVersion": "2015-11-01-preview",
+          "name": "Barracuda Firewall Monitoring Solution",
+          "type": "views",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          ],
+          "properties": {
+            "Name": "[variables('FWAvailabiltyView').customSolution.name]",
+            "Author": "[variables('FWAvailabiltyView').customSolution.author]",
+            "Source": "Local",
+            "Version": 2,
+            "Dashboard": [
+              {
+                "Id": "InformationBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "Title": "Barracuda Firewall Monitoring",
+                    "NewGroup": false,
+                    "Color": "#00d8cc"
+                  },
+                  "Header": {
+                    "Label": "Monitoring Solution pack for Barracuda FW",
+                    "Link": {
+                      "Label": "More info",
+                      "Url": ""
+                    }
+                  },
+                  "List": [
+                    {
+                      "Title": "Monitor Barracuda Firewalls!",
+                      "Content": "## Welcome to the monitoring solution for Barracuda Firewalls!\nYou can view:\n\n1.  **VPN Status** and what VPN's are *down*\n2. **Firewall Availabilty** or when reporting *failed*\n3. **Critical Alerts** that need your urgent attention\n4. **Firewall Statistics** view allow/deny along with **Top 10** traffic sources\n5. \n\n\")"
+                    }
+                  ]
+                }
+              },
+              {
+                "Id": "TwoNumberTileListBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Distribution by Computer",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Tile": {
+                    "Legend": "Firewalls with Heartbeats",
+                    "Query": "Heartbeat | summarize AggregatedValue = count() by Computer | count"
+                  },
+                  "SecondTile": {
+                    "Legend": "Firewalls with perf data",
+                    "Query": "Perf | where InstanceName == \"BNGF\" and ObjectName == \"Load\"| distinct Computer | summarize count()"
+                  },
+                  "List": {
+                    "Query": "Perf | where TimeGenerated > now() - 30d and TimeGenerated < now() and InstanceName == \"BNGF\" and ObjectName == \"Load\" | summarize heartbeat_per_hour=count() by bin_at(TimeGenerated, 1h, now() - 30d), Computer | extend available_per_hour=iff(heartbeat_per_hour>0, true, false) | summarize total_available_hours=countif(available_per_hour==true) by Computer | extend total_number_of_buckets=round((now()-(now() - 30d))/1h)+1 | extend availability_rate=total_available_hours*100/total_number_of_buckets",
+                    "HideGraph": false,
+                    "enableSparklines": false,
+                    "operation": "Summary",
+                    "ColumnsTitle": {
+                      "Name": "Computer",
+                      "Value": "Count"
+                    },
+                    "Color": "#0072c6",
+                    "thresholds": {
+                      "isEnabled": false,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#009e49",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Warning",
+                          "threshold": "60",
+                          "color": "#fcd116",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "90",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "search {selected item} | sort by TimeGenerated desc",
+                    "NavigationSelect": {
+                      "NavigationQuery": "search {selected item} | sort by TimeGenerated desc"
+                    }
+                  },
+                  "Blade": {
+                    "NavigationSelect": {}
+                  }
+                }
+              }
+            ],
+            "OverviewTile": {
+              "Id": "SingleNumberBuilderTile",
+              "Type": "OverviewTile",
+              "Version": 2,
+              "Configuration": {
+                "Tile": {
+                  "Legend": "Reporting Devices",
+                  "Query": "Perf | where InstanceName == \"BNGF\" | summarize AggregatedValue = count() by Computer | count"
+                },
+                "Advanced": {
+                  "DataFlowVerification": {
+                    "Enabled": false,
+                    "Query": "search * | limit 1 | project TimeGenerated",
+                    "Message": ""
+                  }
+                }
+              },
+              "Advanced": {
+                "DataFlowVerification": {
+                  "Enabled": false,
+                  "Query": "search * | limit 1 | project TimeGenerated",
+                  "Message": ""
+                }
+              }
+            }
+          }
+        },
+        {
+          "apiVersion": "2015-11-01-preview",
+          "name": "Barracuda Firewall VPN Monitoring Solution",
+          "type": "views",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          ],
+          "properties": {
+            "Name": "[variables('VPNStatusView').customSolution.name]",
+            "Author": "[variables('VPNStatusView').customSolution.author]",
+            "Source": "Local",
+            "Version": 2,
+            "Dashboard": [
+              {
+                "Id": "InformationBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "Title": "Barracuda Firewall VPN Monitoring",
+                    "NewGroup": false,
+                    "Color": "#00d8cc"
+                  },
+                  "Header": {
+                    "Label": "VPN Monitoring Solution pack for Barracuda FW",
+                    "Link": {
+                      "Label": "More info",
+                      "Url": ""
+                    }
+                  },
+                  "List": [
+                    {
+                      "Title": "Monitor Barracuda Firewall VPNs!",
+                      "Content": "## Welcome to the monitoring solution for Barracuda Firewalls!\nYou can view:\n\n1.  **VPN Status** and what VPN's are *down*\n2. . \n\n\")"
+                    }
+                  ]
+                }
+              },
+              {
+                "Id": "TwoNumberTileListBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "VPN Status",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Tile": {
+                    "Legend": "VPN Tunnels Up",
+                    "Query": "Perf | where ObjectName == \"Site_to_site_VPN_Tunnels_Up\" | summarize AggregatedValue = avg(CounterValue) by Computer | summarize sum(AggregatedValue) "
+                  },
+                  "SecondTile": {
+                    "Legend": "VPN Tunnels Down",
+                    "Query": "Perf | where ObjectName == \"Site_to_site_VPN_Tunnels_Down\" | summarize AggregatedValue = avg(CounterValue) by Computer | summarize sum(AggregatedValue) "
+                  },
+                  "List": {
+                    "Query": "Perf | where ObjectName == \"Site_to_site_VPN_Tunnels_Up\" or ObjectName == \"Site_to_site_VPN_Tunnels_Down\" | summarize AggregatedValue = avg(CounterValue) by Computer, ObjectName ",
+                    "HideGraph": false,
+                    "enableSparklines": false,
+                    "ColumnsTitle": {
+                      "Name": "Firewall",
+                      "Value": "Count"
+                    },
+                    "Color": "#0072c6",
+                    "operation": "Last Sample",
+                    "thresholds": {
+                      "isEnabled": false,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#009e49",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Warning",
+                          "threshold": "60",
+                          "color": "#fcd116",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "90",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "search {selected item} | sort by TimeGenerated desc",
+                    "NavigationSelect": {
+                      "NavigationQuery": "search {selected item} | sort by TimeGenerated desc"
+                    }
+                  },
+                  "Blade": {
+                    "NavigationSelect": {}
+                  }
+                }
+              }
+            ],
+            "OverviewTile": {
+              "Id": "DoubleNumberBuilderTile",
+              "Type": "OverviewTile",
+              "Version": 2,
+              "Configuration": {
+                "TileOne": {
+                  "Legend": "VPN Up",
+                  "Query": "Perf | where ObjectName == \"Site_to_site_VPN_Tunnels_Up\" | summarize AggregatedValue = avg(CounterValue) by Computer | summarize sum(AggregatedValue) "
+                },
+                "TileTwo": {
+                  "Legend": "VPN Down",
+                  "Query": "Perf | where ObjectName == \"Site_to_site_VPN_Tunnels_Down\" | summarize AggregatedValue = avg(CounterValue) by Computer | summarize sum(AggregatedValue) "
+                },
+                "Advanced": {
+                  "DataFlowVerification": {
+                    "Enabled": false,
+                    "Query": "search * | limit 1 | project TimeGenerated",
+                    "Message": ""
+                  }
+                }
+              }
+            }
+
+          }
+        },
+        {
+          "apiVersion": "2015-11-01-preview",
+          "name": "Barracuda Firewall Performance Monitoring Solution",
+          "type": "views",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          ],
+          "properties": {
+            "Id": "Barracuda Firewall Performance Monitoring Solution",
+            "Name": "Barracuda Firewall Performance Monitoring Solution",
+            "Author": null,
+            "Source": "Local",
+            "Version": 2,
+            "Dashboard": [
+              {
+                "Id": "InformationBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "Title": "Barracuda Firewall Performance Monitoring",
+                    "NewGroup": false,
+                    "Color": "#6dc2e9"
+                  },
+                  "Header": {
+                    "Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAztJREFUeNrUmktoE1EUhqexKj4zJWoaqIpVaVGxKr6ogsaNbhS0YKkKFeKmriwFEaXYnY+FYjeCbmtRRBeuXIlLMe1CXGlduBOt0rS1FaF2/A+ciWMy0yT3njvN/PBtMuHc8899zJ1zp8ZxHEtAKXAE7AdNYBOwGVKO+QQ+gDfgFfii23CNhoHV4CyzWzHGEBgEA2BUKQIZqJAG0A+mHTn9AvfB2krzqeTPi8AVMOWYE92UPrBY2kAzeOeEp/fcZsncYmWMsjaQBdut8LSN22zTnQMXwYwzf5rhHJSGUJdTPeoKyjNoGT0JnoIFCt1/GXwOuNYIbirE/APawbNyhlATmNS4W4fm6NW0Rlxa/baWmsQLwROwXGMC2orXSmkpeMw55lVooAe0aK4gcUMG3NWpJ8hAA+gVWAJtRXPlqpdzLTJwlbvJpAFbID7leK3QwCpwXughFDdsgNTJOecN0A9LhIKbHkIW59rpNdAhuA2wQ+gB0hnXQBLsiqCBnaCeDKTpxUYwcDwkA5TzYTLQKryTDGMOuDoQ44eDFcEhRNpCBtYJB42HaGC9O4klVRuwl1opPNdIa2KaG7dK7nSdgXZWxCwzskOYwPmtxISBuPEQxj9pnAx8NRC4LiQDo2RgJMI98DHGtUpppbgXvNSbMEAv9af5NTKKaicDtK/+ZmCNNi0qpyRpCH3nKnHUNOROYtIj4eDTXP9JMzfAlHAbg966UEKwXE71m70+NSH67bdgFTvhrQv9AA+E7sw98Nbnd/rtjlAbDznn/ypzKc2KnKuDc1TmWgXiT3KuRZU5Oq+6LrQ6BGlWIH6f5TlbK9zM9YNhzQaOKV4rR8M8RD23q7ibG0FOo4snwA6fuC18TVWU08Zyy+snwHNLrbxu8ZJ5F7zkIXUUdNP+XTEelddPgRfFAzZ4wmXAbBUcblAOF1QP+TJVcMSU0T2lPA7G5iH5HLctcsy6AWRDTD7LbYoedNeCS2DcYOK0SnVzW+In9S5JcEtzSfRL/DbHrigfnY896C2LPvQ4B/b4PBRLiZ7KdJg9wLvhMaUCqdDnNgkqtIJ9oBlspqITWMYvSj/5pWnE+ve5zev8hkxDfwUYAP0NkvYTPlJVAAAAAElFTkSuQmCC",
+                    "Label": "Performance Monitoring Solution pack for Barracuda FW",
+                    "Link": {
+                      "Label": "More info",
+                      "Url": ""
+                    }
+                  },
+                  "List": [
+                    {
+                      "Title": "Monitor Barracuda Firewall Performance!",
+                      "Content": "## Welcome to the monitoring solution for Barracuda Firewalls!\nYou can view:\n\n1. **CPU Performance** \n2. **Memory Utilisation** or when reporting *failed*\n3. **Load** calculated load figure based on box size.\n4. **Bandwidth Statistics** view Total, Inbound and Outbound bandwidth\n\n\n\")"
+                    }
+                  ]
+                }
+              },
+              {
+                "Id": "LineChartCalloutStackedBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Performance over Time",
+                    "newGroup": false
+                  },
+                  "charts": [
+                    {
+                      "Header": {
+                        "Title": "Average CPU",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "search * | where Type == \"Perf\" | where ( ObjectName == \"Processor\" ) | where ( CounterName == \"% Processor Time\" ) | where ( CounterPath has \"Total\" ) | summarize avg(CounterValue) by Computer",
+                        "yAxis": {
+                          "isLogarithmic": false,
+                          "units": {
+                            "baseUnitType": "",
+                            "baseUnit": "",
+                            "displayUnit": ""
+                          },
+                          "customLabel": "%"
+                        },
+                        "NavigationSelect": {}
+                      }
+                    },
+                    {
+                      "Header": {
+                        "Title": "Average Memory",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "search * | where Type == \"Perf\" | where CounterName == \"% Used Memory\" | summarize avg(CounterValue) by Computer",
+                        "yAxis": {
+                          "isLogarithmic": false,
+                          "units": {
+                            "baseUnitType": "",
+                            "baseUnit": "",
+                            "displayUnit": ""
+                          },
+                          "customLabel": "%"
+                        },
+                        "NavigationSelect": {}
+                      }
+                    },
+                    {
+                      "Header": {
+                        "Title": "Load",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "let FWlist = (CommonSecurityLog | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | distinct Computer); Perf | lookup FWlist on Computer | where ( ObjectName == \"Load\") | summarize sum(CounterValue) by Computer, bin(TimeGenerated,5m) ",
+                        "yAxis": {
+                          "isLogarithmic": false,
+                          "units": {
+                            "baseUnitType": "Bits",
+                            "baseUnit": "Bytes",
+                            "displayUnit": "Bytes"
+                          },
+                          "customLabel": "Bytes In/Out"
+                        },
+                        "NavigationSelect": {}
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "Id": "LineChartCalloutStackedBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Bandwidth over time",
+                    "newGroup": false
+                  },
+                  "charts": [
+                    {
+                      "Header": {
+                        "Title": "Bandwidth Total",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "let FWlist = (CommonSecurityLog | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | distinct Computer); Perf | lookup FWlist on Computer | where ( ObjectName == \"Bytes_In\" or ObjectName == \"Bytes_Out\") | summarize sum(CounterValue) by Computer, bin(TimeGenerated,1m) | project Bytes=sum_CounterValue , TimeGenerated , Computer ",
+                        "yAxis": {
+                          "isLogarithmic": true,
+                          "units": {
+                            "baseUnitType": "BitRate",
+                            "baseUnit": "BytesPerSec",
+                            "displayUnit": "AUTO"
+                          },
+                          "customLabel": ""
+                        },
+                        "NavigationSelect": {}
+                      }
+                    },
+                    {
+                      "Header": {
+                        "Title": "Bandwidth In",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "let FWlist = (CommonSecurityLog | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | distinct Computer); Perf | lookup FWlist on Computer | where ( ObjectName == \"Bytes_In\") | summarize sum(CounterValue) by Computer, bin(TimeGenerated, 1m) | project Bytes=sum_CounterValue , TimeGenerated , Computer ",
+                        "yAxis": {
+                          "isLogarithmic": false,
+                          "units": {
+                            "baseUnitType": "BitRate",
+                            "baseUnit": "BytesPerSec",
+                            "displayUnit": "AUTO"
+                          },
+                          "customLabel": ""
+                        },
+                        "NavigationSelect": {}
+                      }
+                    },
+                    {
+                      "Header": {
+                        "Title": "Bandwidth Out",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "let FWlist = (CommonSecurityLog | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | distinct Computer); Perf | lookup FWlist on Computer | where ( ObjectName == \"Bytes_Out\") | summarize sum(CounterValue) by Computer, bin(TimeGenerated, 1m) | project Bytes=sum_CounterValue , TimeGenerated , Computer ",
+                        "yAxis": {
+                          "isLogarithmic": true,
+                          "units": {
+                            "baseUnitType": "BitRate",
+                            "baseUnit": "BytesPerSec",
+                            "displayUnit": "AUTO"
+                          },
+                          "customLabel": ""
+                        },
+                        "NavigationSelect": {}
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+
+            "OverviewTile": {
+              "Id": "LineChartBuilderTile",
+              "Type": "OverviewTile",
+              "Version": 2,
+              "Configuration": {
+                "LineChart": {
+                  "Query": "let FWlist = (CommonSecurityLog | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | distinct Computer); Perf | lookup kind=inner FWlist on Computer | where ( ObjectName == \"Processor\" ) | where ( CounterName == \"% Processor Time\" ) | where ( CounterPath has \"Total\" ) | summarize max(CounterValue) by Computer, bin(TimeGenerated,15m) | project CPU=max_CounterValue , Computer, TimeGenerated ",
+                  "yAxis": {
+                    "isLogarithmic": false,
+                    "units": {
+                      "baseUnitType": "",
+                      "baseUnit": "",
+                      "displayUnit": ""
+                    },
+                    "customLabel": ""
+                  }
+                },
+                "Advanced": {
+                  "DataFlowVerification": {
+                    "Enabled": false,
+                    "Query": "search * | limit 1 | project TimeGenerated",
+                    "Message": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "apiVersion": "2015-11-01-preview",
+          "name": "Barracuda Firewall Traffic Monitoring Solution",
+          "type": "views",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          ],
+          "properties": {
+            "Id": "Firewall Traffic",
+            "Name": "Firewall Traffic",
+            "Author": null,
+            "Source": "Local",
+            "Version": 2,
+            "Dashboard": [
+              {
+                "Id": "InformationBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "Title": "",
+                    "NewGroup": false,
+                    "Color": "#0072c6"
+                  },
+                  "Header": {
+                    "Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAztJREFUeNrUmktoE1EUhqexKj4zJWoaqIpVaVGxKr6ogsaNbhS0YKkKFeKmriwFEaXYnY+FYjeCbmtRRBeuXIlLMe1CXGlduBOt0rS1FaF2/A+ciWMy0yT3njvN/PBtMuHc8899zJ1zp8ZxHEtAKXAE7AdNYBOwGVKO+QQ+gDfgFfii23CNhoHV4CyzWzHGEBgEA2BUKQIZqJAG0A+mHTn9AvfB2krzqeTPi8AVMOWYE92UPrBY2kAzeOeEp/fcZsncYmWMsjaQBdut8LSN22zTnQMXwYwzf5rhHJSGUJdTPeoKyjNoGT0JnoIFCt1/GXwOuNYIbirE/APawbNyhlATmNS4W4fm6NW0Rlxa/baWmsQLwROwXGMC2orXSmkpeMw55lVooAe0aK4gcUMG3NWpJ8hAA+gVWAJtRXPlqpdzLTJwlbvJpAFbID7leK3QwCpwXughFDdsgNTJOecN0A9LhIKbHkIW59rpNdAhuA2wQ+gB0hnXQBLsiqCBnaCeDKTpxUYwcDwkA5TzYTLQKryTDGMOuDoQ44eDFcEhRNpCBtYJB42HaGC9O4klVRuwl1opPNdIa2KaG7dK7nSdgXZWxCwzskOYwPmtxISBuPEQxj9pnAx8NRC4LiQDo2RgJMI98DHGtUpppbgXvNSbMEAv9af5NTKKaicDtK/+ZmCNNi0qpyRpCH3nKnHUNOROYtIj4eDTXP9JMzfAlHAbg966UEKwXE71m70+NSH67bdgFTvhrQv9AA+E7sw98Nbnd/rtjlAbDznn/ypzKc2KnKuDc1TmWgXiT3KuRZU5Oq+6LrQ6BGlWIH6f5TlbK9zM9YNhzQaOKV4rR8M8RD23q7ibG0FOo4snwA6fuC18TVWU08Zyy+snwHNLrbxu8ZJ5F7zkIXUUdNP+XTEelddPgRfFAzZ4wmXAbBUcblAOF1QP+TJVcMSU0T2lPA7G5iH5HLctcsy6AWRDTD7LbYoedNeCS2DcYOK0SnVzW+In9S5JcEtzSfRL/DbHrigfnY896C2LPvQ4B/b4PBRLiZ7KdJg9wLvhMaUCqdDnNgkqtIJ9oBlspqITWMYvSj/5pWnE+ve5zev8hkxDfwUYAP0NkvYTPlJVAAAAAElFTkSuQmCC",
+                    "Label": "Barracuda FW Traffic Overview",
+                    "Link": {
+                      "Label": "More info",
+                      "Url": "https://campus.barracuda.com/CGF"
+                    }
+                  },
+                  "List": [
+                    {
+                      "Title": "Overview of Firewall Traffic",
+                      "Content": "## Here you can quickly see\n1. Overview of Allowed and Blocked Traffic\n2. Top 10 Blocked IP's\n3. Top 10 Source/Destination IP's\n4. Top ports in use\n\nThis excludes from reporting the **168.63.129.16** - \n*Azure IP* \n\n\n#### More detailed logs can be customised per; [Campus](https://microsoft.com \"Links\") \n"
+                    }
+                  ]
+                }
+              },
+              {
+                "Id": "LineChartCalloutStackedBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Firewall Traffic Overview",
+                    "newGroup": false
+                  },
+                  "charts": [
+                    {
+                      "Header": {
+                        "Title": "Overview",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | summarize count() by Computer",
+                        "yAxis": {
+                          "isLogarithmic": false,
+                          "units": {
+                            "baseUnitType": "Count",
+                            "baseUnit": "Ones",
+                            "displayUnit": "Ones"
+                          },
+                          "customLabel": ""
+                        },
+                        "NavigationSelect": {}
+                      }
+                    },
+                    {
+                      "Header": {
+                        "Title": "Allow by Firewall",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DestinationIP != \"168.63.129.16\" and SourceIP != \"168.63.129.16\" | where DeviceAction == \"Allow\"| summarize count() by SourceIP",
+                        "yAxis": {
+                          "isLogarithmic": true,
+                          "units": {
+                            "baseUnitType": "Count",
+                            "baseUnit": "Ones",
+                            "displayUnit": "Ones"
+                          },
+                          "customLabel": ""
+                        },
+                        "NavigationSelect": {}
+                      }
+                    },
+                    {
+                      "Header": {
+                        "Title": "Block by Firewall",
+                        "Subtitle": ""
+                      },
+                      "LineChart": {
+                        "Query": "search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DestinationIP != \"168.63.129.16\" and SourceIP != \"168.63.129.16\"| where DeviceAction == \"Block\"| summarize count() by Computer",
+                        "yAxis": {
+                          "isLogarithmic": true,
+                          "units": {
+                            "baseUnitType": "Count",
+                            "baseUnit": "Ones",
+                            "displayUnit": "Ones"
+                          },
+                          "customLabel": ""
+                        },
+                        "NavigationSelect": {}
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "Id": "LineChartBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Blocked Traffic",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Header": {
+                    "Title": "Blocked traffic by FW",
+                    "Subtitle": ""
+                  },
+                  "LineChart": {
+                    "Query": "search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DeviceAction == \"Block\"| summarize count() by Computer",
+                    "yAxis": {
+                      "isLogarithmic": false,
+                      "units": {
+                        "baseUnitType": "",
+                        "baseUnit": "",
+                        "displayUnit": ""
+                      },
+                      "customLabel": ""
+                    },
+                    "NavigationSelect": {}
+                  },
+                  "List": {
+                    "Query": "let TotalRecords = toscalar(search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DeviceAction==\"Block\" | count); search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | summarize Blocks=countif(DeviceAction == \"Block\") ,count_=count(), percent=round(countif(DeviceAction == \"Block\")*1.0/TotalRecords*100.0,2) by SourceIP | project SourceIP, percent | sort by percent desc",
+                    "HideGraph": false,
+                    "enableSparklines": false,
+                    "operation": "Summary",
+                    "ColumnsTitle": {
+                      "Name": "Source IP",
+                      "Value": "%"
+                    },
+                    "Color": "#0072c6",
+                    "thresholds": {
+                      "isEnabled": true,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#fcd116",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Warning",
+                          "threshold": "50",
+                          "color": "#ff8c00",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "70",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "search {selected item} | sort by TimeGenerated desc",
+                    "NavigationSelect": {
+                      "NavigationQuery": "search {selected item} | sort by TimeGenerated desc"
+                    }
+                  }
+                }
+              },
+              {
+                "Id": "LineChartBuilderBlade",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Allowed Traffic",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Header": {
+                    "Title": "Allowed Traffic by FW",
+                    "Subtitle": ""
+                  },
+                  "LineChart": {
+                    "Query": "search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DeviceAction == \"Allow\"| summarize count() by Computer",
+                    "yAxis": {
+                      "isLogarithmic": false,
+                      "units": {
+                        "baseUnitType": "",
+                        "baseUnit": "",
+                        "displayUnit": ""
+                      },
+                      "customLabel": ""
+                    },
+                    "NavigationSelect": {}
+                  },
+                  "List": {
+                    "Query": "let TotalRecords = toscalar(search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | count); search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | summarize Allows=countif(DeviceAction == \"Allow\") ,count_=count(), percent=round(countif(DeviceAction == \"Allow\")*1.0/TotalRecords*100.0,2) by SourceIP, DestinationIP | project SourceIP, DestinationIP , percent | sort by percent desc",
+                    "HideGraph": false,
+                    "enableSparklines": false,
+                    "operation": "Summary",
+                    "ColumnsTitle": {
+                      "Name": "SourceIP",
+                      "Value": "%"
+                    },
+                    "Color": "#0072c6",
+                    "thresholds": {
+                      "isEnabled": true,
+                      "values": [
+                        {
+                          "name": "Low",
+                          "threshold": "Default",
+                          "color": "#bad80a",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Medium",
+                          "threshold": "50",
+                          "color": "#7fba00",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "High",
+                          "threshold": "70",
+                          "color": "#007233",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "search {selected item} | sort by TimeGenerated desc",
+                    "NavigationSelect": {
+                      "Id": "AgentHealthAssessment(gaoms)"
+                    },
+                    "Navigation": {
+                      "Host": "OMSPortal",
+                      "Link": {
+                        "Type": "Builder",
+                        "Id": "AgentHealthAssessment(gaoms)"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "Id": "SingleQueryDonutBuilderBladeV1",
+                "Type": "Blade",
+                "Version": 0,
+                "Configuration": {
+                  "General": {
+                    "title": "Ports in Use",
+                    "newGroup": false,
+                    "icon": "",
+                    "useIcon": false
+                  },
+                  "Header": {
+                    "Title": "Top ports ",
+                    "Subtitle": ""
+                  },
+                  "Donut": {
+                    "Query": "search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DestinationIP != \"168.63.129.16\" and SourceIP != \"168.63.129.16\"| summarize count() by DestinationPort | top 10 by count_ desc ",
+                    "CenterLegend": {
+                      "Text": "",
+                      "Operation": "Sum",
+                      "ArcsToSelect": []
+                    },
+                    "Options": {
+                      "colors": [
+                        "#00188f",
+                        "#0072c6",
+                        "#00bcf2"
+                      ],
+                      "valueColorMapping": []
+                    },
+                    "NavigationSelect": {}
+                  },
+                  "List": {
+                    "Query": "let TotalRecords = toscalar(search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DestinationIP != \"168.63.129.16\" and SourceIP != \"168.63.129.16\"| count); search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | where DestinationIP != \"168.63.129.16\" and SourceIP != \"168.63.129.16\" | summarize Allows=countif(DeviceAction == \"Allow\") ,count_=count(), percent=round(countif(DeviceAction == \"Allow\")*1.0/TotalRecords*100.0,2) by SourceIP,DestinationIP,DestinationPort | sort by percent desc | project SourceIP, DestinationIP, DestinationPort, percent ",
+                    "HideGraph": true,
+                    "enableSparklines": false,
+                    "operation": "Summary",
+                    "ColumnsTitle": {
+                      "Name": "SourceIP",
+                      "Value": "Port"
+                    },
+                    "Color": "#0072c6",
+                    "thresholds": {
+                      "isEnabled": false,
+                      "values": [
+                        {
+                          "name": "Normal",
+                          "threshold": "Default",
+                          "color": "#009e49",
+                          "isDefault": true
+                        },
+                        {
+                          "name": "Warning",
+                          "threshold": "60",
+                          "color": "#fcd116",
+                          "isDefault": false
+                        },
+                        {
+                          "name": "Error",
+                          "threshold": "90",
+                          "color": "#ba141a",
+                          "isDefault": false
+                        }
+                      ]
+                    },
+                    "NameDSVSeparator": "",
+                    "NavigationQuery": "search {selected item} | sort by TimeGenerated desc",
+                    "NavigationSelect": {
+                      "NavigationQuery": "search {selected item} | sort by TimeGenerated desc"
+                    }
+                  }
+                }
+              }
+            ],
+            "OverviewTile": {
+              "Id": "SingleQueryDonutBuilderTileV1",
+              "Type": "OverviewTile",
+              "Version": 2,
+              "Configuration": {
+                "Donut": {
+                  "Query": "search * | where Type == \"CommonSecurityLog\" | where DeviceProduct == \"NGF\" or DeviceProduct == \"CGF\" | summarize count() by DeviceAction",
+                  "CenterLegend": {
+                    "Text": "Total",
+                    "Operation": "Sum",
+                    "ArcsToSelect": []
+                  },
+                  "Options": {
+                    "colors": [
+                      "#007233",
+                      "#e81123",
+                      "#eb3c00"
+                    ],
+                    "valueColorMapping": []
+                  }
+                },
+                "Advanced": {
+                  "DataFlowVerification": {
+                    "Enabled": false,
+                    "Query": "search * | limit 1 | project TimeGenerated",
+                    "Message": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+            ]
+          },
+          {
+            "name": "[variables('FwAvailabiltyView').customSolution.solutionName]",
+            "type": "Microsoft.OperationsManagement/solutions",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwAvailabiltyView').customSolution.name)]"
+            ],
+            "plan": {
+              "name": "[variables('FwAvailabiltyView').customSolution.solutionName]",
+              "product": "[variables('FwAvailabiltyView').customSolution.name]",
+              "publisher": "[variables('FwAvailabiltyView').customSolution.publisher]",
+              "promotionCode": ""
+            },
+            "properties": {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "referencedResources": [],
+              "containedResources": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwAvailabiltyView').customSolution.name)]"
+              ]
+            }
+          },
+          {
+            "name": "[variables('FwTrafficView').customSolution.solutionName]",
+            "type": "Microsoft.OperationsManagement/solutions",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwTrafficView').customSolution.name)]"
+            ],
+            "plan": {
+              "name": "[variables('FwTrafficView').customSolution.solutionName]",
+              "product": "[variables('FwTrafficView').customSolution.name]",
+              "publisher": "[variables('FwTrafficView').customSolution.publisher]",
+              "promotionCode": ""
+            },
+            "properties": {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "referencedResources": [],
+              "containedResources": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwTrafficView').customSolution.name)]"
+              ]
+            }
+          },
+          {
+            "name": "[variables('FwPerformanceView').customSolution.solutionName]",
+            "type": "Microsoft.OperationsManagement/solutions",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwPerformanceView').customSolution.name)]"
+            ],
+            "plan": {
+              "name": "[variables('FwPerformanceView').customSolution.solutionName]",
+              "product": "[variables('FwPerformanceView').customSolution.name]",
+              "publisher": "[variables('FwPerformanceView').customSolution.publisher]",
+              "promotionCode": ""
+            },
+            "properties": {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "referencedResources": [],
+              "containedResources": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwPerformanceView').customSolution.name)]"
+              ]
+            }
+          },
+          {
+            "name": "[variables('VPNStatusView').customSolution.solutionName]",
+            "type": "Microsoft.OperationsManagement/solutions",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('VPNStatusView').customSolution.name)]"
+            ],
+            "plan": {
+              "name": "[variables('VPNStatusView').customSolution.solutionName]",
+              "product": "[variables('VPNStatusView').customSolution.name]",
+              "publisher": "[variables('VPNStatusView').customSolution.publisher]",
+              "promotionCode": ""
+            },
+            "properties": {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+              "referencedResources": [],
+              "containedResources": [
+                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('VPNStatusView').customSolution.name)]"
+              ]
+            }
+          }
+  ]
+}

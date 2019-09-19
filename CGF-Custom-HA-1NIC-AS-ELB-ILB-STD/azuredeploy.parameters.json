@@ -9,7 +9,7 @@
       "value": "CUDA"
     },
     "vNetResourceGroup": {
-      "value": "CUDA-RG-VNET"
+      "value": "CUDA-VNET-RG"
     },
     "vNetName": {
       "value": "CUDA-VNET"
@@ -24,7 +24,7 @@
       "value": "byol"
     },
     "vmSize": {
-      "value": "Standard_D1_v2"
+      "value": "Standard_DS1_v2"
     },
     "ccManaged": {
       "value": "no"

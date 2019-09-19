@@ -122,8 +122,7 @@
     "cgfVmAddressCalc": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 10 ))]",
     "cgfVmAddress": "[if(empty('ipAddressCGF'), variables('cgfVmAddressCalc'), parameters('ipAddressCGF'))]",
     "cgfCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
-    "cgfCustomDataCC": "[base64(concat('#!/bin/bash\n\n', 'echo \"*/2 * * * * root echo \\\"', parameters( 'ccSecret' ), '\\\" | /opt/phion/bin/getpar -a ', parameters('ccIpAddress'), ' -r ', parameters( 'ccRangeId' ), ' -c ', parameters( 'ccClusterName' ), ' -b ', variables( 'cgfVmName' ), ' -d /opt/phion/update/box.par -s --verbosity 10 >> /tmp/getpar.log && /etc/rc.d/init.d/phion stop && /etc/rc.d/init.d/phion start && rm /etc/cron.d/getpar\" > /etc/cron.d/getpar\n'))]",
-
+    "cgfCustomDataCC": "[base64(concat('#!/bin/bash\n\n', 'echo \"*/5 * * * * root if /usr/bin/test -f /opt/phion/update/box.par.last; then echo \\\"found par.last\\\" >> /tmp/getpar.log; rm /etc/cron.d/getpar; else echo \\\"', parameters( 'ccSecret' ), '\\\" | /opt/phion/bin/getpar -a ', parameters('ccIpAddress'), ' -r ', parameters( 'ccRangeId' ), ' -c ', parameters( 'ccClusterName' ), ' -b ', variables( 'cgfVmName' ), ' -d /opt/phion/update/box.par -s --verbosity 10 >> /tmp/getpar.log; /usr/sbin/reboot; fi\" > /etc/cron.d/getpar\n'))]",
     "defaultRouteTableName": "[concat( 'route-via-', variables( 'cgfVmName' ), '-', resourceGroup().name )]"
   },
   "resources": [
