@@ -24,7 +24,7 @@
       "value": "byol"
     },
     "vmSize": {
-      "value": "Standard_DS1_v2"
+      "value": "Standard_DS2_v2"
     },
     "enableaccelerated": {
       "value": "yes"

@@ -89,12 +89,13 @@ Describe "[$templateName] Template validation & test" {
                                           'ccSecret',
                                           'imageSKU',
                                           'prefix',
-                                          'subnetGreen',
-                                          'subnetCGF',
-                                          'subnetRed',
+                                          'enableREST',
+                                          'enableaccelerated',
+                                          'diagStorageAccountType',
                                           'version',
                                           'vmSize',
-                                          'vNetAddressSpace'
+                                          'vNetResourceGroup',
+										  'vNetName'
             $templateParameters = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters | Get-Member -MemberType NoteProperty | % Name
             $templateParameters | Should Be $expectedTemplateParameters
         }
