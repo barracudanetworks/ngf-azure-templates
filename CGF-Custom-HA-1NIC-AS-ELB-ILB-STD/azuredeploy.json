@@ -74,7 +74,7 @@
       ],
       "defaultValue": "no"
     },
-    "enableaccelerated": {
+    "enableAccelerated": {
       "type": "string",
       "allowedValues": [
         "yes",
@@ -508,7 +508,7 @@
         ],
         "properties": {
           "enableIPForwarding": true,
-          "enableAcceleratedNetworking": "[if(equals(parameters('enableaccelerated'), 'yes'), 'true', 'false')]",
+          "enableAcceleratedNetworking": "[if(equals(parameters('enableAccelerated'), 'yes'), 'true', 'false')]",
           "networkSecurityGroup": {
             "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]"
           },
@@ -546,7 +546,7 @@
         ],
         "properties": {
           "enableIPForwarding": true,
-          "enableAcceleratedNetworking": "[if(equals(parameters('enableaccelerated'), 'yes'), 'true', 'false')]",
+          "enableAcceleratedNetworking": "[if(equals(parameters('enableAccelerated'), 'yes'), 'true', 'false')]",
           "networkSecurityGroup": {
             "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]"
           },
