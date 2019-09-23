@@ -26,6 +26,12 @@
     "vmSize": {
       "value": "Standard_DS1_v2"
     },
+    "enableaccelerated": {
+      "value": "yes"
+    },
+    "enableREST": {
+      "value": "no"
+    },
     "ccManaged": {
       "value": "no"
     },
@@ -40,6 +46,9 @@
     },
     "ccSecret": {
       "value": ""
+    },
+    "diagstorageAccountType": {
+      "value": "Standard_LRS"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
-  "itemDisplayName": "Barracuda NGF VM custom deployment",
-  "description": "This template allows you to deploy a cluster of Barracuda NGF VM with a static IP",
+  "itemDisplayName": "Barracuda CGF VM custom deployment",
+  "description": "This template allows you to deploy a cluster of Barracuda CGF VM with a static IP",
   "summary": "This template takes a minimum amount of parameters",
   "githubUsername": "jvhoof",
   "dateUpdated": "2018-03-03"
