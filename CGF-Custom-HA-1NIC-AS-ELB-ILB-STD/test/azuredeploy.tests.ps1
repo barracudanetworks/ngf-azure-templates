@@ -98,7 +98,7 @@ Describe "[$templateName] Template validation & test" {
 
         # Basic Variables
         $testsRandom = Get-Random 10001
-        $testsPrefix = "CUDAQA-$testsRandom"
+        $testsPrefix = "CUDAQA$testsRandom"
         $testsResourceGroupName = "CUDAQA-$testsRandom-$templateName"
         $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
         $testsVM = "$testsPrefix-VM-CGF"
