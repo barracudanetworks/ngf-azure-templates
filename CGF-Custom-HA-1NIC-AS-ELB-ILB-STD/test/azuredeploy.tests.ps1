@@ -102,7 +102,7 @@ Describe "[$templateName] Template validation & test" {
             $templateParameters | Should Be $expectedTemplateParameters
         }
 
-    }
+    
 
     }
 
