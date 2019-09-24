@@ -139,7 +139,7 @@
     "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
     "cgfPIPAddressName2": "[concat(variables('cgfVmName2'),'-PIP')]",
     "cgfPIPAddressType": "Static",
-    "storageAccountName": "[toLower( concat( parameters('prefix'), uniqueString(resourceGroup().id) ) )]",
+    "storageAccountName": "[concat('cuda', uniqueString(resourceGroup().id))]",
     "lbPIPAddressName": "[concat(parameters('prefix'),'-CGF-LB-PIP')]",
     "dnsNameForCGF": "[toLower( concat( parameters('prefix'), '-cgf-', uniqueString(resourceGroup().id) ) )]",
 

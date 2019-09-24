@@ -63,39 +63,31 @@ Describe "[$templateName] Template validation & test" {
         }
         
         It 'Creates the expected Azure resources' {
-            $expectedResources = 'Microsoft.Network/networksecurityGroups',
-                                 'Microsoft.Network/virtualNetworks',
-                                 'Microsoft.Network/routeTables',
-                                 'Microsoft.Network/routeTables',
-                                 'Microsoft.Compute/availabilitySets',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/loadBalancers',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Compute/virtualMachines',
-                                 'Microsoft.Compute/virtualMachines'
+            $expectedResources ='Microsoft.Storage/storageAccounts', 
+								'Microsoft.Network/networkSecurityGroups', 
+								'Microsoft.Network/routeTables', 
+								'Microsoft.Compute/availabilitySets', 
+								'Microsoft.Network/publicIPAddresses', 
+								'Microsoft.Network/loadBalancers', 
+								'Microsoft.Network/loadBalancers', 
+								'Microsoft.Network/publicIPAddresses', 
+								'Microsoft.Network/publicIPAddresses', 
+								'Microsoft.Network/networkInterfaces'
             $templateResources = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Resources.type
             $templateResources | Should Be $expectedResources
         }
         
         It 'Contains the expected parameters' {
-            $expectedTemplateParameters = 'adminPassword',
-                                          'ccClusterName',
-                                          'ccIpAddress',
-                                          'ccManaged',
-                                          'ccRangeId',
-                                          'ccSecret',
-										  'diagStorageAccountType',
-										  'enableAccelerated',
-										  'enableREST',
-                                          'imageSKU',
-                                          'prefix',
-                                          'version',
-                                          'vmSize',
-                                          'vNetResourceGroup',
-										  'vNetName'
+            $expectedTemplateParameters = 'adminPassword', 
+											'ccClusterName', 
+											'ccIpAddress', 
+											'ccManaged', 
+											'ccRangeId', 
+											'ccSecret', 
+											'diagstorageAccountType', 
+											'enableAccelerated', 
+											'enableREST', 
+											'imageSKU'
             $templateParameters = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters | Get-Member -MemberType NoteProperty | % Name
             $templateParameters | Should Be $expectedTemplateParameters
         }
