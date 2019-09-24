@@ -81,14 +81,16 @@ Describe 'ARM Templates Test : Validation & Test Deployment' {
             $templateResources | Should Be $expectedResources
         }
         
-        It 'Contains the expected parameters' {
+		It 'Contains the expected parameters' {
             $expectedTemplateParameters = 'adminPassword',
                                           'ccClusterName',
                                           'ccIpAddress',
                                           'ccManaged',
                                           'ccRangeId',
                                           'ccSecret',
+                                          'enableREST',
                                           'imageSKU',
+                                          
                                           'prefix',
                                           'subnetCGF',
                                           'subnetGreen',
