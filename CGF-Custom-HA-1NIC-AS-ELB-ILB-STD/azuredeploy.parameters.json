@@ -24,7 +24,13 @@
       "value": "byol"
     },
     "vmSize": {
-      "value": "Standard_DS1_v2"
+      "value": "Standard_DS2_v2"
+    },
+    "enableAccelerated": {
+      "value": "yes"
+    },
+    "enableREST": {
+      "value": "no"
     },
     "ccManaged": {
       "value": "no"
@@ -40,6 +46,9 @@
     },
     "ccSecret": {
       "value": ""
+    },
+    "diagstorageAccountType": {
+      "value": "Standard_LRS"
     }
   }
 }

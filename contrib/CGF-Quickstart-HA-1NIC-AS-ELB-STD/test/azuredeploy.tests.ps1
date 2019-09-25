@@ -89,9 +89,9 @@ Describe "[$templateName] Template validation & test" {
                                           'ccSecret',
                                           'imageSKU',
                                           'prefix',
+                                          'subnetCgf',
                                           'subnetGreen',
-                                          'subnetNGF',
-                                          'subnetRed',
+                                           'subnetRed',
                                           'version',
                                           'vmSize',
                                           'vNetAddressSpace'

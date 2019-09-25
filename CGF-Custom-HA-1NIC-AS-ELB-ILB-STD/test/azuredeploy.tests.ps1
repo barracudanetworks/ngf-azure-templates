@@ -62,42 +62,47 @@ Describe "[$templateName] Template validation & test" {
             $templateProperties | Should Be $expectedProperties
         }
         
-        It 'Creates the expected Azure resources' {
-            $expectedResources = 'Microsoft.Network/networksecurityGroups',
-                                 'Microsoft.Network/virtualNetworks',
-                                 'Microsoft.Network/routeTables',
-                                 'Microsoft.Network/routeTables',
-                                 'Microsoft.Compute/availabilitySets',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/loadBalancers',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Compute/virtualMachines',
-                                 'Microsoft.Compute/virtualMachines'
+               It 'Creates the expected Azure resources' {
+            $expectedResources ='Microsoft.Storage/storageAccounts',
+                                'Microsoft.Network/networkSecurityGroups',
+                                'Microsoft.Network/routeTables',
+                                'Microsoft.Compute/availabilitySets',
+                                'Microsoft.Network/publicIPAddresses',
+                                'Microsoft.Network/loadBalancers',
+                                'Microsoft.Network/loadBalancers',
+                                'Microsoft.Network/publicIPAddresses',
+                                'Microsoft.Network/publicIPAddresses',
+                                'Microsoft.Network/networkInterfaces',
+                                'Microsoft.Network/networkInterfaces',
+                                'Microsoft.Compute/virtualMachines',
+                                'Microsoft.Compute/virtualMachines'
             $templateResources = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Resources.type
             $templateResources | Should Be $expectedResources
         }
         
         It 'Contains the expected parameters' {
             $expectedTemplateParameters = 'adminPassword',
-                                          'ccClusterName',
-                                          'ccIpAddress',
-                                          'ccManaged',
-                                          'ccRangeId',
-                                          'ccSecret',
-                                          'imageSKU',
-                                          'prefix',
-                                          'subnetGreen',
-                                          'subnetCGF',
-                                          'subnetRed',
-                                          'version',
-                                          'vmSize',
-                                          'vNetAddressSpace'
+                                            'ccClusterName',
+                                            'ccIpAddress',
+                                            'ccManaged',
+                                            'ccRangeId',
+                                            'ccSecret',
+                                            'diagstorageAccountType',
+                                            'enableAccelerated',
+                                            'enableREST',
+                                            'imageSKU',
+                                            'prefix',
+                                            'subnetCGF',
+                                            'subnetNameCGF',
+                                            'version',
+                                            'vmSize',
+                                            'vNetName',
+                                            'vNetResourceGroup'
             $templateParameters = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters | Get-Member -MemberType NoteProperty | % Name
             $templateParameters | Should Be $expectedTemplateParameters
         }
+
+    
 
     }
 
@@ -105,7 +110,7 @@ Describe "[$templateName] Template validation & test" {
 
         # Basic Variables
         $testsRandom = Get-Random 10001
-        $testsPrefix = "CUDAQA-$testsRandom"
+        $testsPrefix = "CUDAQA$testsRandom"
         $testsResourceGroupName = "CUDAQA-$testsRandom-$templateName"
         $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
         $testsVM = "$testsPrefix-VM-CGF"

@@ -56,6 +56,8 @@ Administration of the Barracuda CloudGen Firewall appliance is typically done wi
 
 Note: The username to login to the appliance is root and the password is the one you have configured on Azure portal while deploying the VM. Also a forward for TCP/807 and TCP-UDP/691 endpoints will be created automatically when you deploy this VM. Click here for more details.
 
+Note: Please be patient on the latest 8.0.1 release provisioning may take a while and until it completes you will get "access denied" until this completes.If boot diagnostics is enabled you can view the log to monitor progress.
+
 ## Post Deployment Configuration
 
 Starting with version 8.0 of the CGF you have a ILB probe rule called 'CLOUD-LB-PROBE' ready to go in the rulebase. You only need to activate it. You can also limit traffic to only come from the Microsoft Azure Virtual IP 168.63.129.16 for additional security.

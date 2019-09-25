@@ -62,7 +62,7 @@ Describe "[$templateName] Template validation & test" {
             $templateProperties | Should Be $expectedProperties
         }
         
-        It 'Creates the expected Azure resources' {
+               It 'Creates the expected Azure resources' {
             $expectedResources = 'Microsoft.Network/networksecurityGroups',
                                  'Microsoft.Network/virtualNetworks',
                                  'Microsoft.Network/routeTables',
@@ -82,19 +82,20 @@ Describe "[$templateName] Template validation & test" {
         
         It 'Contains the expected parameters' {
             $expectedTemplateParameters = 'adminPassword',
-                                          'ccClusterName',
-                                          'ccIpAddress',
-                                          'ccManaged',
-                                          'ccRangeId',
-                                          'ccSecret',
-                                          'imageSKU',
-                                          'prefix',
-                                          'subnetCGF',
-                                          'subnetGreen',
-                                          'subnetRed',
-                                          'version',
-                                          'vmSize',
-                                          'vNetAddressSpace'
+                                        'ccClusterName',
+                                        'ccIpAddress',
+                                        'ccManaged',
+                                        'ccRangeId',
+                                        'ccSecret',
+                                        'enableREST',
+                                        'imageSKU',
+                                        'prefix',
+                                        'subnetCGF',
+                                        'subnetGreen',
+                                        'subnetRed',
+                                        'version',
+                                        'vmSize',
+                                        'vNetAddressSpace'
             $templateParameters = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters | Get-Member -MemberType NoteProperty | % Name
             $templateParameters | Should Be $expectedTemplateParameters
         }
