@@ -1,6 +1,0 @@
----
-- hosts: cgf
-  gather_facts: no
-  roles:
-    - role: cgf-bootstrap
-    - role: cgf-config

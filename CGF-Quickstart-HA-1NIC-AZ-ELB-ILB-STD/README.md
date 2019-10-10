@@ -8,7 +8,7 @@ Azure ILB solves above problems, providing failover capabilities with zero integ
 
 This template deploys a VNet with 2 NGF instances with managed disks, an any-port ILB instance, and 2 empty subnets routed through NGF cluster.
 
-![Network diagram](images/ngf-ha-1nic-elb-ilb.png)
+![Network diagram](images/cgf-ha-1nic-elb-ilb.png)
 
 ## Prerequisites
 
