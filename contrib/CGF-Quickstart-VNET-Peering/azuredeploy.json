@@ -86,16 +86,16 @@
       "metadata": {
         "description": "Version of the Barracuda CloudGen Firewall to install"
       },
-      "allowedValues": [ "latest", "8.0.0047501", "7.2.3016101", "7.2.205701", "7.2.112901", "7.1.306101", "7.1.210401" ],
+      "allowedValues": [ "latest", "8.0.0047504", "7.2.3016101", "7.2.205701", "7.2.112901", "7.1.306101" ],
       "defaultValue": "latest"
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_F1s",
-      "allowedValues": [ "Standard_F1s", "Standard_F2s", "Standard_F4s", "Standard_F8s", "Standard_D1_v2", "Standard_D2_v2", "Standard_D3_v2", "Standard_D4_v2", "Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS3_v2", "Standard_DS4_v2", "Standard_D2_v3", "Standard_D4_v3", "Standard_D8_v3", "Standard_D2S_v3", "Standard_D4S_v3", "Standard_D8S_v3" ],
       "metadata": {
         "description": "Size of the VMs to be created"
-      }
+      },
+      "allowedValues": [ "Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS3_v2", "Standard_DS4_v2", "Standard_D2_v3", "Standard_D4_v3", "Standard_D8_v3", "Standard_D2S_v3", "Standard_D4S_v3", "Standard_D8S_v3", "Standard_F1s", "Standard_F2s", "Standard_F4s", "Standard_F8s", "Standard_D1_v2", "Standard_D2_v2", "Standard_D3_v2", "Standard_D4_v2" ],
+      "defaultValue": "Standard_DS1_v2"
     },
     "ccManaged": {
       "type": "string",
