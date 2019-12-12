@@ -22,19 +22,25 @@ The CloudGen Firewall can input into OMS any of it's logs via syslog and these c
 
 2. To enable detailed Firewall reporting, go to Configuration Tree > Infrastructure Services > General Firewall Configuration and change Activity Log Mode to "Log-Pipe-Seperated-Key-Value-List". 
 ![Enable Firewall Activity Log](images/enableactivitylog.png)
-Alternatively copy the contents of GeneralFirewallConfiguration.conf and Im/Export > Merge from Clipboard to update the fields. 
+
+Alternatively copy the contents of GeneralFirewallConfiguration.conf into you clipboard and Im/Export > Merge from Clipboard to update the fields. 
 
 
-3. To setup the additional Syslog Streaming go to Configuration Tree > Infrastructure Services > Syslog Streaming.If this box has connected to Log Analytics you should already have destinations as pictured.
-![Syslog Destinations](images/enableactivitylog.png)
-You can point any of the available logs towards this destination, but the searches in this template are configured to analyse the following Log Groups;
-Auth-All 
-Firewall-Activity (should be present already as part of the OMSSecurityFirewallActivity entry)
-Config-All
+3. To setup the additional Syslog Streaming go to Configuration Tree > Infrastructure Services > Syslog Streaming.If this box has connected to Log Analytics you should already a OMSSecurity Destination. 
+
+You can point any of the available logs towards this destination, but the searches in this template are configured to analyse the following Log Groups therefore it is recommended to add these filters and send them to the OMS destination.
+- Auth-All 
+- Firewall-Activity-Only
+- Config-All
 
 To get these configured quickly, you can copy the contents of SyslogStreaming.conf into your clipboard and choose to Im/Export > Merge from Clipboard to create just those fields.
 
-Otherwise the below article explains further. 
+Otherwise;
+* Create a New Logstream Destination named OMS and select Microsoft OMS from the Logstream Destination dropdown.
+* Create the Logdata Filters, add 3 new filters one for each of the types listed above.
+* Go to Logdata Streams and create a new stream associating the new OMS destination with the new Log Filters created above.
+
+For more details on configuring these please see;
 
 (https://campus.barracuda.com/product/cloudgenfirewall/doc/79463292/how-to-configure-syslog-streaming/?sl=AW7vcc5m7X_svXEFw7Ox&so=10)
 
@@ -54,6 +60,10 @@ To deploy via Azure Portal you can use the button below to deploy this Log Analy
  
 ##Azure Sentinel Workbook
 
-This template also includes supporting functions that enable the Azure Sentinel Workbook to process data directly rather than via 
+This template also includes supporting functions that enable the Azure Sentinel Workbook to process data directly from the existing output of the Firewalls.
+
+##Troubleshooting
+On older versions of Firmware the OMS agent may 
+
 
 ##### DISCLAIMER: ALL OF THE SOURCE CODE ON THIS REPOSITORY IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL BARRACUDA BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOURCE CODE. #####
