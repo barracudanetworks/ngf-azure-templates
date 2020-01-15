@@ -1,0 +1,54 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "prefix": {
+      "value": "CUDA"
+    },
+    "vNetResourceGroup": {
+      "value": "CUDA-VNET-RG"
+    },
+    "vNetName": {
+      "value": "CUDA-VNET"
+    },
+    "subnetNameCGF": {
+      "value": "CUDA-SUBNET-CGF"
+    },
+    "subnetCGF": {
+      "value": "172.16.136.0/24"
+    },
+    "imageSKU": {
+      "value": "byol"
+    },
+    "vmSize": {
+      "value": "Standard_DS2_v2"
+    },
+    "enableAccelerated": {
+      "value": "yes"
+    },
+    "enableREST": {
+      "value": "no"
+    },
+    "ccManaged": {
+      "value": "no"
+    },
+    "ccIpAddress": {
+      "value": ""
+    },
+    "ccClusterName": {
+      "value": ""
+    },
+    "ccRangeId": {
+      "value": ""
+    },
+    "ccSecret": {
+      "value": ""
+    },
+    "diagstorageAccountType": {
+      "value": "Standard_LRS"
+    }
+  }
+}
