@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "task-CGF-LogAnalytics-Dashboard",
+      "appliesTo": "CGF-LogAnalytics-Dashboard/",
+      "type": "launch"
+    }
+  ]
+}
