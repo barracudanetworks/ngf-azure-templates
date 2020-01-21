@@ -60,6 +60,38 @@
       "location": "[resourceGroup().location]",
       "resources": [
         {
+          "apiVersion": "2017-03-15-preview",
+          "type": "savedSearches",
+          "name": "CGFWFirewallActivity",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          ],
+          "properties": {
+            "category": "Barracuda_FW",
+            "displayName": "CGFWFirewallActivity",
+            "query": "Syslog| where ProcessName == \"box_Firewall_Activity\" | extend Type = extract(\"type=([\\\\w\\\\s]+)\",1,SyslogMessage), L4Protocol = extract(\"proto=([\\\\w\\\\s]+)\",1,SyslogMessage) , SourceInterface = extract(\"srcIF=([\\\\w\\\\s]+)\",1,SyslogMessage), SourceIP = extract(\"srcIP=([\\\\d\\\\.]+)\",1,SyslogMessage), SourcePort = extract(\"srcPort=([\\\\d\\\\s]+)\",1,SyslogMessage), SourceMAC = extract(\"srcMAC=([\\\\w\\\\d:]+)\",1,SyslogMessage), DestinationIP = extract(\"dstIP=([\\\\d\\\\.]+)\",1,SyslogMessage), DestinationPort = extract(\"dstPort=([\\\\w\\\\s]+)\",1,SyslogMessage), DestinationService = extract(\"dstService=([\\\\w\\\\s]+)\",1,SyslogMessage), DestinationInterface = extract(\"dstIF=([\\\\w\\\\s]+)\",1,SyslogMessage), FirewallRule = extract(\"rule=([\\\\w\\\\s\\\\-]+)\",1,SyslogMessage), Info = extract(\"info=([\\\\w\\\\s]+)\",1,SyslogMessage), SourceNAT = extract(\"srcNAT=([\\\\d\\\\.]+)\",1,SyslogMessage), DestinationNAT = extract(\"dstNAT=([\\\\d\\\\.]+)\",1,SyslogMessage), Duration = extract(\"duration=([\\\\d]+)\",1,SyslogMessage), Count = extract(\"count=([\\\\d]+)\",1,SyslogMessage), ReceivedBytes = extract(\"receivedBytes=([\\\\d]+)\",1,SyslogMessage), SentBytes = extract(\"sentBytes=([\\\\d]+)\",1,SyslogMessage), ReceivedPackets = extract(\"receivedPackets=([\\\\d]+)\",1,SyslogMessage), SentPackets = extract(\"sentPackets=([\\\\d]+)\",1,SyslogMessage), User = extract(\"user=([\\\\w\\\\s]+)\",1,SyslogMessage), L7Protocol = extract(\"protocol=([\\\\w\\\\s]+)\",1,SyslogMessage), Application = extract(\"application=([\\\\w\\\\s]+)\",1,SyslogMessage), Target = extract(\"target=([\\\\w\\\\s]+)\",1,SyslogMessage), Content = extract(\"content=([\\\\w\\\\s]+)\",1,SyslogMessage), URLCategory = extract(\"urlcat=([\\\\w\\\\s]+)\",1,SyslogMessage)",
+            "FunctionAlias": "CGFWFirewallActivity",
+            "version": 2
+          }
+        },
+        {
+          "apiVersion": "2017-03-15-preview",
+          "type": "savedSearches",
+          "name": "GetFWAvailabiltyFromLoad",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+          ],
+          "properties": {
+            "category": "Barracuda_FW",
+            "displayName": "GetFWAvailabiltyFromLoad",
+            "query": "Perf | where TimeGenerated > now() - 30d and TimeGenerated < now() and InstanceName == \"BNGF\" and ObjectName == \"Load\" | summarize heartbeat_per_hour=count() by bin_at(TimeGenerated, 1h, now() - 30d), Computer | extend available_per_hour=iff(heartbeat_per_hour>0, true, false) | summarize total_available_hours=countif(available_per_hour==true) by Computer | extend total_number_of_buckets=round((now()-(now() - 30d))/1h)+1 | extend availability_rate=total_available_hours*100/total_number_of_buckets",
+            "FunctionAlias": "GetFWAvailabiltyFromLoad",
+            "version": 2
+          }
+        },
+        {
           "apiVersion": "2015-11-01-preview",
           "name": "Barracuda Firewall Monitoring Solution",
           "type": "views",
@@ -189,6 +221,7 @@
             }
           }
         },
+
         {
           "apiVersion": "2015-11-01-preview",
           "name": "Barracuda Firewall VPN Monitoring Solution",
@@ -228,6 +261,7 @@
                   ]
                 }
               },
+
               {
                 "Id": "TwoNumberTileListBuilderBlade",
                 "Type": "Blade",
@@ -890,99 +924,99 @@
             }
           }
         }
-            ]
-          },
-          {
-            "name": "[variables('FwAvailabiltyView').customSolution.solutionName]",
-            "type": "Microsoft.OperationsManagement/solutions",
-            "apiVersion": "2015-11-01-preview",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwAvailabiltyView').customSolution.name)]"
-            ],
-            "plan": {
-              "name": "[variables('FwAvailabiltyView').customSolution.solutionName]",
-              "product": "[variables('FwAvailabiltyView').customSolution.name]",
-              "publisher": "[variables('FwAvailabiltyView').customSolution.publisher]",
-              "promotionCode": ""
-            },
-            "properties": {
-              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "referencedResources": [],
-              "containedResources": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwAvailabiltyView').customSolution.name)]"
-              ]
-            }
-          },
-          {
-            "name": "[variables('FwTrafficView').customSolution.solutionName]",
-            "type": "Microsoft.OperationsManagement/solutions",
-            "apiVersion": "2015-11-01-preview",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwTrafficView').customSolution.name)]"
-            ],
-            "plan": {
-              "name": "[variables('FwTrafficView').customSolution.solutionName]",
-              "product": "[variables('FwTrafficView').customSolution.name]",
-              "publisher": "[variables('FwTrafficView').customSolution.publisher]",
-              "promotionCode": ""
-            },
-            "properties": {
-              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "referencedResources": [],
-              "containedResources": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwTrafficView').customSolution.name)]"
-              ]
-            }
-          },
-          {
-            "name": "[variables('FwPerformanceView').customSolution.solutionName]",
-            "type": "Microsoft.OperationsManagement/solutions",
-            "apiVersion": "2015-11-01-preview",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwPerformanceView').customSolution.name)]"
-            ],
-            "plan": {
-              "name": "[variables('FwPerformanceView').customSolution.solutionName]",
-              "product": "[variables('FwPerformanceView').customSolution.name]",
-              "publisher": "[variables('FwPerformanceView').customSolution.publisher]",
-              "promotionCode": ""
-            },
-            "properties": {
-              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "referencedResources": [],
-              "containedResources": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwPerformanceView').customSolution.name)]"
-              ]
-            }
-          },
-          {
-            "name": "[variables('VPNStatusView').customSolution.solutionName]",
-            "type": "Microsoft.OperationsManagement/solutions",
-            "apiVersion": "2015-11-01-preview",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('VPNStatusView').customSolution.name)]"
-            ],
-            "plan": {
-              "name": "[variables('VPNStatusView').customSolution.solutionName]",
-              "product": "[variables('VPNStatusView').customSolution.name]",
-              "publisher": "[variables('VPNStatusView').customSolution.publisher]",
-              "promotionCode": ""
-            },
-            "properties": {
-              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-              "referencedResources": [],
-              "containedResources": [
-                "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('VPNStatusView').customSolution.name)]"
-              ]
-            }
-          }
+      ]
+    },
+    {
+      "name": "[variables('FwAvailabiltyView').customSolution.solutionName]",
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwAvailabiltyView').customSolution.name)]"
+      ],
+      "plan": {
+        "name": "[variables('FwAvailabiltyView').customSolution.solutionName]",
+        "product": "[variables('FwAvailabiltyView').customSolution.name]",
+        "publisher": "[variables('FwAvailabiltyView').customSolution.publisher]",
+        "promotionCode": ""
+      },
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "referencedResources": [],
+        "containedResources": [
+          "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwAvailabiltyView').customSolution.name)]"
+        ]
+      }
+    },
+    {
+      "name": "[variables('FwTrafficView').customSolution.solutionName]",
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwTrafficView').customSolution.name)]"
+      ],
+      "plan": {
+        "name": "[variables('FwTrafficView').customSolution.solutionName]",
+        "product": "[variables('FwTrafficView').customSolution.name]",
+        "publisher": "[variables('FwTrafficView').customSolution.publisher]",
+        "promotionCode": ""
+      },
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "referencedResources": [],
+        "containedResources": [
+          "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwTrafficView').customSolution.name)]"
+        ]
+      }
+    },
+    {
+      "name": "[variables('FwPerformanceView').customSolution.solutionName]",
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('FwPerformanceView').customSolution.name)]"
+      ],
+      "plan": {
+        "name": "[variables('FwPerformanceView').customSolution.solutionName]",
+        "product": "[variables('FwPerformanceView').customSolution.name]",
+        "publisher": "[variables('FwPerformanceView').customSolution.publisher]",
+        "promotionCode": ""
+      },
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "referencedResources": [],
+        "containedResources": [
+          "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwPerformanceView').customSolution.name)]"
+        ]
+      }
+    },
+    {
+      "name": "[variables('VPNStatusView').customSolution.solutionName]",
+      "type": "Microsoft.OperationsManagement/solutions",
+      "apiVersion": "2015-11-01-preview",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('VPNStatusView').customSolution.name)]"
+      ],
+      "plan": {
+        "name": "[variables('VPNStatusView').customSolution.solutionName]",
+        "product": "[variables('VPNStatusView').customSolution.name]",
+        "publisher": "[variables('VPNStatusView').customSolution.publisher]",
+        "promotionCode": ""
+      },
+      "properties": {
+        "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+        "referencedResources": [],
+        "containedResources": [
+          "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('VPNStatusView').customSolution.name)]"
+        ]
+      }
+    }
   ]
 }
