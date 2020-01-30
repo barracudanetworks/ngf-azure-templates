@@ -4,10 +4,10 @@
 
 This Log Analytics Workspace is intended to provide you a quick overview of;
 
-Availability
-Performance
-VPN Status
-Firewall Protection
+- Availability
+- Performance
+- VPN Status
+- Firewall Protection
 
 
 It uses the default performance data provided to OMS via the installation of the OMS extension. This is intended to be deployed into an existing Log Analytics workspace.
@@ -16,7 +16,7 @@ It uses the default performance data provided to OMS via the installation of the
 
 The CloudGen Firewall can input into OMS any of it's logs via syslog and these can be used to create custom reports in further detail. 
 
-##Pre-Requisites
+## Prerequisites
 
 1. Connect your firewall to Log Analytics via Log Analytics > Virtual Machines, find your VM and select Connect. Alternatively follow Step 2 of (https://campus.barracuda.com/product/cloudgenfirewall/doc/79463434/how-to-configure-azure-oms-log-streaming/)
 
@@ -58,11 +58,11 @@ To deploy via Azure Portal you can use the button below to deploy this Log Analy
 </a>
 
  
-##Azure Sentinel Workbook
+## Azure Sentinel Workbook
 
 This template also includes supporting functions that enable the Azure Sentinel Workbook to process data directly from the existing output of the Firewalls.
 
-##Troubleshooting
+## Troubleshooting
 On older versions of Firmware the OMS agent may 
 
 
