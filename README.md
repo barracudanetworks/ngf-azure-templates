@@ -9,7 +9,7 @@ The Barracuda CloudGen Firewall (CGF) can be installed in different ways into th
 ## Template Parameters
 | Status | Name | In existing VNET | HighAvailability | ELB Basic | ELB Standard | ILB with HA Ports | Availability Zones | 1 NIC | 2 NIC 
 |---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:
-| ![Build Status](https://dev.azure.com/gallen0262/cudasedevops/_build/latest?definitionId=5&branchName=master)| [CGF-Custom-HA-1NIC-AS-ELB-ILB-STD](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-Custom-HA-1NIC-AS-ELB-ILB-STD) | X | X | - | X | X | - | X | - 
+| ![Build Status](https://dev.azure.com/gallen0262/cudasedevops/_build/latest?definitionId=5&branchName=master) | [CGF-Custom-HA-1NIC-AS-ELB-ILB-STD](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-Custom-HA-1NIC-AS-ELB-ILB-STD) | X | X | - | X | X | - | X | - 
 | ![Build status](https://dev.azure.com/gallen0262/cudasedevops/_apis/build/status/CGF-Quickstart-HA-1NIC-AS-ELB-ILB-STD) | [CGF-Quickstart-HA-1NIC-AZ-ELB-ILB-STD](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-Quickstart-HA-1NIC-AZ-ELB-ILB-STD) | - | X | - | X | X | X | X | - 
 | | [CGF-LogAnalytics-Dashboard](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-LogAnalytics-Dashboard) | - | - | - |- | - | -| - | - 
 
