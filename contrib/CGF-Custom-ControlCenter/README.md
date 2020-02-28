@@ -16,8 +16,8 @@ This requires that [Programmatic Deployment](https://azure.microsoft.com/en-us/b
 
 You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or hourly license requirement.
 
-`Get-AzRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzureRmMarketplaceTerms -Accept`
-`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "hourly" | Set-AzureRmMarketplaceTerms -Accept`
+`Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-cc " -Name "byol" | Set-AzMarketplaceTerms -Accept`
+
 
 ## Deployed resources
 

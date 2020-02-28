@@ -20,6 +20,11 @@ The solution does a check of the template when you use the provided scripts. It 
 The template will also ask for the network ranges you wish your SC devices to use to connect into the SAC
 This template will also ask for the network range you wish you Control Center to use to manage devices on.
 
+You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or hourly license requirement.
+
+`Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzMarketplaceTerms -Accept`
+`Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-cc" -Name "byol" | Set-AzMarketplaceTerms -Accept`
+
 
 It is not possible to connect the Azure Basic Load Balancer and the Azure Standard Load Balancer to the same VM or Availability Set. This is a limitation of the Azure Platform.
 
