@@ -1,7 +1,7 @@
 # Barracuda CloudGen Firewall - Custom Single Availability
 
 ## Introduction
-This Azure Resource Manager (ARM) template will deploy the Barracuda CloudGen Firewall F Series in an existing VNET. Deployment is done with in a one-armed fashion where north-south, east-west and VPN tunnel traffic can be intercepted and inspected based on the User Defined Routing that is attached to the subnets that need this control. Do not apply any UDR to the subnet where the NGF is located that points back to the NGF. This will cause routing loops.
+This Azure Resource Manager (ARM) template will deploy the Barracuda CloudGen Firewall F Series in an existing VNET. Deployment is done with in a one-armed fashion where north-south, east-west and VPN tunnel traffic can be intercepted and inspected based on the User Defined Routing that is attached to the subnets that need this control. Do not apply any UDR to the subnet where the CGF is located that points back to the CGF. This will cause routing loops.
 
 To adapt this deployment to your requirements you can modify the azuredeploy.paramters.json file and/or the deployment script in Powershell or Azure CLI (Bash).
 
@@ -26,30 +26,30 @@ Following resources will be created by the template:
 ## Template Parameters
 | Parameter Name | Description
 |---|---
-adminPassword | Password for the Next Gen Admin tool 
-prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-NGF (Max 19 char, no spaces, [A-Za-z0-9]
-vNetResourceGroup | Resource Group that contains the VNET where the NGF will be installed in
-vNetName | The name of the VNET where the NGF will be installed in
-subnetNameNGF | The name of the subnet where NGF will be installed
-subnetPrefixNGF | Network range of the Subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)
+adminPassword | Password for the CloudGen Admin tool 
+prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-CGF (Max 19 char, no spaces, [A-Za-z0-9]
+vNetResourceGroup | Resource Group that contains the VNET where the CGF will be installed in
+vNetName | The name of the VNET where the CGF will be installed in
+subnetNameCGF | The name of the subnet where CGF will be installed
+subnetPrefixCGF | Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)
 imageSKU | SKU Hourly (PAYG) or BYOL (Bring your own license)
 imageVersion | Version of the Barracuda CloudGen Firewall
 vmSize | Size of the VMs to be created
-fwVMAddress | Static IP Address of the NGF VM in Azure
-ccManaged | Is this instance managed via a Next Gen Control Center (Yes/No)
-ccClusterName | The name of the cluster of this instance in the Next Gen Control Center
-ccRangeId | The range location of this instance in the Next Gen Control Center
-ccIpAddress | IP address of the Next Gen Control Center
-ccSecret | Secret to retrieve the configuration from the Next Gen Control Center
+fwVMAddress | Static IP Address of the CGF VM in Azure
+ccManaged | Is this instance managed via a CloudGen Control Center (Yes/No)
+ccClusterName | The name of the cluster of this instance in the CloudGen Control Center
+ccRangeId | The range location of this instance in the CloudGen Control Center
+ccIpAddress | IP address of the CloudGen Control Center
+ccSecret | Secret to retrieve the configuration from the CloudGen Control Center
 
 ## Launching the Template
 
 The package provides a deploy.ps1 and deploy.sh for Powershell or Azure CLI based deployments. This can be peformed from the Azure Portal as well as the any system that has either of these scripting infrastructures installed. Or you can deploy from the Azure Portal using the provided link.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-SA-1NIC%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-SA-1NIC%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-SA-1NIC%2Fazuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-SA-1NIC%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
