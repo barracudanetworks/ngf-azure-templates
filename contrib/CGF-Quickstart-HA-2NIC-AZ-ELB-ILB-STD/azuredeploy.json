@@ -121,6 +121,9 @@
     "rtableRefRed": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameRed'))]",
     "rtableNameGreen": "[concat( parameters('prefix'), '-RT-FOR-GREEN' )]",
     "rtableRefGreen": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameGreen'))]",
+
+    "cgfroleGuid1": "[guid(subscription().subscriptionId)]",
+    "cgfroleGuid2": "[guid(resourceGroup().id)]",
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
     "cgfNicName1-external": "[concat(variables('cgfVmName1'),'-NIC-EXT')]",
@@ -146,6 +149,7 @@
     "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit-internal' )[0], '.', variables( 'cgfSubnetAddrSplit-internal' )[1], '.', variables( 'cgfSubnetAddrSplit-internal' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-internal' )[3]), 4 ))]",
     "adminUsername": "notused",
     "singleQuotationMark": "'",
+
     "cgfSubnetSplit-external": "[split( parameters( 'subnetCGF-external' ), '/' )]",
     "cgfSubnetSplit-internal": "[split( parameters( 'subnetCGF-internal' ), '/' )]",
     "cgfSubnetAddrSplit-external": "[split( variables( 'cgfSubnetSplit-external' )[0], '.' )]",
@@ -161,6 +165,31 @@
     "cgfCustomData2": "[Base64('\n')]"
   },
   "resources": [
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[variables('cgfroleGuid1')]",
+      "apiVersion": "2017-09-01",
+      "properties": {
+        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(variables('cgfVmName1'), '2018-06-01', 'Full').identity.principalId]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName1'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[variables('cgfroleGuid2')]",
+      "apiVersion": "2017-09-01",
+      "properties": {
+        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(variables('cgfVmName2'), '2018-06-01', 'Full').identity.principalId]"
+
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName2'))]"
+      ]
+    },
     {
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -681,7 +710,7 @@
       "condition": "[equals(parameters('ccManaged'),'no')]",
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": { 
+      "identity": {
         "type": "SystemAssigned"
       },
       "zones": [
@@ -743,7 +772,7 @@
       "condition": "[equals(parameters('ccManaged'),'no')]",
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": { 
+      "identity": {
         "type": "SystemAssigned"
       },
       "zones": [

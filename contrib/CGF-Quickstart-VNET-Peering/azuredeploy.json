@@ -158,7 +158,8 @@
     "HubtoSpoke2PeeringName": "[concat(variables('vNetName'), '-2-', variables('vNetNameSpoke2'))]",
     "Spoke2toHubPeeringName": "[concat(variables('vNetNameSpoke2'), '-2-', variables('vNetName'))]",
 
-
+    "cgfroleGuid1": "[guid(subscription().subscriptionId)]",
+    "cgfroleGuid2": "[guid(resourceGroup().id)]",
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
     "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
@@ -209,6 +210,31 @@
       "sku": {
         "name": "Standard_LRS"
       }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[variables('cgfroleGuid1')]",
+      "apiVersion": "2017-09-01",
+      "properties": {
+        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(variables('cgfVmName1'), '2018-06-01', 'Full').identity.principalId]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName1'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[variables('cgfroleGuid2')]",
+      "apiVersion": "2017-09-01",
+      "properties": {
+        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(variables('cgfVmName2'), '2018-06-01', 'Full').identity.principalId]"
+
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName2'))]"
+      ]
     },
     {
       "apiVersion": "[variables('networkApiVersion')]",
@@ -296,44 +322,44 @@
       },
       "resources": [
         {
-            "apiVersion": "2016-06-01",
-            "type": "virtualNetworkPeerings",
-            "name": "[variables('HubtoSpoke1PeeringName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke1'))]"
-            ],
-            "comments": "This is the peering from HUB to Spoke 1",
-            "properties": {
-                "allowVirtualNetworkAccess": "true",
-                "allowForwardedTraffic": "true",
-                "allowGatewayTransit": "false",
-                "useRemoteGateways": "false",
-                "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetNameSpoke1'))]"
-                }
+          "apiVersion": "2016-06-01",
+          "type": "virtualNetworkPeerings",
+          "name": "[variables('HubtoSpoke1PeeringName')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke1'))]"
+          ],
+          "comments": "This is the peering from HUB to Spoke 1",
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetNameSpoke1'))]"
             }
+          }
         },
         {
-            "apiVersion": "2016-06-01",
-            "type": "virtualNetworkPeerings",
-            "name": "[variables('HubtoSpoke2PeeringName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke2'))]"
-            ],
-            "comments": "This is the peering from HUB to Spoke 2",
-            "properties": {
-                "allowVirtualNetworkAccess": "true",
-                "allowForwardedTraffic": "true",
-                "allowGatewayTransit": "false",
-                "useRemoteGateways": "false",
-                "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetNameSpoke2'))]"
-                }
+          "apiVersion": "2016-06-01",
+          "type": "virtualNetworkPeerings",
+          "name": "[variables('HubtoSpoke2PeeringName')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke2'))]"
+          ],
+          "comments": "This is the peering from HUB to Spoke 2",
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetNameSpoke2'))]"
             }
+          }
         }
       ]
     },
@@ -366,24 +392,24 @@
       },
       "resources": [
         {
-            "apiVersion": "2016-06-01",
-            "type": "virtualNetworkPeerings",
-            "name": "[variables('Spoke1toHubPeeringName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke1'))]"
-            ],
-            "comments": "This is the peering from Spoke 1 to HUB",
-            "properties": {
-                "allowVirtualNetworkAccess": "true",
-                "allowForwardedTraffic": "true",
-                "allowGatewayTransit": "false",
-                "useRemoteGateways": "false",
-                "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetName'))]"
-                }
+          "apiVersion": "2016-06-01",
+          "type": "virtualNetworkPeerings",
+          "name": "[variables('Spoke1toHubPeeringName')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke1'))]"
+          ],
+          "comments": "This is the peering from Spoke 1 to HUB",
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetName'))]"
             }
+          }
         }
       ]
     },
@@ -416,24 +442,24 @@
       },
       "resources": [
         {
-            "apiVersion": "2016-06-01",
-            "type": "virtualNetworkPeerings",
-            "name": "[variables('Spoke2toHubPeeringName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
-                "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke2'))]"
-            ],
-            "comments": "This is the peering from Spoke 2 to HUB",
-            "properties": {
-                "allowVirtualNetworkAccess": "true",
-                "allowForwardedTraffic": "true",
-                "allowGatewayTransit": "false",
-                "useRemoteGateways": "false",
-                "remoteVirtualNetwork": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetName'))]"
-                }
+          "apiVersion": "2016-06-01",
+          "type": "virtualNetworkPeerings",
+          "name": "[variables('Spoke2toHubPeeringName')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
+            "[concat('Microsoft.Network/virtualNetworks/', variables('vNetNameSpoke2'))]"
+          ],
+          "comments": "This is the peering from Spoke 2 to HUB",
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks',variables('vNetName'))]"
             }
+          }
         }
       ]
     },
@@ -486,7 +512,7 @@
               "nextHopIpAddress": "[variables('lbIPAddress-internal')]"
             }
           }
-         ]
+        ]
       }
     },
     {
@@ -532,8 +558,8 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [],
       "properties": {
-          "platformFaultDomainCount": 2,
-          "platformUpdateDomainCount": 5                
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 5
       },
       "sku": {
         "name": "Aligned"
@@ -842,7 +868,7 @@
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": { 
+      "identity": {
         "type": "SystemAssigned"
       },
       "name": "[variables('cgfVmName1')]",
@@ -903,7 +929,7 @@
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": { 
+      "identity": {
         "type": "SystemAssigned"
       },
       "name": "[variables('cgfVmName2')]",
