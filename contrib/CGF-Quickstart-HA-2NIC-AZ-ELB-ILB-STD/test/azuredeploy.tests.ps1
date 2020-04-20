@@ -63,7 +63,9 @@ Describe "[$templateName] Template validation & test" {
         }
         
         It 'Creates the expected Azure resources' {
-            $expectedResources = 'Microsoft.Network/networksecurityGroups',
+            $expectedResources = 'Microsoft.Authorization/roleAssignments',
+                                 'Microsoft.Authorization/roleAssignments',
+                                 'Microsoft.Network/networksecurityGroups',
                                  'Microsoft.Network/virtualNetworks',
                                  'Microsoft.Network/routeTables',
                                  'Microsoft.Network/routeTables',

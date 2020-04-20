@@ -63,10 +63,10 @@ Describe "[$templateName] Template validation & test" {
         }
         
         It 'Creates the expected Azure resources' {
-            $expectedResources = 'Microsoft.Network/networksecurityGroups',
+            $expectedResources = 'Microsoft.Authorization/roleAssignments',
+                                 'Microsoft.Authorization/roleAssignments',
+                                 'Microsoft.Network/networksecurityGroups',
                                  'Microsoft.Network/virtualNetworks',
-                                 'Microsoft.Authorization/roleAssignments',
-                                 'Microsoft.Authorization/roleAssignments',
                                  'Microsoft.Network/routeTables',
                                  'Microsoft.Network/routeTables',
                                  'Microsoft.Compute/availabilitySets',
@@ -91,8 +91,8 @@ Describe "[$templateName] Template validation & test" {
                                           'ccSecret',
                                           'imageSKU',
                                           'prefix',
-                                          'subnetGreen',
                                           'subnetcgf',
+                                          'subnetGreen',                                         
                                           'subnetRed',
                                           'version',
                                           'vmSize',
