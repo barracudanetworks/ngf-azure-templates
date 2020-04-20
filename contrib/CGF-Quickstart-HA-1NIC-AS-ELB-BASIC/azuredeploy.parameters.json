@@ -11,7 +11,7 @@
     "vNetAddressSpace": {
       "value": "172.16.136.0/22"
     },
-    "subnetNGF": {
+    "subnetcgf": {
       "value": "172.16.136.0/24"
     },
     "subnetRed": {
