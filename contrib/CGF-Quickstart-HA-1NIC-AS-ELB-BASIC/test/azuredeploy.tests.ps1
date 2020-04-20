@@ -65,6 +65,8 @@ Describe "[$templateName] Template validation & test" {
         It 'Creates the expected Azure resources' {
             $expectedResources = 'Microsoft.Network/networksecurityGroups',
                                  'Microsoft.Network/virtualNetworks',
+                                 'Microsoft.Authorization/roleAssignments',
+                                 'Microsoft.Authorization/roleAssignments',
                                  'Microsoft.Network/routeTables',
                                  'Microsoft.Network/routeTables',
                                  'Microsoft.Compute/availabilitySets',
@@ -90,7 +92,7 @@ Describe "[$templateName] Template validation & test" {
                                           'imageSKU',
                                           'prefix',
                                           'subnetGreen',
-                                          'subnetNGF',
+                                          'subnetcgf',
                                           'subnetRed',
                                           'version',
                                           'vmSize',
@@ -108,7 +110,7 @@ Describe "[$templateName] Template validation & test" {
         $testsPrefix = "CUDAQA-$testsRandom"
         $testsResourceGroupName = "CUDAQA-$testsRandom-$templateName"
         $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
-        $testsVM = "$testsPrefix-VM-NGF"
+        $testsVM = "$testsPrefix-VM-CGF"
         $testsResourceGroupLocation = "East US2"
 
         # List of all scripts + parameter files
