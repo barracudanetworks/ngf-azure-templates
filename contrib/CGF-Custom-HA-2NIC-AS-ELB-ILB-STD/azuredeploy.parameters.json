@@ -1,0 +1,54 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "prefix": {
+      "value": "GEN-PREFIX"
+    },
+    "vNetResourceGroup": {
+      "value": "GEN-VNET-RG"
+    },
+    "vNetName": {
+      "value": "GEN-VNET-NAME"
+    },
+    "frontendSubnetName": {
+      "value": "frontendSubnet"
+    },
+    "backendSubnetName": {
+      "value": "backendSubnet"
+    },
+    "frontendSubnetRange": {
+      "value": "172.16.136.0/25"
+    },
+    "backendSubnetRange": {
+      "value": "172.16.136.128/25"
+    },
+    "imageSKU": {
+      "value": "byol"
+    },
+    "vmSize": {
+      "value": "Standard_B2ms"
+    },
+    "enableAccelerated": {
+      "value": "no"
+    },
+    "ccManaged": {
+      "value": "no"
+    },
+    "ccIpAddress": {
+      "value": ""
+    },
+    "ccClusterName": {
+      "value": ""
+    },
+    "ccRangeId": {
+      "value": ""
+    },
+    "ccSecret": {
+      "value": ""
+    }
+  }
+}
