@@ -160,7 +160,8 @@
     "rtableRefSAC": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameSAC'))]",
     "rtableRefFW": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameFW'))]",
 
-
+    "cgfroleGuid1": "[guid(subscription().subscriptionId)]",
+    "cgfroleGuid2": "[guid(resourceGroup().id)]",
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
     "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
@@ -222,6 +223,31 @@
     "RESTenabled": "'\n/opb/cloud-enable-ssh\n/opb/cloud-enable-rest\n'"
   },
   "resources": [
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[variables('cgfroleGuid1')]",
+      "apiVersion": "2017-09-01",
+      "properties": {
+        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(variables('cgfVmName1'), '2018-06-01', 'Full').identity.principalId]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName1'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[variables('cgfroleGuid2')]",
+      "apiVersion": "2017-09-01",
+      "properties": {
+        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(variables('cgfVmName2'), '2018-06-01', 'Full').identity.principalId]"
+
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName2'))]"
+      ]
+    },
     {
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
@@ -1006,22 +1032,21 @@
       "name": "[variables('greennsgName')]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "securityRules": 
-          {
-            "name": "AllowAnyOutbound",
-            "properties": {
-              "description": "Allow Any",
-              "protocol": "*",
-              "sourcePortRange": "*",
-              "destinationPortRange": "1-65535",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 100,
-              "direction": "Outbound"
-            }
+        "securityRules": {
+          "name": "AllowAnyOutbound",
+          "properties": {
+            "description": "Allow Any",
+            "protocol": "*",
+            "sourcePortRange": "*",
+            "destinationPortRange": "1-65535",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 100,
+            "direction": "Outbound"
           }
-        ]
+        }
+  ]
       }
     },
     {

@@ -1,4 +1,4 @@
-# Barracuda CloudGen Firewall for Azure - High Availability Cluster using Internal Load Balancer and in Availability Zones
+# Barracuda CloudGen Firewall for Azure - Custom High Availability Cluster with dual NIC 
 
 ## Introduction
 
@@ -6,7 +6,7 @@ Traditionally, Barracuda CloudGen Firewall (CGF) uses UDR rewriting technique to
 
 Azure ILB solves above problems, providing failover capabilities with zero integration with the cloud fabric, offers shorter failover times (~15 seconds) independent of network complexity, and provides stateful failover.
 
-This template deploys a VNet with 2 CGF instances with managed disks, an any-port ILB instance, and 2 empty subnets routed through CGF cluster.
+This template deploys a pair of Firewalls, an Internal and External Standard Load Balancer into a existing VNET and subnets. It expects a frontend and backend subnet to exist. 
 
 ![Network diagram](images/cgf-ha-2nic-elb-ilb.png)
 
@@ -30,12 +30,11 @@ The package provides a deploy.ps1 and deploy.sh for Powershell or Azure CLI base
 
 ## Deployed resources
 Following resources will be created by the template:
-- One Azure VNET with 4 subnets (2 for the CGF, additional subnets for a red and green subnet)
-- Two route tables that will route all traffic for external and towards the other internal networks to the Barracuda CGF
+- An availabilty set containing both firewalls
 - One internal standard Azure Load Balancer as the default gateway for all traffic that needs inspection
 - One external standard Azure Load Balancer containing the deployed virtual machines with a public IP and services for IPSEC and TINA VPN tunnels available
 - Two Barracuda CloudGen Firewall virtual machines with 1 network interface each and public IP
-- Both CGF systems are deployed in different Availability Zones
+
 
 **Note** Additional backend subnets and resources are *not* automatically created by the template. This has to be done manually after template deployment has finished or by adapting the ARM template.
 
@@ -49,17 +48,18 @@ After successful deployment you can manage them using CloudGen Admin application
 
 To activate the secondary interface you need to following certain steps. Also additional routing in the firewall is required to route the packets in the correct direction. 
 
-- Firewall Admin > Configuration > Network > Interfaces and change the number of network interfaces to 2. After the activation you should see eth1 as an additional interface. <br/>
-![Network diagram](images/cgf-ha-2nic-network1.png) <br/>
-![Network diagram](images/cgf-ha-2nic-network2.png)
+Switch the config to Advanced Mode. 
 
-- Firewall Admin > Configuration > Network > IP configuration > Additional Local IPs and add the private IP of the internal NIC in here linked to eth1. <br/>
+
+- Firewall Admin > Configuration > Network > IP configuration and switch the config to Advanced mode. 
+![Network diagram](images/enabledadvancedmode.png)
+
+- Firewall Admin > Configuration > Network > Additional Local IP's and add the private IP of the internal NIC in here linked to eth1. <br/>
 ![Network diagram](images/cgf-ha-2nic-network3.png) <br/>
 ![Network diagram](images/cgf-ha-2nic-network4.png)
 
-- Firewall Admin > Configuration > Network > Routing add the routing for the internal networks RED and GREEN towards the default gateway of the internal firewall subnet (172.16.136.129).<br/>
-![Network diagram](images/cgf-ha-2nic-network5.png) <br/>
-![Network diagram](images/cgf-ha-2nic-network6.png)
+- Firewall Admin > Configuration > Network > Advanced Routing add the routes for the Internal network ranges towards the default gateway of the internal firewall subnet (172.16.136.129).<br/>
+![Network diagram](images/cgf-ha-2nic-network5.png)
 
 - Firewall Admin > Configuration > Network > Routing add the source based routing for magic IP from Microsoft Azure that is used for the health probe of the Load Balancer. This ensures that probes towards the internal NIC will be responded by the internal NIC. <br/>
 ![Network diagram](images/cgf-ha-2nic-network7.png) <br/>
@@ -71,9 +71,12 @@ To activate the secondary interface you need to following certain steps. Also ad
 
 ### Internal Load Balancer healthprobe
 
-You need to create manually a firewall *App Redirect* rule for ILB Probe traffic. The connection will use the port you indicated during template deployment and it will originate from 168.63.129.16 and can be redirected to any service running locally on CGF (e.g. 127.0.0.1:450 for firewall authentication service or 127.0.0.1:691 for CGF TINA VPN)
+You need to enable the firewall that allows the load balancer health probes to function. Go to Configuration > Assigned Services > NGFW > Forwarding Rules 
+Lock the config and right click and edit. 
 
-![Example firewall probe redirection rule](images/ProbeFirewallRule.png)
+Modify as below and activate the rule. 
+
+![Example firewall probe redirection rule](images/modifiedrule.png)
 
 For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/nextgenfirewallf/article/CGF71/FWCreateAppRedirRule/)
 
@@ -84,13 +87,15 @@ It is also recommended you harden management access by enabling multifactor or k
 |---|---
 adminPassword | Password for the CloudGen Firewall Admin tool 
 prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-CGF (Max 19 char, no spaces, [A-Za-z0-9]
-vNetAddressSpace | Network range of the VNET (e.g. 172.16.136.0/22)
-subnetCGF-external | Network range of the subnet containing the external CloudGen Firewall (e.g. 172.16.136.0/25)
-subnetCGF-external | Network range of the subnet containing the internal CloudGen Firewall (e.g. 172.16.136.128/25)
-subnetRed | Network range of the red subnet (e.g. 172.16.137.0/24)
-subnetGreen | Network range of the green subnet (e.g. 172.16.138.0/24)
+vNetResourceGroup | Name of the resource group the VNET is in
+vNetName | Name of the VNET
+frontendSubnetName | Name of the frontend subnet
+backendSubnetName | Name of the backend subnet
+frontendSubnetRange | Network range of the red subnet (e.g. 172.16.136.0/25)
+backendSubnetRange | Network range of the green subnet (e.g. 172.16.136.128/25)
 imageSKU | SKU Hourly (PAYG) or BYOL (Bring your own license)
 vmSize | Size of the VMs to be created
+enableAccelerated | yes or no to enable accelerated networking support
 ccManaged | Is this instance managed via a CloudGen Control Center (Yes/No)
 ccClusterName | The name of the cluster of this instance in the CloudGen Control Center
 ccRangeId | The range location of this instance in the CloudGen Control Center

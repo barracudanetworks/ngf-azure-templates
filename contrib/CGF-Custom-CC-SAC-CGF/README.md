@@ -19,8 +19,11 @@ The solution does a check of the template when you use the provided scripts. It 
 
 You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or hourly license requirement.
 
-`Get-AzRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzureRmMarketplaceTerms -Accept`
+`Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzMarketplaceTerms -Accept`
+`Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-cc" -Name "byol" | Set-AzureRmMarketplaceTerms -Accept`
+
 `Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "hourly" | Set-AzureRmMarketplaceTerms -Accept`
+ 
 
 
 The template will also ask for the network ranges you wish your SC devices to use to connect into the SAC
@@ -61,8 +64,8 @@ The package provides a deploy.ps1 and deploy.sh for Powershell or Azure CLI base
 
 To deploy via Azure Portal you can use the button below to deploy this reference architecture into your Azure subscription. Once you click on this the Azure Portal will ask you for your credentials and you are presented with a page to fill in minimal variables: Resource Group, Location, Admin password and Prefix.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-CC-SAC-CGF%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-CC-SAC-CGF%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-CC-SAC-CGF%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-CC-SAC-CGF%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
@@ -73,7 +76,7 @@ To deploy via Azure Cloud Shell you can connect via the Azure Portal or directly
 - Start up Azure Cloud Shell from the Azure Portal or go directly to [https://shell.azure.com](https://shell.azure.com/)
 - Download the latest version of the ARM templates in the persistant clouddrive:
 
-`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip | jar xv && cd ~/clouddrive/ngf-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/ && ./deploy.sh`
+`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/CGF-azure-templates/archive/master.zip | jar xv && cd ~/clouddrive/CGF-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/ && ./deploy.sh`
 
 - Answer the questions asked by the script on the following variables: location, prefix and password.
 
@@ -86,7 +89,7 @@ To deploy via Azure Cloud Shell you can connect to the Azure Cloud Shell via [ht
 - Start up Azure Cloud Shell from the Azure Portal or go directly to [https://shell.azure.com](https://shell.azure.com/)
 - Download the latest version of the ARM templates in the persistant clouddrive:
 
-`cd ~\clouddrive\; Invoke-WebRequest -Uri "https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip" -OutFile "~/clouddrive/master.zip"; jar xf master.zip; cd "~/clouddrive/ngf-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/"; .\deploy.ps1`
+`cd ~\clouddrive\; Invoke-WebRequest -Uri "https://github.com/barracudanetworks/CGF-azure-templates/archive/master.zip" -OutFile "~/clouddrive/master.zip"; jar xf master.zip; cd "~/clouddrive/CGF-azure-templates-master/contrib/CGF-Custom-CC-SAC-CGF/"; .\deploy.ps1`
 
 - Answer the questions asked by the script on the following variables: location, prefix and password.
 
@@ -101,7 +104,7 @@ Note: The username to login to the appliance is root and the password is the one
 ## Post Deployment Configuration
 
 Starting with version 8.0 of the CGF you have a ILB probe rule called 'CLOUD-LB-PROBE' ready to go in the rulebase. You only need to activate it. You can also limit traffic to only come from the Microsoft Azure Virtual IP 168.63.129.16 for additional security.
-In older versions, you need to create manually a firewall *App Redirect* rule for ILB Probe traffic. The connection will use the port you indicated during template deployment and it will originate from 168.63.129.16 and can be redirected to any service running locally on NGF (e.g. 127.0.0.1:450 for firewall authentication service or 127.0.0.1:691 for NGF TINA VPN)
+In older versions, you need to create manually a firewall *App Redirect* rule for ILB Probe traffic. The connection will use the port you indicated during template deployment and it will originate from 168.63.129.16 and can be redirected to any service running locally on CGF (e.g. 127.0.0.1:450 for firewall authentication service or 127.0.0.1:691 for CGF TINA VPN)
 
 ![Example firewall probe redirection rule](images/ProbeFirewallRule.png)
 
@@ -113,7 +116,7 @@ It is also recommended you harden management access by enabling multifactor or k
 | Parameter Name | Description
 |---|---
 adminPassword | Password for the Firewall Admin tool
-prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-NGF (Max 19 char, no spaces, [A-Za-z0-9]
+prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-CGF (Max 19 char, no spaces, [A-Za-z0-9]
 vNetResourceGroup | Network range of the VNET to be deployed into
 vNetName | Name of the VNET to be deployed into
 subnetCGF | Network range of the subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)

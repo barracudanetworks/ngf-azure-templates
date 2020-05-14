@@ -36,7 +36,7 @@
     "subnetCGF": {
       "type": "string",
       "metadata": {
-        "description": "Network range of the Subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)"
+        "description": "Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)"
       },
       "defaultValue": "172.16.136.0/24"
     },
@@ -490,7 +490,7 @@
       "sku": {
         "name": "Standard"
       },
-      "comments": "External LoadBalancer for the Barracuda Next Gen Firewall F cluster",
+      "comments": "External LoadBalancer for the Barracuda CloudGen Firewall F cluster",
       "tags": {
         "displayName": "CGFLB-External"
       },
@@ -615,7 +615,7 @@
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/nestedTemplateCGFSubnet')]"
       ],
-      "comments": "Internal LoadBalancer for the Barracuda Next Gen Firewall F cluster",
+      "comments": "Internal LoadBalancer for the Barracuda CloudGen Firewall F cluster",
       "tags": {
         "displayName": "CGFLB-Internal"
       },

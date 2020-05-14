@@ -16,8 +16,8 @@ This requires that [Programmatic Deployment](https://azure.microsoft.com/en-us/b
 
 You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or hourly license requirement.
 
-`Get-AzRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzureRmMarketplaceTerms -Accept`
-`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "hourly" | Set-AzureRmMarketplaceTerms -Accept`
+`Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-cc " -Name "byol" | Set-AzMarketplaceTerms -Accept`
+
 
 ## Deployed resources
 
@@ -30,10 +30,10 @@ Following resources will be created by the template:
 
 The package provides a deploy.ps1 and deploy.sh for Powershell or Azure CLI based deployments. This can be peformed from the Azure Portal as well as the any system that has either of these scripting infrastructures installed. Or you can deploy from the Azure Portal using the provided link.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-ControlCenter%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-ControlCenter%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-ControlCenter%2Fazuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-ControlCenter%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
@@ -44,7 +44,7 @@ To deploy via Azure Cloud Shell you can connect via the Azure Portal or directly
 - Start up Azure Cloud Shell from the Azure Portal or go directly to [https://shell.azure.com](https://shell.azure.com/)
 - Download the latest version of the ARM templates in the persistent clouddrive:
 
-`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip | jar x && cd ~/clouddrive/ngf-azure-templates-master/Quickstart-CGF-VNET-Peering/ && ./deploy.sh`
+`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/CGF-azure-templates/archive/master.zip | jar x && cd ~/clouddrive/CGF-azure-templates-master/Quickstart-CGF-VNET-Peering/ && ./deploy.sh`
 
 - Answer the questions asked by the script on the following variables: location, prefix and password.
 
@@ -71,15 +71,15 @@ It is also recommended you harden management access by enabling multifactor or k
 ## Template Parameters
 | Parameter Name | Description
 |---|---
-adminPassword | Password for the Next Gen Admin tool 
-prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-NGF (Max 19 char, no spaces, [A-Za-z0-9]
-vNetResourceGroup | Resource Group that contains the VNET where the NGF will be installed in
-vNetName | The name of the VNET where the NGF will be installed in
-subnetNameCC | The name of the subnet where NGF will be installed
-subnetPrefixCC | Network range of the Subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)
+adminPassword | Password for the CloudGen Admin tool 
+prefix | identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-CGF (Max 19 char, no spaces, [A-Za-z0-9]
+vNetResourceGroup | Resource Group that contains the VNET where the CGF will be installed in
+vNetName | The name of the VNET where the CGF will be installed in
+subnetNameCC | The name of the subnet where CGF will be installed
+subnetPrefixCC | Network range of the Subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)
 imageVersion | Version of the Barracuda CloudGen Firewall
 vmSize | Size of the VMs to be created
-ipAddressCC | Static IP Address of the NGF VM in Azure
+ipAddressCC | Static IP Address of the CGF VM in Azure
 
 
 

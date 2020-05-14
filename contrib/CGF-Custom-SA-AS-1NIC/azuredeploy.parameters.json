@@ -5,26 +5,38 @@
     "adminPassword": {
       "value": "GEN-PASSWORD"
     },
-    "prefix": {
-      "value": "GEN-PREFIX"
+    "firewallName": {
+      "value": "CUDA"
     },
-    "vNetAddressSpace": {
-      "value": "172.16.136.0/22"
+    "availabiltySetName": {
+      "value": "CUDA-AVSET"
     },
-    "subnetcgf": {
+    "vNetResourceGroup": {
+      "value": "CUDA-RG-VNET"
+    },
+    "vNetName": {
+      "value": "CUDA-VNET"
+    },
+    "subnetNameCGF": {
+      "value": "CUDA-SUBNET-CGF"
+    },
+    "subnetCGF": {
       "value": "172.16.136.0/24"
-    },
-    "subnetRed": {
-      "value": "172.16.137.0/24"
-    },
-    "subnetGreen": {
-      "value": "172.16.138.0/24"
     },
     "imageSKU": {
       "value": "byol"
     },
+    "imageVersion": {
+      "value": "latest"
+    },
     "vmSize": {
       "value": "Standard_F1s"
+    },
+    "enableAccelerated": {
+      "value": "no"
+    },
+    "ipAddressCGF": {
+      "value": "172.16.136.10"
     },
     "ccManaged": {
       "value": "no"

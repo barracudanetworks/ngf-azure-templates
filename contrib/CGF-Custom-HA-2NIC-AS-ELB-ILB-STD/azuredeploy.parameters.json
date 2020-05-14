@@ -8,23 +8,32 @@
     "prefix": {
       "value": "GEN-PREFIX"
     },
-    "vNetAddressSpace": {
-      "value": "172.16.136.0/22"
+    "vNetResourceGroup": {
+      "value": "GEN-VNET-RG"
     },
-    "subnetcgf": {
-      "value": "172.16.136.0/24"
+    "vNetName": {
+      "value": "GEN-VNET-NAME"
     },
-    "subnetRed": {
-      "value": "172.16.137.0/24"
+    "frontendSubnetName": {
+      "value": "frontendSubnet"
     },
-    "subnetGreen": {
-      "value": "172.16.138.0/24"
+    "backendSubnetName": {
+      "value": "backendSubnet"
+    },
+    "frontendSubnetRange": {
+      "value": "172.16.136.0/25"
+    },
+    "backendSubnetRange": {
+      "value": "172.16.136.128/25"
     },
     "imageSKU": {
       "value": "byol"
     },
     "vmSize": {
-      "value": "Standard_F1s"
+      "value": "Standard_B2ms"
+    },
+    "enableAccelerated": {
+      "value": "no"
     },
     "ccManaged": {
       "value": "no"
