@@ -159,11 +159,10 @@
     "rtableNameSAC": "[concat( parameters('prefix'), '-RT-FOR-SecureAccessConcentrator' )]",
     "rtableRefSAC": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameSAC'))]",
     "rtableRefFW": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameFW'))]",
-
-    "cgfroleGuid1": "[guid(subscription().subscriptionId)]",
-    "cgfroleGuid2": "[guid(resourceGroup().id)]",
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
+    "cgfroleGuid1": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
+    "cgfroleGuid2": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
     "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
     "cgfNicName2": "[concat(variables('cgfVmName2'),'-NIC')]",
     "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
