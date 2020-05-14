@@ -133,7 +133,7 @@
     "cgfPIPAddressName2": "[concat(variables('cgfVmName2'),'-PIP')]",
     "cgfPIPAddressType": "Static",
     "cgfroleGuid1": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
-    "cgfroleGuid2": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
+    "cgfroleGuid2": "[guid(variables('cgfVmName2'),resourceGroup().id, deployment().name)]",
     "lbPIPAddressName": "[concat(parameters('prefix'),'-CGF-LB-PIP')]",
     "dnsNameForCGF": "[toLower( concat( parameters('prefix'), '-cgf-', uniqueString(resourceGroup().id) ) )]",
     "lbName-external": "[concat(parameters('prefix'),'-ELB-CGF')]",

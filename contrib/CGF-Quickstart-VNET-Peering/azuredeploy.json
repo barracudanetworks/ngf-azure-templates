@@ -158,10 +158,11 @@
     "HubtoSpoke2PeeringName": "[concat(variables('vNetName'), '-2-', variables('vNetNameSpoke2'))]",
     "Spoke2toHubPeeringName": "[concat(variables('vNetNameSpoke2'), '-2-', variables('vNetName'))]",
 
-    "cgfroleGuid1": "[guid(subscription().subscriptionId)]",
-    "cgfroleGuid2": "[guid(resourceGroup().id)]",
+
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
+    "cgfroleGuid1": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
+    "cgfroleGuid2": "[guid(variables('cgfVmName2'),resourceGroup().id, deployment().name)]",
     "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
     "cgfNicName2": "[concat(variables('cgfVmName2'),'-NIC')]",
     "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
