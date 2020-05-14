@@ -122,7 +122,7 @@
     "rtableNameGreen": "[concat( parameters('prefix'), '-RT-FOR-GREEN' )]",
     "rtableRefGreen": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameGreen'))]",
 
-    "cgfroleGuid1": "[guid(subscription().subscriptionId)]",
+    "cgfroleGuid1": "[guid(resourceGroup().id)]",
     "cgfroleGuid2": "[guid(resourceGroup().id)]",
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
