@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
@@ -65,7 +65,7 @@
       "metadata": {
         "description": "Version of the Barracuda CloudGen Firewall to install"
       },
-      "allowedValues": [ "latest", "8.0.2011901", "8.0.1037602", "8.0.0047504", "7.2.5013201"],
+      "allowedValues": [ "latest", "8.0.2011901", "8.0.1037602", "8.0.0047504", "7.2.5013201" ],
       "defaultValue": "latest"
     },
     "vmSize": {
@@ -122,8 +122,7 @@
     "rtableNameGreen": "[concat( parameters('prefix'), '-RT-FOR-GREEN' )]",
     "rtableRefGreen": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameGreen'))]",
 
-    "cgfroleGuid1": "[guid(subscription().subscriptionId)]",
-    "cgfroleGuid2": "[guid(resourceGroup().id)]",
+
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
     "cgfNicName1-external": "[concat(variables('cgfVmName1'),'-NIC-EXT')]",
@@ -133,6 +132,8 @@
     "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
     "cgfPIPAddressName2": "[concat(variables('cgfVmName2'),'-PIP')]",
     "cgfPIPAddressType": "Static",
+    "cgfroleGuid1": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
+    "cgfroleGuid2": "[guid(variables('cgfVmName2'),resourceGroup().id, deployment().name)]",
     "lbPIPAddressName": "[concat(parameters('prefix'),'-CGF-LB-PIP')]",
     "dnsNameForCGF": "[toLower( concat( parameters('prefix'), '-cgf-', uniqueString(resourceGroup().id) ) )]",
     "lbName-external": "[concat(parameters('prefix'),'-ELB-CGF')]",
