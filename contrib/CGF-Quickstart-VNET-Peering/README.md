@@ -40,10 +40,10 @@ After deployment of the CGF cluster the script will also configure the Barracuda
 Deployment of the ARM template is possible via the Azure Portal or Azure CLI. When deploying via the Azure Portal the CGF will not be configured using Ansible.
 The package provides a deploy.sh for Azure CLI based deployments. This can be performed from the Azure Portal as well as the any system that has either of these scripting infrastructures installed. Or you can deploy from the Azure Portal using the provided link.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FQuickstart-CGF-VNET-Peering%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FQuickstart-CGF-VNET-Peering%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2FCGF-azure-templates%2Fmaster%2Fcontrib%2FQuickstart-CGF-VNET-Peering%2Fazuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FQuickstart-CGF-VNET-Peering%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
@@ -54,7 +54,7 @@ To deploy via Azure Cloud Shell you can connect via the Azure Portal or directly
 - Start up Azure Cloud Shell from the Azure Portal or go directly to [https://shell.azure.com](https://shell.azure.com/)
 - Download the latest version of the ARM templates in the persistent clouddrive:
 
-`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/CGF-azure-templates/archive/master.zip | jar x && cd ~/clouddrive/CGF-azure-templates-master/Quickstart-CGF-VNET-Peering/ && ./deploy.sh`
+`cd ~/clouddrive/ && wget -qO- https://github.com/barracudanetworks/ngf-azure-templates/archive/master.zip | jar x && cd ~/clouddrive/ngf-azure-templates-master/Quickstart-CGF-VNET-Peering/ && ./deploy.sh`
 
 - Answer the questions asked by the script on the following variables: location, prefix and password.
 
