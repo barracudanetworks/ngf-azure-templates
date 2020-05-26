@@ -30,7 +30,7 @@
       "value": "yes"
     },
     "enableREST": {
-      "value": "no"
+      "value": "yes"
     },
     "ccManaged": {
       "value": "no"
