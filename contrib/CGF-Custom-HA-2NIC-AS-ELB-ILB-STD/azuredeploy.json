@@ -156,9 +156,9 @@
     "cgfSubnetMask-internal": "[variables( 'cgfSubnetSplit-internal' )[1]]",
     "cgfSubnetDefaultGw-external": "[concat( variables( 'cgfSubnetAddrSplit-external' )[0], '.', variables( 'cgfSubnetAddrSplit-external' )[1], '.', variables( 'cgfSubnetAddrSplit-external' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-external' )[3]), 1 ))]",
     "cgfVmAddress1-external": "[concat( variables( 'cgfSubnetAddrSplit-external' )[0], '.', variables( 'cgfSubnetAddrSplit-external' )[1], '.', variables( 'cgfSubnetAddrSplit-external' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-external' )[3]), 4 ))]",
-    "cgfVmAddress1-internal": "[concat( variables( 'cgfSubnetAddrSplit-internal' )[0], '.', variables( 'cgfSubnetAddrSplit-external' )[1], '.', variables( 'cgfSubnetAddrSplit-internal' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-internal' )[3]), 5 ))]",
+    "cgfVmAddress1-internal": "[concat( variables( 'cgfSubnetAddrSplit-internal' )[0], '.', variables( 'cgfSubnetAddrSplit-internal' )[1], '.', variables( 'cgfSubnetAddrSplit-internal' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-internal' )[3]), 5 ))]",
     "cgfVmAddress2-external": "[concat( variables( 'cgfSubnetAddrSplit-external' )[0], '.', variables( 'cgfSubnetAddrSplit-external' )[1], '.', variables( 'cgfSubnetAddrSplit-external' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-external' )[3]), 5 ))]",
-    "cgfVmAddress2-internal": "[concat( variables( 'cgfSubnetAddrSplit-internal' )[0], '.', variables( 'cgfSubnetAddrSplit-external' )[1], '.', variables( 'cgfSubnetAddrSplit-internal' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-internal' )[3]), 6 ))]",
+    "cgfVmAddress2-internal": "[concat( variables( 'cgfSubnetAddrSplit-internal' )[0], '.', variables( 'cgfSubnetAddrSplit-internal' )[1], '.', variables( 'cgfSubnetAddrSplit-internal' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit-internal' )[3]), 6 ))]",
     "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1-external'), ' ', variables( 'cgfSubnetMask-external' ), ' ', variables( 'cgfSubnetDefaultGw-external' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2-external'), ' -g ', variables( 'cgfSubnetDefaultGw-external' ), '\n'))]",
     "cgfCustomData2": "[Base64('\n')]"
   },
@@ -764,7 +764,7 @@
     },
     "CGF-LB": {
       "type": "string",
-      "value": "[reference(variables('lbPIPAddressName')).dnsSettings.fqdn]"
+      "value": "[reference(variables('lbPIPAddressName')).ipAddress]"
     }
   }
 }

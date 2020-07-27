@@ -25,7 +25,7 @@ Function random-password ($length = 15)
     return $password
 }
 
-$templateName = "CGF-Quickstart-HA-2NIC-AZ-ELB-ILB-STD"
+$templateName = "CGF-Custom-HA-2NIC-AS-ELB-ILB-STD"
 $sourcePath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName"
 $scriptPath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName\test"
 $templateFileName = "azuredeploy.json"
@@ -67,8 +67,6 @@ Describe "[$templateName] Template validation & test" {
                                  'Microsoft.Authorization/roleAssignments',
                                  'Microsoft.Network/networksecurityGroups',
                                  'Microsoft.Network/virtualNetworks',
-                                 'Microsoft.Network/routeTables',
-                                 'Microsoft.Network/routeTables',
                                  'Microsoft.Network/publicIPAddresses',
                                  'Microsoft.Network/loadBalancers',
                                  'Microsoft.Network/loadBalancers',
@@ -86,20 +84,23 @@ Describe "[$templateName] Template validation & test" {
 
         It 'Contains the expected parameters' {
             $expectedTemplateParameters = 'adminPassword',
-                                          'ccClusterName',
-                                          'ccIpAddress',
-                                          'ccManaged',
-                                          'ccRangeId',
-                                          'ccSecret',
-                                          'imageSKU',
-                                          'prefix',
-                                          'subnetCGF-external',
-                                          'subnetCGF-internal',
-                                          'subnetGreen',
-                                          'subnetRed',
-                                          'version',
-                                          'vmSize',
-                                          'vNetAddressSpace'
+                                           'backendSubnetName',
+                                           'backendSubnetRange',
+                                           'ccClusterName',
+                                           'ccIpAddress',
+                                           'ccManaged',
+                                           'ccRangeId',
+                                           'ccSecret',
+                                           'enableAccelerated',
+                                           'enableREST',
+                                           'frontendSubnetName'.
+                                           'frontendSubnetRange',
+                                           'imageSKU',
+                                           'prefix',
+                                           'version',
+                                            'vmSize',
+                                            'vNetName',
+                                            'vNetResourceGroup'
             $templateParameters = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters | Get-Member -MemberType NoteProperty | % Name
             $templateParameters | Should Be $expectedTemplateParameters
         }

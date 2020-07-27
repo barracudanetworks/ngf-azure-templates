@@ -9,19 +9,19 @@
       "value": "GEN-PREFIX"
     },
     "vNetResourceGroup": {
-      "value": "GEN-VNET-RG"
+      "value": "CUDA-VNET-RG"
     },
     "vNetName": {
-      "value": "GEN-VNET-NAME"
+      "value": "CUDA-VNET"
     },
     "frontendSubnetName": {
-      "value": "frontendSubnet"
+      "value": "CUDA-SUBNET-CGF-FRONT"
     },
     "backendSubnetName": {
-      "value": "backendSubnet"
+      "value": "CUDA-SUBNET-CGF-BACK"
     },
     "frontendSubnetRange": {
-      "value": "172.16.136.0/25"
+      "value": "172.16.137.0/25"
     },
     "backendSubnetRange": {
       "value": "172.16.136.128/25"
