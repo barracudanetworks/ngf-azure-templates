@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
@@ -457,9 +457,6 @@
     {
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "zones": [
-        "1"
-      ],
       "name": "[variables('cgfPIPAddressName1')]",
       "location": "[resourceGroup().location]",
       "sku": {
@@ -472,9 +469,6 @@
     {
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "zones": [
-        "2"
-      ],
       "name": "[variables('cgfPIPAddressName2')]",
       "location": "[resourceGroup().location]",
       "sku": {

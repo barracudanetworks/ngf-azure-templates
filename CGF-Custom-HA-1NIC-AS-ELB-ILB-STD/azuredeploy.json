@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
@@ -123,6 +123,7 @@
   "variables": {
     "computeApiVersion": "2017-03-30",
     "networkApiVersion": "2017-08-01",
+    "bloburi" : "[if(equals(contains(resourceGroup().location,'usgov'),'True'),'.blob.core.usgovcloudapi.net','.blob.core.windows.net')]",
 
     "imagePublisher": "barracudanetworks",
     "imageOffer": "barracuda-ng-firewall",
@@ -622,7 +623,7 @@
           "diagnosticsProfile": {
             "bootDiagnostics": {
               "enabled": true,
-              "storageUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net')]"
+              "storageUri": "[concat('https://', variables('storageAccountName'), variables('bloburi'))]"
             }
             
           },
@@ -708,7 +709,7 @@
       },
       "CGF-B": {
         "type": "string",
-        "value": "[reference(variables('cgfPIPAddressName1')).ipAddress]"
+        "value": "[reference(variables('cgfPIPAddressName2')).ipAddress]"
       },
       "CGF-LB": {
         "type": "string",
