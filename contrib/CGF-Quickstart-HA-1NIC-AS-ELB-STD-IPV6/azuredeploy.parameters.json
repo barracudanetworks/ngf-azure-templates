@@ -1,0 +1,42 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "value": "GEN-PASSWORD"
+    },
+    "prefix": {
+      "value": "GEN-PREFIX"
+    },
+    "vNetAddressSpace": {
+      "value": "172.16.136.0/22"
+    },
+    "vNetAddressSpacev6": {
+      "value": "172.16.136.0/22"
+    },
+    "subnetCGF": {
+      "value": "172.16.136.0/24"
+    },
+    "subnetCGFv6": {
+      "value": "fd4d:d0ea:8475:1::/64"
+    },
+    "subnetRed": {
+      "value": "172.16.137.0/24"
+    },
+    "subnetRedv6": {
+      "value": "fd4d:d0ea:8475:2::/64"
+    },
+    "subnetGreen": {
+      "value": "172.16.138.0/24"
+    },
+    "subnetGreenv6": {
+      "value": "fd4d:d0ea:8475:3::/64"
+    },
+    "imageSKU": {
+      "value": "byol"
+    },
+    "vmSize": {
+      "value": "Standard_F1s"
+    }
+  }
+  }

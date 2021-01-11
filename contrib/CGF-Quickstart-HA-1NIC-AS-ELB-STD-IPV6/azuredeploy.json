@@ -1,0 +1,938 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "prefix": {
+      "type": "string",
+      "metadata": {
+          "description": "identifying prefix for all VM's being build. e.g WeProd would become WeProd-VM-cgf (Max 19 char, no spaces, [A-Za-z0-9]"
+      }
+    },
+    "vNetAddressSpace": {
+      "type": "string",
+      "metadata": {
+          "description": "Network range of the VNET (e.g. 172.16.136.0/22)"
+      },
+      "defaultValue": "172.16.136.0/22"
+    },
+        "vNetAddressSpacev6": {
+      "type": "string",
+      "metadata": {
+          "description": "Network range of the VNET (e.g. 172.16.136.0/22)"
+      },
+      "defaultValue": "fd4d:d0ea:8475::/48"
+    },
+    "subnetCgf": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the Subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)"
+      },
+      "defaultValue": "172.16.136.0/24"
+    },
+    "subnetRed": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the red subnet (e.g. 172.16.137.0/24)"
+      },
+      "defaultValue": "172.16.137.0/24"
+    },
+    "subnetGreen": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the green subnet (e.g. 172.16.138.0/24)"
+      },
+      "defaultValue": "172.16.138.0/24"
+    },
+        "subnetCgfv6": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the Subnet containing the NextGen Firewall (e.g. 172.16.136.0/24)"
+      },
+      "defaultValue": "fd4d:d0ea:8475:1::/64"
+    },
+    "subnetRedv6": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the red subnet (e.g. 172.16.137.0/24)"
+      },
+      "defaultValue": "fd4d:d0ea:8475:2::/64"
+    },
+    "subnetGreenv6": {
+      "type": "string",
+      "metadata": {
+        "description": "Network range of the green subnet (e.g. 172.16.138.0/24)"
+      },
+      "defaultValue": "fd4d:d0ea:8475:3::/64"
+    },
+    "imageSKU": {
+      "type": "string",
+      "metadata": {
+          "description": "SKU Hourly (PAYG) or BYOL (Bring your own license)"
+      },
+      "allowedValues": [
+          "hourly",
+          "byol"
+      ],
+      "defaultValue": "byol"
+    },
+    "version": {
+      "type": "string",
+      "metadata": {
+        "description": "Version of the Barracuda CloudGen Firewall to install"
+      },
+      "allowedValues": [ "latest", "8.0.2011901", "8.0.1037602", "8.0.0047504", "7.2.5013201" ],
+      "defaultValue": "latest"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_F1s",
+      "allowedValues": [ "Standard_F1s", "Standard_F2s", "Standard_F4s", "Standard_F8s", "Standard_D1_v2", "Standard_D2_v2", "Standard_D4_v2", "Standard_D8_v2", "Standard_B2ms","Standard_B4ms","Standard_B8ms" ],
+      "metadata": {
+        "description": "Size of the VMs to be created"
+      }
+    }
+  },
+  "variables": {
+    "computeApiVersion": "2017-03-30",
+    "networkApiVersion": "2017-08-01",
+
+    "imagePublisher": "barracudanetworks",
+    "imageOffer": "barracuda-ng-firewall",
+
+    "nsgName": "[concat(parameters('prefix'),'-NSG-cgf')]",
+    "avName": "[concat(parameters('prefix'),'-AV-cgf')]",
+    "vNetName": "[concat(parameters('prefix'),'-VNET')]",
+    "subnetNamecgf": "[concat(parameters('prefix'),'-SUBNET-cgf')]",
+    "subnetRefcgf": "[resourceID('Microsoft.Network/virtualNetworks/subnets',variables('vNetName'),variables('subnetNamecgf'))]",
+    "subnetNameRed": "[concat(parameters('prefix'),'-SUBNET-RED')]",
+    "subnetNameGreen": "[concat(parameters('prefix'),'-SUBNET-GREEN')]",
+    "rtableNameRed": "[concat( parameters('prefix'), '-RT-FOR-RED' )]",
+    "rtableRefRed": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameRed'))]",
+    "rtableNameGreen": "[concat( parameters('prefix'), '-RT-FOR-GREEN' )]",
+    "rtableRefGreen": "[resourceID('Microsoft.Network/routeTables',variables('rtableNameGreen'))]",
+    "cgfVmName1": "[concat(parameters('prefix'),'-VM-cgf-A')]",
+    "cgfVmName2": "[concat(parameters('prefix'),'-VM-cgf-B')]",
+    "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
+    "cgfNicName2": "[concat(variables('cgfVmName2'),'-NIC')]",
+    "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
+    "cgfPIPAddressName2": "[concat(variables('cgfVmName2'),'-PIP')]",
+    "cgfPIPAddressType": "Static",
+
+    "lbPIPAddressName": "[concat(parameters('prefix'),'-CGF-LB-PIP')]",
+        "lbPIPAddressNamev6": "[concat(parameters('prefix'),'-CGF-LB-V6-PIP')]",
+
+    "lbName-external": "[concat(parameters('prefix'),'-ELB-CGF')]",
+    "lbName-internal": "[concat(parameters('prefix'),'-ILB-CGF')]",
+    "lbID-external": "[resourceId('Microsoft.Network/loadBalancers',variables('lbName-external'))]",
+    "lbID-internal": "[resourceId('Microsoft.Network/loadBalancers',variables('lbName-internal'))]",
+    "lbPIPID": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbPIPAddressName'))]",
+     "lbPIPIDv6": "[resourceId('Microsoft.Network/publicIPAddresses',variables('lbPIPAddressNamev6'))]",
+    "lbFrontEndPoolID-external": "[concat(variables('lbID-external'),'/frontendIPConfigurations/loadBalancerFrontend')]",
+    "lbFrontEndPoolID-internal": "[concat(variables('lbID-internal'),'/frontendIPConfigurations/loadBalancerFrontend')]",
+    "lbFrontEndPoolID-externalv6": "[concat(variables('lbID-external'),'/frontendIPConfigurations/loadBalancerFrontendv6')]",
+    "lbFrontEndPoolID-internalv6": "[concat(variables('lbID-internal'),'/frontendIPConfigurations/loadBalancerFrontendv6')]",
+    "lbBackEndPoolID-external": "[concat(variables('lbID-external'),'/backendAddressPools/loadBalancerBackend')]",
+    "lbBackEndPoolID-internal": "[concat(variables('lbID-internal'),'/backendAddressPools/loadBalancerBackend')]",
+        "lbBackEndPoolID-externalv6": "[concat(variables('lbID-external'),'/backendAddressPools/loadBalancerBackendv6')]",
+    "lbBackEndPoolID-internalv6": "[concat(variables('lbID-internal'),'/backendAddressPools/loadBalancerBackendv6')]",
+    "lbProbeID-external": "[concat(variables('lbID-external'),'/probes/HAProbe')]",
+    "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
+    "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
+
+
+    "adminUsername": "notused",
+    "singleQuotationMark": "'",
+
+   "cgfSubnetSplitv6": "[split( parameters( 'subnetcgfv6' ), '/' )]",
+   "cgfVmAddress1v6": "[concat( variables('cgfSubnetSplitv6')[0], 5 )]",
+   "cgfVmAddress2v6": "[concat( variables('cgfSubnetSplitv6')[0], 6 )]",
+   "lbIPAddress-internalv6": "[concat( variables('cgfSubnetSplitv6')[0], 4 )]",
+
+    "cgfSubnetSplit": "[split( parameters( 'subnetcgf' ), '/' )]",
+    "cgfSubnetAddrSplit": "[split( variables( 'cgfSubnetSplit' )[0], '.' )]",
+    "cgfSubnetMask": "[variables( 'cgfSubnetSplit' )[1]]",
+    "cgfSubnetDefaultGw": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 1 ))]",
+    "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
+    "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
+    "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
+    "cgfCustomData2": "[Base64('\n')]"
+  },
+  "resources": [
+        {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('nsgName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowAnyInbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "AllowAnyOutbound",
+            "properties": {
+              "description": "Allow Any",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1-65535",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('vNetName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[variables('nsgName')]",
+        "[variables('rtableRefRed')]",
+        "[variables('rtableRefGreen')]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vNetAddressSpace')]",
+            "[parameters('vNetAddressSpacev6')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetNamecgf')]",
+            "properties": {
+              "addressPrefixes": [
+                "[parameters('subnetcgf')]",
+                "[parameters('subnetCgfv6')]"
+              ],
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('subnetNameRed')]",
+            "properties": {
+              "addressPrefixes": [
+                "[parameters('subnetRed')]",
+                "[parameters('subnetRedv6')]"
+              ],
+              "routeTable": {
+                "id": "[variables('rtableRefRed')]"
+              }
+            }
+          },
+          {
+            "name": "[variables('subnetNameGreen')]",
+            "properties": {
+              "addressPrefixes": [
+                "[parameters('subnetGreen')]",
+                "[parameters('subnetGreenv6')]"
+              ],
+              "routeTable": {
+                "id": "[variables('rtableRefGreen')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables( 'networkApiVersion' )]",
+      "type": "Microsoft.Network/routeTables",
+      "name": "[variables('rtableNameRed')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "to-Internet",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+            }
+          },
+          {
+            "name": "to-Green",
+            "properties": {
+              "addressPrefix": "[parameters('subnetGreen')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables( 'networkApiVersion' )]",
+      "type": "Microsoft.Network/routeTables",
+      "name": "[variables('rtableNameGreen')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "to-Internet",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+            }
+          },
+          {
+            "name": "to-Red",
+            "properties": {
+              "addressPrefix": "[parameters('subnetRed')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('avName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [],
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 5
+      },
+      "sku": {
+        "name": "Aligned"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('lbPIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('cgfPIPAddressType')]"
+        
+      }
+    },
+        {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('lbPIPAddressNamev6')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv6",
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+   {
+        "apiVersion": "[variables('networkApiVersion')]",
+        "name": "[variables('lbName-external')]",
+        "type": "Microsoft.Network/loadBalancers",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "Standard"
+        },
+        "comments": "External LoadBalancer for the Barracuda CloudGen Firewall F cluster",
+        "tags": {
+          "displayName": "CGFLB-External"
+        },
+        "dependsOn": [
+          "[concat('Microsoft.Network/publicIPAddresses/', variables('lbPIPAddressName'))]"
+
+        ],
+        "properties": {
+          "frontendIPConfigurations": [
+            {
+              "name": "loadBalancerFrontEndv4",
+              "properties": {
+                "publicIPAddress": {
+                  "id": "[variables('lbPIPID')]"
+                  
+                   
+                }
+              }
+            },
+            {
+              "name": "loadBalancerFrontEndv6",
+              "properties": {
+                "publicIPAddress": {
+                  "id": "[variables('lbPIPIDv6')]"
+                  
+                   
+                }
+              }
+            }
+          ],
+          "backendAddressPools": [
+            {
+              "name": "loadBalancerBackend"
+            },
+            {
+              "name": "loadBalancerBackendv6"
+            }
+          ],
+          "loadBalancingRules": [
+            {
+              "name": "IPSEC-IKE",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-external')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-external')]"
+                },
+                "protocol": "Udp",
+                "frontendPort": 500,
+                "backendPort": 500,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID-external')]"
+                }
+              }
+            },
+            {
+              "name": "IPSEC-NATT",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-external')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-external')]"
+                },
+                "protocol": "Udp",
+                "frontendPort": 4500,
+                "backendPort": 4500,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID-external')]"
+                }
+              }
+            },
+            {
+              "name": "TINA-UDP",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-external')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-external')]"
+                },
+                "protocol": "Udp",
+                "frontendPort": 691,
+                "backendPort": 691,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID-external')]"
+                }
+              }
+            },
+            {
+              "name": "TINA-TCP",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-external')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-external')]"
+                },
+                "protocol": "Tcp",
+                "frontendPort": 691,
+                "backendPort": 691,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID-external')]"
+                }
+              }
+            },
+            {
+              "name": "TINA-UDPv6",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-externalv6')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-externalv6')]"
+                },
+                "protocol": "Udp",
+                "frontendPort": 691,
+                "backendPort": 691,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID-external')]"
+                }
+              }
+            },
+            {
+              "name": "TINA-TCPv6",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-externalv6')]"
+                },
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-externalv6')]"
+                },
+                "protocol": "Tcp",
+                "frontendPort": 691,
+                "backendPort": 691,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 5,
+                "probe": {
+                  "id": "[variables('lbProbeID-external')]"
+                }
+              }
+            }
+              
+          ],
+          "probes": [
+            {
+              "name": "HAProbe",
+              "properties": {
+                "protocol": "Tcp",
+                "port": 65000,
+                "intervalInSeconds": 5,
+                "numberOfProbes": 2
+              }
+            }
+          ]
+        }
+      },
+      {
+        "apiVersion": "[variables('networkApiVersion')]",
+        "name": "[variables('lbName-internal')]",
+        "type": "Microsoft.Network/loadBalancers",
+        "location": "[resourceGroup().location]",
+        "sku": {
+          "name": "Standard"
+        },
+        "dependsOn": [],
+        "comments": "Internal LoadBalancer for the Barracuda Next Gen Firewall F cluster",
+        "tags": {
+          "displayName": "CGFLB-Internal"
+        },
+        "properties": {
+          "frontendIPConfigurations": [
+            {
+              "name": "loadBalancerFrontEnd",
+              "properties": {
+                "privateIPAddress": "[variables('lbIPAddress-internal')]",
+                "privateIPAllocationMethod": "Static",
+                "subnet": {
+                  "id": "[variables('subnetRefCGF')]"
+                }
+              }
+            },
+             {
+              "name": "loadBalancerFrontEnd",
+              "properties": {
+
+                "privateIPAddress": "[variables('lbIPAddress-internalv6')]",
+                "privateIPAllocationMethod": "Static",
+                "subnet": {
+                  "id": "[variables('subnetRefCGF')]"
+                }
+              }
+            }
+          ],
+          "backendAddressPools": [
+            {
+              "name": "loadBalancerBackend"
+            },
+            {
+              "name": "loadBalancerBackendv6"
+            }
+          ],
+          "loadBalancingRules": [
+            {
+              "name": "lbrule",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-internal')]"
+                },
+                "frontendPort": 0,
+                "backendPort": 0,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 15,
+                "protocol": "All",
+                "loadDistribution": "Default",
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-internal')]"
+                },
+                "probe": {
+                  "id": "[variables('lbProbeID-internal')]"
+                }
+              }
+            },
+            {
+              "name": "lbrule",
+              "properties": {
+                "frontendIPConfiguration": {
+                  "id": "[variables('lbFrontEndPoolID-internalv6')]"
+                },
+                "frontendPort": 0,
+                "backendPort": 0,
+                "enableFloatingIP": false,
+                "idleTimeoutInMinutes": 15,
+                "protocol": "All",
+                "loadDistribution": "Default",
+                "backendAddressPool": {
+                  "id": "[variables('lbBackEndPoolID-internalv6')]"
+                },
+                "probe": {
+                  "id": "[variables('lbProbeID-internal')]"
+                }
+              }
+            }
+          ],
+          "probes": [
+            {
+              "name": "HAProbe",
+              "properties": {
+                "protocol": "Tcp",
+                "port": 65000,
+                "intervalInSeconds": 5,
+                "numberOfProbes": 2
+              }
+            }
+          ]
+        }
+      },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('cgfPIPAddressName1')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('cgfPIPAddressType')]"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[variables('cgfPIPAddressName2')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "[variables('cgfPIPAddressType')]"
+      }
+    },
+        {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat(variables('cgfPIPAddressName1'),'v6')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv6",
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+        {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat(variables('cgfPIPAddressName2'),'v6')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv6",
+         "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('cgfNicName1')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName1'))]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName1'),'v6')]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
+         "[variables('lbID-external')]",
+         "[variables('lbID-internal')]"
+      ],
+      "properties": {
+        "enableIPForwarding": true,
+        "ipConfigurations": [
+          {
+            "name": "ipconfigv4",
+            "properties": {
+              "privateIPAddressVersion": "IPv4",
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'cgfVmAddress1' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('cgfPIPAddressName1'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefcgf')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[variables('lbBackEndPoolID-external')]"
+                },
+                      {
+                  "id": "[variables('lbBackEndPoolID-internal')]"
+                },
+                      {
+                  "id": "[variables('lbBackEndPoolID-internalv6')]"
+                },
+                      {
+                  "id": "[variables('lbBackEndPoolID-externalv6')]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "ipconfigv6",
+            "properties": {
+              "privateIPAddressVersion": "IPv6",
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'cgfVmAddress1v6' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('cgfPIPAddressName1'),'v6')]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefcgf')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[variables('lbBackEndPoolID-internalv6')]"
+                },
+                {
+                  "id": "[variables('lbFrontEndPoolID-externalv6')]"
+                },
+                {
+                  "id": "[variables('lbBackEndPoolID-internalv6')]"
+                },
+                      {
+                  "id": "[variables('lbBackEndPoolID-externalv6')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('networkApiVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('cgfNicName2')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('cgfPIPAddressName2'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('vNetName'))]",
+        "[variables('lbID-external')]",
+        "[variables('lbID-internal')]"
+      ],
+      "properties": {
+        "enableIPForwarding": true,
+        "ipConfigurations": [
+          {
+            "name": "ipconfigv4",
+            "properties": {
+              "privateIPAddressVersion": "IPv4",
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'cgfVmAddress2' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('cgfPIPAddressName2'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefcgf')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[variables('lbBackEndPoolID-external')]"
+                },
+                      {
+                  "id": "[variables('lbBackEndPoolID-internal')]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "ipconfigv6",
+            "properties": {
+              "privateIPAddressVersion": "IPv6",
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables( 'cgfVmAddress2v6' )]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('cgfPIPAddressName2'),'v6')]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRefcgf')]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[variables('lbBackEndPoolID-internalv6')]"
+                },
+                {
+                  "id": "[variables('lbFrontEndPoolID-externalv6')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[variables('cgfVmName1')]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "[parameters('imageSKU')]",
+        "Product": "[variables('imageOffer')]",
+        "Publisher": "[variables('imagePublisher')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('cgfNicName1'))]",
+        "[resourceId('Microsoft.Compute/availabilitySets',variables('avName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('avName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('cgfVmName1')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables( 'cgfCustomData1')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('imageSKU')]",
+            "version": "[parameters('version')]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('cgfVmName1'),'-osdisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('cgfNicName1'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "name": "[variables('cgfVmName2')]",
+      "location": "[resourceGroup().location]",
+      "plan": {
+        "name": "[parameters('imageSKU')]",
+        "Product": "[variables('imageOffer')]",
+        "Publisher": "[variables('imagePublisher')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('cgfNicName2'))]",
+        "[resourceId('Microsoft.Compute/availabilitySets',variables('avName'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('avName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('cgfVmName2')]",
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "customData": "[variables( 'cgfCustomData2')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[parameters('imageSKU')]",
+            "version": "[parameters('version')]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('cgfVmName2'),'-osdisk')]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('cgfNicName2'))]",
+              "properties": {
+                "primary": true
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "cgf-A": {
+      "type": "string",
+      "value": "[reference(variables('cgfPIPAddressName1')).ipAddress]"
+    },
+    "cgf-B": {
+      "type": "string",
+      "value": "[reference(variables('cgfPIPAddressName1')).ipAddress]"
+    },
+    "cgf-LB": {
+      "type": "string",
+      "value": "[reference(variables('lbPIPAddressName')).dnsSettings.fqdn]"
+    }
+  }
+}

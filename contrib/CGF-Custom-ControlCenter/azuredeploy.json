@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
@@ -86,7 +86,7 @@
     "cgfSubnetDefaultGw": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 1 ))]",
     "cgfVmAddressCalc": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 10 ))]",
     "cgfVmAddress": "[if(empty('ipAddressCGF'), variables('cgfVmAddressCalc'), parameters('ipAddressCC'))]",
-    "cgfCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
+    "ccCustomData": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', parameters('ipAddressCC'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
     "defaultRouteTableName": "[concat( 'route-via-', variables( 'cgfVmName' ), '-', resourceGroup().name )]"
   },
   "resources": [
@@ -206,7 +206,8 @@
         "osProfile": {
           "computerName": "[variables('cgfVmName')]",
           "adminUsername": "[variables('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('adminPassword')]",
+           "customData": "[variables('ccCustomData')]"
         },
         "storageProfile": {
           "imageReference": {
