@@ -591,6 +591,7 @@
       ],
       "properties": {
         "enableIPForwarding": true,
+		"enableAcceleratedNetworking": true,
         "ipConfigurations": [
           {
             "name": "external",
@@ -624,6 +625,7 @@
       ],
       "properties": {
         "enableIPForwarding": true,
+		"enableAcceleratedNetworking": true,
         "ipConfigurations": [
           {
             "name": "ipconfig1",
@@ -654,7 +656,8 @@
         "[concat('Microsoft.Network/loadBalancers/', variables('lbName-external'))]"
       ],
       "properties": {
-        "enableIPForwarding": false,
+        "enableIPForwarding": true,
+		"enableAcceleratedNetworking": true,
         "ipConfigurations": [
           {
             "name": "external",
@@ -687,7 +690,8 @@
         "[concat('Microsoft.Network/loadBalancers/', variables('lbName-external'))]"
       ],
       "properties": {
-        "enableIPForwarding": false,
+        "enableIPForwarding": true,
+		"enableAcceleratedNetworking": true,
         "ipConfigurations": [
           {
             "name": "internal",
