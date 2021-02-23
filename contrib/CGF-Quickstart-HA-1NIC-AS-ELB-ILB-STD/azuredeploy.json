@@ -134,7 +134,7 @@
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
     "cgfroleGuid1": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
-    "cgfroleGuid2": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
+    "cgfroleGuid2": "[guid(variables('cgfVmName2'),resourceGroup().id, deployment().name)]",
     "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
     "cgfNicName2": "[concat(variables('cgfVmName2'),'-NIC')]",
     "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
@@ -155,7 +155,7 @@
     "lbProbeID-external": "[concat(variables('lbID-external'),'/probes/HAProbe')]",
     "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
     "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
-
+    "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
     "adminUsername": "notused",
     "singleQuotationMark": "'",
 
@@ -180,8 +180,9 @@
       "name": "[variables('cgfroleGuid1')]",
       "apiVersion": "2017-09-01",
       "properties": {
-        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "principalId": "[reference(variables('cgfVmName1'), '2018-06-01', 'Full').identity.principalId]"
+        "roleDefinitionId": "[variables('Contributor')]",
+        "principalId": "[reference(variables('cgfVmName1'), '2018-06-01', 'Full').identity.principalId]",
+        "scope": "[resourceGroup().id]"
       },
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName1'))]"
@@ -193,9 +194,9 @@
       "name": "[variables('cgfroleGuid2')]",
       "apiVersion": "2017-09-01",
       "properties": {
-        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "principalId": "[reference(variables('cgfVmName2'), '2018-06-01', 'Full').identity.principalId]"
-        
+        "roleDefinitionId": "[variables('Contributor')]",
+        "principalId": "[reference(variables('cgfVmName2'), '2018-06-01', 'Full').identity.principalId]",
+        "scope": "[resourceGroup().id]"
       },
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName2'))]"

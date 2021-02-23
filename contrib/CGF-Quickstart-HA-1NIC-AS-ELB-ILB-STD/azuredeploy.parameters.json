@@ -40,6 +40,9 @@
     },
     "ccSecret": {
       "value": ""
+    },
+    "managedIdentities": {
+      "value": "no"
     }
   }
 }
