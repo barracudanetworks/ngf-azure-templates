@@ -92,7 +92,7 @@ Describe 'ARM Templates Test : Validation & Test Deployment' {
                                           'ccSecret',
                                           'enableREST',
                                           'imageSKU',
-                                          
+                                          'managedIdentities',
                                           'prefix',
                                           'subnetCGF',
                                           'subnetGreen',
