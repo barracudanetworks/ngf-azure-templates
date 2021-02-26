@@ -68,11 +68,14 @@ Note: Please be patient on the latest 8.0.1 release provisioning may take a whil
 
 ## Post Deployment Configuration
 
-Once the template has deployed, it should be possible to connect to the public IPv6 address of each firewall using Firewall Admin. However, to connect through the load balancer, some extra steps need to be taken. In order to access the firewalls through the Azure Load Balancer using IPv6, it is necessary to configure a service that will respond to the IPv6 probe packets issued by the Load Balancer. To complete configuration of this service, on the primary firewall, under Configuration Tree > Assigned Services > VPN > Service Properties > Explicit IPv6 IPs, Lock and then add the two Shared IPs which will appear in the dropdown. Ensure the cluster is licensed and the VPN service is running (the traffic will not be allowed to the firewall unless the VPN service returns the probe requests. IPv6 Traffic probes using IPv6 so the probed service must respond to IPv6 requests).
+Once the template has deployed, it should be possible to connect to the public IPv6 address of each firewall using Firewall Admin. However, to connect through the load balancer, some extra steps need to be taken. In order to access the firewalls through the Azure Load Balancer using IPv6, it is necessary to configure a service that will respond to the IPv6 probe packets issued by the Load Balancer. To complete configuration of this service, on the primary firewall, under Configuration Tree > Assigned Services > VPN > Service Properties > Explicit IPv6 IPs, Lock and then add the two Shared IPs which will appear in the dropdown. 
+
+![Service with IPv6](images/services.png)
+
+Ensure the cluster is licensed and the VPN service is running (the traffic will not be allowed to the firewall unless the VPN service returns the probe requests. IPv6 Traffic probes using IPv6 so the probed service must respond to IPv6 requests).
 
 If IPv6 traffic requires routing between GREEN and RED subnets, add routes to the RED and GREEN route tables directing ::/0 traffic to the internal IPv6 IP of the ILB with the next hop type of Virtual Appliance. This will route IPv6 traffic to the firewall for inspection.
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/CloudGenfirewallf/article/CGF71/ChangeRootPWandMgmtACL/)
 
 ## Template Parameters
 | Parameter Name | Description
@@ -90,3 +93,5 @@ subnetGreenv6 | IPv6 network range of the green subnet (e.g. fd4d:d0ea:8475:3::/
 version |  Version of the Barracuda CloudGen Firewall to install"
 imageSKU | SKU Hourly (PAYG) or BYOL (Bring your own license)
 vmSize | Size of the VMs to be created
+managedIdentity | Set to yes or no to enable managed identity
+availabiltyType | Select Availabilty Zone or Availabilty Set
