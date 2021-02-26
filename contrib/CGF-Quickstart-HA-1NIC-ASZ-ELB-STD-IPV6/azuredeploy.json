@@ -309,7 +309,15 @@
             "properties": {
               "addressPrefix": "0.0.0.0/0",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv4')]"
+            }
+          },
+                    {
+            "name": "to-InternetIPv6",
+            "properties": {
+              "addressPrefix": "::/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv6')]"
             }
           },
           {
@@ -317,7 +325,15 @@
             "properties": {
               "addressPrefix": "[parameters('subnetGreen')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv4')]"
+            }
+          },
+          {
+            "name": "to-GreenIPv6",
+            "properties": {
+              "addressPrefix": "[parameters('subnetGreenv6')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv6')]"
             }
           }
         ]
@@ -335,7 +351,7 @@
             "properties": {
               "addressPrefix": "0.0.0.0/0",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv4')]"
             }
           },
           {
@@ -343,7 +359,23 @@
             "properties": {
               "addressPrefix": "[parameters('subnetRed')]",
               "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[variables('cgfVmAddress1')]"
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv4')]"
+            }
+          },
+                    {
+            "name": "to-Internet",
+            "properties": {
+              "addressPrefix": "::/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv6')]"
+            }
+          },
+          {
+            "name": "to-Red",
+            "properties": {
+              "addressPrefix": "[parameters('subnetRedv6')]",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[variables('lbIPAddress-internalv6')]"
             }
           }
         ]

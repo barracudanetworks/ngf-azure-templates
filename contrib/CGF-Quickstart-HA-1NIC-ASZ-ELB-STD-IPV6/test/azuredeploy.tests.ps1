@@ -25,7 +25,7 @@ Function random-password ($length = 15)
     return $password
 }
 
-$templateName = "CGF-Quickstart-HA-1NIC-AS-ELB-STD-IPV6"
+$templateName = "CGF-Quickstart-HA-1NIC-ASZ-ELB-STD-IPV6"
 $sourcePath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName"
 $scriptPath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName\test"
 $templateFileName = "azuredeploy.json"
@@ -111,7 +111,7 @@ Describe "[$templateName] Template validation & test" {
         $testsRandom = Get-Random 10001
         $testsPrefix = "CUDAQA-$testsRandom"
         $testsResourceGroupName = "CUDAQA-$testsRandom-$templateName"
-        $testsAdminPassword = "Gjd8Pp29xHduq48" | ConvertTo-SecureString -AsPlainText -Force #$testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
+        $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
         $testsVM = "$testsPrefix-VM-NGF"
         $testsResourceGroupLocation = "East US2"
 

@@ -21,12 +21,12 @@ You can enable programatic deployment via Powershell using the Cloud Shell featu
 ## Deployed resources
 Following resources will be created by the template:
 - An Azure VNET (*prefix*-VNET)
-- Three Azure subnets: for the CloudGen firewalls (*prefix*-SUBNET-CGF) and two for the backend servers (*prefix*-SUBNET-RED, *prefix*-SUBNET-GREEN)
+- Three Azure subnets: one for the CloudGen firewalls (*prefix*-SUBNET-CGF) and two for the backend servers (*prefix*-SUBNET-RED, *prefix*-SUBNET-GREEN)
 - One Azure Standard External Load Balancer (*prefix*-ELB-CGF) with IPv4 PIP (*prefix*-CGF-LB-V4-PIP) and IPv6 PIP (*prefix*-CGF-LB-V6-PIP) used in the frontend configuration. The ELB is configured to use both the IPv4 and the IPv6 backend pools. The HA probe uses port 691 (probing the VPN service on the CloudGen Firewall).  The Load Balancing rules are either for IPv4 or IPv6, depending on requirement. In either case, the IPv4 LB rule must use the IPv4 frontend address and direct to the IPv4 backend pool; similarly, the IPv6 LB rule must use the IPv6 frontend address and direct traffic to the IPv6 backend.
 - One Azure Standard Internal Load Balancer (*prefix*-ILB-CGF) with both an IPv4 and an IPv6 frontend configuration. The ILB is configured to use both the IPv4 and the IPv6 backend pools. The HA probe uses port 691. There are two Load Balancing rules, both making use of HA Ports,  one for IPv4 (using the frontend IPv4 address and the IPv4 backend pool) and one for IPv6 (using the frontend IPv6 address and the IPv6 backend pool)
 - Two Azure route tables (*prefix*-RT-FOR-GREEN, *prefix*-RT-FOR-RED) to ensure the traffic is routed correctly via the firewall. These route tables are applied to the backend subnets by the template. The route tables should not be applied to the firewall subnet as a routing loop will result.
 - Two Barracuda CloudGen Firewalls (*prefix*-VM-CGF-A, *prefix*-VM-CGF-B), each of which has a public IPv4 address and a public IPv6 address (for example the primary is configured with *prefix*-VM-CGF-A-PIP-V4, *prefix*-VM-CGF-A-PIP-V6). Other deployed resources for the firewalls is a single NIC per firewall (for example *prefix*-VM-CGF-A-NIC) and disk (*prefix*-VM-CGF-A-osdisk)
-
+- Six Public IP addresses, 3 IPv4 and 3 IPv6
 
 
 ## Deployment
@@ -38,10 +38,10 @@ The package provides a deploy.ps1 and deploy.sh for Powershell or Azure CLI base
 
 To deploy via Azure Portal you can use the button below to deploy this reference architecture into your Azure subscription. Once you click on this the Azure Portal will ask you for your credentials and you are presented with a page to fill in minimal variables: Resource Group, Location, Admin password and Prefix.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Quickstart-HA-1NIC-AS-ELB-STD-IPV6%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Quickstart-HA-1NIC-ASZ-ELB-STD-IPV6%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Quickstart-HA-1NIC-AS-ELB-STD-IPV6%2Fazuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Quickstart-HA-1NIC-ASZ-ELB-STD-IPV6%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
