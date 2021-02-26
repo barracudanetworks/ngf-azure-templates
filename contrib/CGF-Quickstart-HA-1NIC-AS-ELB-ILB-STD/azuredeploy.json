@@ -156,6 +156,9 @@
     "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
     "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
     "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+     "identity": {
+        "type": "SystemAssigned"
+     },
     "adminUsername": "notused",
     "singleQuotationMark": "'",
 
@@ -656,9 +659,7 @@
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": {
-         "type": "[if(equals(parameters('managedIdentities'),'yes'),'SystemAssigned','None')]"
-      },
+      "identity": "[if(equals(parameters('managedIdentities'),'yes'),variables('identity'),json('null'))]",
       "name": "[variables('cgfVmName1')]",
       "location": "[resourceGroup().location]",
       "plan": {
@@ -711,9 +712,7 @@
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": {
-         "type": "[if(equals(parameters('managedIdentities'),'yes'),'SystemAssigned','None')]"
-      },
+      "identity": "[if(equals(parameters('managedIdentities'),'yes'),variables('identity'),json('null'))]",
       "name": "[variables('cgfVmName2')]",
       "location": "[resourceGroup().location]",
       "plan": {

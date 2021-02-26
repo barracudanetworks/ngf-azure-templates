@@ -12,7 +12,7 @@
       "value": "172.16.136.0/22"
     },
     "vNetAddressSpacev6": {
-      "value": "172.16.136.0/22"
+      "value": "fd4d:d0ea:8475::/48"
     },
     "subnetCGF": {
       "value": "172.16.136.0/24"
@@ -37,6 +37,13 @@
     },
     "vmSize": {
       "value": "Standard_F1s"
+    },
+    "managedIdentities": {
+      "value": "no"
+    },
+    "availabiltyType": {
+      "value": "Availability Zone"
     }
+
   }
   }

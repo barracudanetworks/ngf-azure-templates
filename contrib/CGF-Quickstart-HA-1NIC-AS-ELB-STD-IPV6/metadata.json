@@ -1,7 +1,7 @@
 {
-  "itemDisplayName": "Barracuda NGF VM + data disk",
-  "description": "This template allows you to deploy a simple Barracuda NGF VM with a static IP",
+  "itemDisplayName": "Barracuda CGF Cluster with IPv6",
+  "description": "This template allows you to deploy a Barracuda cluster using IPv6 and external and internal load balancers",
   "summary": "This template takes a minimum amount of parameters",
-  "githubUsername": "jvhoof",
-  "dateUpdated": "2017-03-08"
+  "githubUsername": "gallenbar",
+  "dateUpdated": "2021-02-26"
 }
