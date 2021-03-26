@@ -69,10 +69,10 @@ Describe "[$templateName] Template validation & test" {
                                  'Microsoft.OperationalInsights/workspaces/views',
                                  'Microsoft.OperationalInsights/workspaces/views',
                                  'Microsoft.OperationalInsights/workspaces/views',
-                                 'Microsoft.OperationalInsights/workspaces/solutions',
-                                 'Microsoft.OperationalInsights/workspaces/solutions',
-                                 'Microsoft.OperationalInsights/workspaces/solutions',
-                                 
+                                 'Microsoft.OperationalInsights/workspaces/views',
+                                 'Microsoft.OperationsManagement/solutions',
+                                 'Microsoft.OperationsManagement/solutions',
+                                 'Microsoft.OperationsManagement/solutions',
                                  'Microsoft.Resources/deployments'
             $templateResources = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Resources.type
             $templateResources | Should Be $expectedResources
@@ -80,8 +80,9 @@ Describe "[$templateName] Template validation & test" {
         
         It 'Contains the expected parameters' {
             $expectedTemplateParameters = 'neworExisting',
-                                            'workspaceName',
-                                            'type'
+                                            'type',
+                                            'workspaceName'
+                                            
             $templateParameters = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters | Get-Member -MemberType NoteProperty | % Name
             $templateParameters | Should Be $expectedTemplateParameters
         }

@@ -1,58 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="9" errors="0" failures="5" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2021-03-26" time="17:06:03">
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="9" errors="0" failures="2" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2021-03-26" time="17:15:53">
   <environment user-domain="EU" platform="Microsoft Windows 10 Enterprise|C:\WINDOWS|\Device\Harddisk0\Partition4" machine-name="SLZ-GALLEN-LT" os-version="10.0.19041" user="gallen" cwd="C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard" nunit-version="2.5.8.0" clr-version="Unknown" />
   <culture-info current-culture="en-GB" current-uiculture="en-US" />
-  <test-suite type="TestFixture" name="Pester" executed="True" result="Failure" success="False" time="54.6445" asserts="0" description="Pester">
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Failure" success="False" time="150.5669" asserts="0" description="Pester">
     <results>
-      <test-suite type="TestFixture" name="C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1" executed="True" result="Failure" success="False" time="54.6445" asserts="0" description="C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1">
+      <test-suite type="TestFixture" name="C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1" executed="True" result="Failure" success="False" time="150.5669" asserts="0" description="C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1">
         <results>
-          <test-suite type="TestFixture" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test" executed="True" result="Failure" success="False" time="54.6314" asserts="0" description="[CGF-LogAnalytics-Dashboard] Template validation &amp; test">
+          <test-suite type="TestFixture" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test" executed="True" result="Failure" success="False" time="150.5532" asserts="0" description="[CGF-LogAnalytics-Dashboard] Template validation &amp; test">
             <results>
-              <test-suite type="TestFixture" name="[CGF-LogAnalytics-Dashboard] Template validation" executed="True" result="Failure" success="False" time="0.287" asserts="0" description="[CGF-LogAnalytics-Dashboard] Template validation">
+              <test-suite type="TestFixture" name="[CGF-LogAnalytics-Dashboard] Template validation" executed="True" result="Failure" success="False" time="0.4142" asserts="0" description="[CGF-LogAnalytics-Dashboard] Template validation">
                 <results>
-                  <test-case description="Has a JSON template" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Has a JSON template" time="0.0029" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="Has a parameters file" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Has a parameters file" time="0.0098" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="Has a metadata file" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Has a metadata file" time="0.0026" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="Converts from JSON and has the expected properties" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Converts from JSON and has the expected properties" time="0.0363" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="Creates the expected Azure resources" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Creates the expected Azure resources" time="0.047" asserts="0" success="False" result="Failure" executed="True">
+                  <test-case description="Has a JSON template" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Has a JSON template" time="0.004" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Has a parameters file" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Has a parameters file" time="0.0048" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Has a metadata file" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Has a metadata file" time="0.0163" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Converts from JSON and has the expected properties" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Converts from JSON and has the expected properties" time="0.1353" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Creates the expected Azure resources" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Creates the expected Azure resources" time="0.0329" asserts="0" success="False" result="Failure" executed="True">
                     <failure>
-                      <message>Expected @('Microsoft.OperationalInsights/workspaces', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/solutions', 'Microsoft.OperationalInsights/workspaces/solutions', 'Microsoft.OperationalInsights/workspaces/solutions', 'Microsoft.OperationalInsights/workspaces/solutions', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views'), but got @('Microsoft.OperationalInsights/workspaces', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationsManagement/solutions', 'Microsoft.OperationsManagement/solutions', 'Microsoft.OperationsManagement/solutions').</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 79
-79:             $templateResources | Should Be $expectedResources</stack-trace>
+                      <message>Expected @('Microsoft.OperationalInsights/workspaces', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationsManagement/solutions', 'Microsoft.OperationsManagement/solutions', 'Microsoft.OperationsManagement/solutions'), but got @('Microsoft.OperationalInsights/workspaces', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationalInsights/workspaces/views', 'Microsoft.OperationsManagement/solutions', 'Microsoft.OperationsManagement/solutions', 'Microsoft.OperationsManagement/solutions').</message>
+                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 78
+78:             $templateResources | Should Be $expectedResources</stack-trace>
                     </failure>
                   </test-case>
-                  <test-case description="Contains the expected parameters" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Contains the expected parameters" time="0.0392" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected @('neworExisting', 'workspaceName', 'type'), but got @('neworExisting', 'type', 'workspaceName').</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 87
-87:             $templateParameters | Should Be $expectedTemplateParameters</stack-trace>
-                    </failure>
-                  </test-case>
+                  <test-case description="Contains the expected parameters" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template validation.Contains the expected parameters" time="0.0356" asserts="0" success="True" result="Success" executed="True" />
                 </results>
               </test-suite>
-              <test-suite type="TestFixture" name="[CGF-LogAnalytics-Dashboard] Template test deployment" executed="True" result="Failure" success="False" time="54.2715" asserts="0" description="[CGF-LogAnalytics-Dashboard] Template test deployment">
+              <test-suite type="TestFixture" name="[CGF-LogAnalytics-Dashboard] Template test deployment" executed="True" result="Failure" success="False" time="150.0565" asserts="0" description="[CGF-LogAnalytics-Dashboard] Template test deployment">
                 <results>
-                  <test-case description="Test Deployment of ARM template  with parameter file " name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template test deployment.Test Deployment of ARM template  with parameter file " time="1.9103" asserts="0" success="False" result="Failure" executed="True">
+                  <test-case description="Test Deployment of ARM template  with parameter file " name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template test deployment.Test Deployment of ARM template  with parameter file " time="1.7358" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Deployment of ARM template  with parameter file " name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template test deployment.Deployment of ARM template  with parameter file " time="36.5165" asserts="0" success="False" result="Failure" executed="True">
                     <failure>
-                      <message>Expected the actual value to be less than or equal to 0, but got 1.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 115
-115:             (Test-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile "azuredeploy.json" -TemplateParameterFile "azuredeploy.parameters.json" -workspaceName "$workspace" ).Count | Should not BeGreaterThan 0</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Deployment of ARM template  with parameter file " name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template test deployment.Deployment of ARM template  with parameter file " time="1.3084" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected 'Succeeded', but got $null.</message>
+                      <message>Expected strings to be the same, but they were different.
+Expected length: 9
+Actual length:   6
+Strings differ at index 0.
+Expected: 'Succeeded'
+But was:  'Failed'</message>
                       <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 121
 121:             $resultDeployment.ProvisioningState | Should Be "Succeeded"</stack-trace>
                     </failure>
                   </test-case>
-                  <test-case description="Deployment in Azure validation" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template test deployment.Deployment in Azure validation" time="0.6029" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected $null to be different from the actual value, but got the same value.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGF-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 126
-126:             $result | Should Not Be $null</stack-trace>
-                    </failure>
-                  </test-case>
+                  <test-case description="Deployment in Azure validation" name="[CGF-LogAnalytics-Dashboard] Template validation &amp; test.[CGF-LogAnalytics-Dashboard] Template test deployment.Deployment in Azure validation" time="1.0041" asserts="0" success="True" result="Success" executed="True" />
                 </results>
               </test-suite>
             </results>
