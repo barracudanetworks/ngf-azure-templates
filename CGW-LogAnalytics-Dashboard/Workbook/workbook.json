@@ -24,7 +24,7 @@
 	},
 	"variables": {
 		
-		"workbookDisplayName" : "Barracuda Web Application Firewall"
+		"workbookDisplayName" : "Barracuda CloudGen WAN Dashboard"
 	},
 	"resources": [
 		 {
