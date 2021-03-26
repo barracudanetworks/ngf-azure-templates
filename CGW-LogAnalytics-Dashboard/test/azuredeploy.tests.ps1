@@ -104,16 +104,16 @@ Describe "[$templateName] Template validation & test" {
         $testsErrorFound = $false
 
         It "Test Deployment of ARM template $testsTemplateFile with parameter file $testsTemplateParemeterFile" {
-            (Test-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile "azuredeploy.json" -TemplateParameterFile "azuredeploy.parameters.json" -workspaceName $workspace ).Count | Should not BeGreaterThan 0
+            (Test-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile "azuredeploy.json" -TemplateParameterFile "azuredeploy.parameters.json" -workspaceName "$workspace" ).Count | Should not BeGreaterThan 0
         }
         It "Deployment of ARM template $testsTemplateFile with parameter file $testsTemplateParemeterFile" {
-            $resultDeployment = New-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -workspaceName $workspace
+            $resultDeployment = New-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -workspaceName "$workspace"
             Write-Host ($resultDeployment | Format-Table | Out-String)
             Write-Host $resultDeployment.ProvisioningState
             $resultDeployment.ProvisioningState | Should Be "Succeeded"
         }
         It "Deployment in Azure validation" {
-            $result = Get-AzVM | Where-Object { $_.Name -like "$testsPrefix*" } 
+            $result = Get-AzResource -ResourceGroupName "$testsResourceGroupName" | Where-Object { $_.Name -like "$testsPrefix*" } 
             Write-Host ($result | Format-Table | Out-String)
             $result | Should Not Be $null
         }
