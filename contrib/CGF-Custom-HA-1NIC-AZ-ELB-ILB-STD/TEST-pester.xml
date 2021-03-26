@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="9" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2021-03-05" time="14:01:06">
+  <environment user="gallen" clr-version="Unknown" cwd="C:\Store\ngf-azure-templates\contrib\CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD" os-version="10.0.19041" nunit-version="2.5.8.0" platform="Microsoft Windows 10 Enterprise|C:\WINDOWS|\Device\Harddisk0\Partition4" machine-name="SLZ-GALLEN-LT" user-domain="EU" />
+  <culture-info current-culture="en-GB" current-uiculture="en-US" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="438.7765" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="C:\Store\ngf-azure-templates\contrib\CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD\test\azuredeploy.tests.ps1" executed="True" result="Success" success="True" time="438.7765" asserts="0" description="C:\Store\ngf-azure-templates\contrib\CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD\test\azuredeploy.tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test" executed="True" result="Success" success="True" time="438.753" asserts="0" description="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test">
+            <results>
+              <test-suite type="TestFixture" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation" executed="True" result="Success" success="True" time="0.3649" asserts="0" description="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation">
+                <results>
+                  <test-case description="Has a JSON template" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation.Has a JSON template" time="0.0053" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Has a parameters file" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation.Has a parameters file" time="0.011" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Has a metadata file" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation.Has a metadata file" time="0.0052" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Converts from JSON and has the expected properties" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation.Converts from JSON and has the expected properties" time="0.0294" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Creates the expected Azure resources" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation.Creates the expected Azure resources" time="0.0628" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Contains the expected parameters" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation.Contains the expected parameters" time="0.0861" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+              <test-suite type="TestFixture" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template test deployment" executed="True" result="Success" success="True" time="438.288" asserts="0" description="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template test deployment">
+                <results>
+                  <test-case description="Test Deployment of ARM template azuredeploy.json with parameter file azuredeploy.parameters.json" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template test deployment.Test Deployment of ARM template azuredeploy.json with parameter file azuredeploy.parameters.json" time="6.0002" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Deployment of ARM template azuredeploy.json with parameter file azuredeploy.parameters.json" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template test deployment.Deployment of ARM template azuredeploy.json with parameter file azuredeploy.parameters.json" time="127.7344" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Deployment in Azure validation" name="[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template validation &amp; test.[CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD] Template test deployment.Deployment in Azure validation" time="1.2076" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

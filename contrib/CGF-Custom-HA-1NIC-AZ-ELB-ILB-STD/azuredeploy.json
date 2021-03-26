@@ -102,22 +102,17 @@
       "type": "securestring",
       "defaultValue": ""
     },
-    "diagstorageAccountType": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "allowedValues": [
-        "Standard_LRS",
-        "Standard_GRS",
-        "Standard_ZRS",
-        "Premium_LRS"
-      ],
+    
+    "managedIdentities": {
+      "type": "bool",
+      "defaultValue": false,
       "metadata": {
-        "description": "diagnostic Storage Account type"
+        "description": "Set to true to deploy with managed identities"
       }
     }
   },
   "variables": {
-    "computeApiVersion": "2017-03-30",
+    "computeApiVersion": "2020-06-01",
     "networkApiVersion": "2017-08-01",
 
     "imagePublisher": "barracudanetworks",
@@ -134,7 +129,6 @@
     "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
     "cgfPIPAddressName2": "[concat(variables('cgfVmName2'),'-PIP')]",
     "cgfPIPAddressType": "Static",
-    "storageAccountName": "[toLower(substring(concat(parameters('prefix'), uniqueString(resourceGroup().id)),0,15))]",
     "lbPIPAddressName": "[concat(parameters('prefix'),'-CGF-LB-PIP')]",
     "dnsNameForCGF": "[toLower( concat( parameters('prefix'), '-cgf-', uniqueString(resourceGroup().id) ) )]",
 
@@ -166,20 +160,31 @@
     "cgfCustomDataCC1": "[base64(concat('#!/bin/bash\n\n', 'echo \"*/2 * * * * root echo \\\"', parameters( 'ccSecret' ), '\\\" | /opt/phion/bin/getpar -a ', parameters('ccIpAddress'), ' -r ', parameters( 'ccRangeId' ), ' -c ', parameters( 'ccClusterName' ), ' -b ', variables( 'cgfVmName1' ), ' -d /opt/phion/update/box.par -s --verbosity 10 >> /tmp/getpar.log && /etc/rc.d/init.d/phion stop && /etc/rc.d/init.d/phion start && rm /etc/cron.d/getpar\" > /etc/cron.d/getpar\n'))]",
     "cgfCustomDataCC2": "[base64(concat('#!/bin/bash\n\n', 'echo \"*/2 * * * * root echo \\\"', parameters( 'ccSecret' ), '\\\" | /opt/phion/bin/getpar -a ', parameters('ccIpAddress'), ' -r ', parameters( 'ccRangeId' ), ' -c ', parameters( 'ccClusterName' ), ' -b ', variables( 'cgfVmName2' ), ' -d /opt/phion/update/box.par -s --verbosity 10 >> /tmp/getpar.log && /etc/rc.d/init.d/phion stop && /etc/rc.d/init.d/phion start && rm /etc/cron.d/getpar\" > /etc/cron.d/getpar\n'))]",
     "RESTenabled": "'\n/opb/cloud-enable-ssh\n/opb/cloud-enable-rest\n'",
-    "defaultRouteTableName": "[concat( 'route-via-', parameters( 'prefix' ), 'VM-CGF-', resourceGroup().name )]"
+    "defaultRouteTableName": "[concat( 'route-via-', parameters( 'prefix' ), 'VM-CGF-', resourceGroup().name )]",
+        "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+     "identity": {
+        "type": "SystemAssigned"
+     }
   },
     "resources": [
-      {
-        "type": "Microsoft.Storage/storageAccounts",
-        "name": "[variables('storageAccountName')]",
-        "location": "[resourceGroup().location]",
-        "apiVersion": "2018-07-01",
-        "sku": {
-          "name": "[parameters('diagstorageAccountType')]"
-        },
-        "kind": "StorageV2",
-        "properties": {}
+           {
+      "condition": "[equals(parameters('managedIdentities'),'yes')]",
+      "copy": {
+        "name": "IdLoop",
+        "count": 2
       },
+      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "[guid(concat(variables(concat('cgfVmName',copyIndex(1))),resourceGroup().id, deployment().name))]",
+      "apiVersion": "2017-09-01",
+      "properties": {
+        "roleDefinitionId": "[variables('Contributor')]",
+        "principalId": "[reference(variables(concat('cgfVmName',copyIndex(1))), '2018-06-01', 'Full').identity.principalId]",
+        "scope": "[resourceGroup().id]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables(concat('cgfVmName',copyIndex(1))))]"
+      ]
+    },
       {
         "apiVersion": "[variables('networkApiVersion')]",
         "type": "Microsoft.Network/networkSecurityGroups",
@@ -556,9 +561,7 @@
       {
         "apiVersion": "[variables('computeApiVersion')]",
         "type": "Microsoft.Compute/virtualMachines",
-        "identity": {
-          "type": "SystemAssigned"
-        },
+        "identity": "[if(parameters('managedIdentities'),variables('identity'),json('null'))]",
         "name": "[variables('cgfVmName1')]",
         "location": "[resourceGroup().location]",
         "zones": [
@@ -598,8 +601,8 @@
           },
           "diagnosticsProfile": {
             "bootDiagnostics": {
-              "enabled": true,
-              "storageUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net')]"
+              "enabled": true
+              
             }
 
           },
@@ -618,9 +621,7 @@
       {
         "apiVersion": "[variables('computeApiVersion')]",
         "type": "Microsoft.Compute/virtualMachines",
-        "identity": {
-          "type": "SystemAssigned"
-        },
+        "identity": "[if(parameters('managedIdentities'),variables('identity'),json('null'))]",
         "zones": [
           "2"
         ],
@@ -661,8 +662,7 @@
           },
           "diagnosticsProfile": {
             "bootDiagnostics": {
-              "enabled": true,
-              "storageUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net')]"
+              "enabled": true
             }
 
           },

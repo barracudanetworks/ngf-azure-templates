@@ -47,8 +47,8 @@
     "ccSecret": {
       "value": ""
     },
-    "diagstorageAccountType": {
-      "value": "Standard_LRS"
+    "managedIdentities": {
+      "value": false
     }
   }
 }

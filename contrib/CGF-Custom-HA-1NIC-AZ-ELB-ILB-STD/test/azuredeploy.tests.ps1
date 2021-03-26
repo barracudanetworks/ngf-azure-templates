@@ -63,10 +63,9 @@ Describe "[$templateName] Template validation & test" {
         }
         
                It 'Creates the expected Azure resources' {
-            $expectedResources ='Microsoft.Storage/storageAccounts',
+            $expectedResources = 'Microsoft.Authorization/roleAssignments',
                                 'Microsoft.Network/networkSecurityGroups',
                                 'Microsoft.Network/routeTables',
-                                'Microsoft.Compute/availabilitySets',
                                 'Microsoft.Network/publicIPAddresses',
                                 'Microsoft.Network/loadBalancers',
                                 'Microsoft.Network/loadBalancers',
@@ -87,10 +86,10 @@ Describe "[$templateName] Template validation & test" {
                                             'ccManaged',
                                             'ccRangeId',
                                             'ccSecret',
-                                            'diagstorageAccountType',
                                             'enableAccelerated',
                                             'enableREST',
                                             'imageSKU',
+                                            'managedIdentities',
                                             'prefix',
                                             'subnetCGF',
                                             'subnetNameCGF',
@@ -124,28 +123,37 @@ Describe "[$templateName] Template validation & test" {
 
         # Set working directory & create resource group
         Set-Location $sourcePath
-        New-AzureRmResourceGroup -Name $testsResourceGroupName -Location "$testsResourceGroupLocation"
+        New-AzResourceGroup -Name $testsResourceGroupName -Location "$testsResourceGroupLocation"
+
+
+        #***************************************************************************************************************************************************************# 
+        #Creates Custom VNET and Subnet
+        $testsCGFSubnetConf = New-AzVirtualNetworkSubnetConfig -Name "CUDA-SUBNET-CGF" -AddressPrefix "172.16.136.0/24" 
+        $testsredSubnetConf = New-AzVirtualNetworkSubnetConfig -Name "CUDA-SUBNET-RED" -AddressPrefix "172.16.137.0/24" 
+        $testgreenSubnetConf = New-AzVirtualNetworkSubnetConfig -Name "CUDA-SUBNET-GREEN" -AddressPrefix "172.16.138.0/24" 
+        New-AzVirtualNetwork -ResourceGroupName $testsResourceGroupName -Location "$testsResourceGroupLocation" -Name "CUDAQA-$testsRandom-VNET" -AddressPrefix "172.16.136.0/22" -Subnet $testsCGFSubnetConf,$testgreenSubnetConf,$testsredSubnetConf -ErrorAction Stop
+        #***************************************************************************************************************************************************************# 
 
         # Validate all ARM templates one by one
         $testsErrorFound = $false
 
         It "Test Deployment of ARM template $templateFileName with parameter file $templateParameterFileName" {
-            (Test-AzureRmResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsPrefix).Count | Should not BeGreaterThan 0
+            (Test-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsPrefix -vNetResourceGroup $testsResourceGroupName -vNetName "CUDAQA-$testsRandom-VNET" -managedIdentities $true ).Count | Should not BeGreaterThan 0
         }
         It "Deployment of ARM template $templateFileName with parameter file $templateParameterFileName" {
-            $resultDeployment = New-AzureRmResourceGroupDeployment -ResourceGroupName $testSResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsprefix
+            $resultDeployment = New-AzResourceGroupDeployment -ResourceGroupName $testSResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsprefix -vNetResourceGroup $testsResourceGroupName -vNetName "CUDAQA-$testsRandom-VNET" -managedIdentities $true
             Write-Host "Provisioning result:"
             Write-Host ($resultDeployment | Format-Table | Out-String)
             Write-Host ("Provisioning state: " + $resultDeployment.ProvisioningState)
             $resultDeployment.ProvisioningState | Should Be "Succeeded"
         }
         It "Deployment in Azure validation" {
-            $result = Get-AzureRmVM | Where-Object { $_.Name -like "$testsPrefix*" } 
+            $result = Get-AzVM | Where-Object { $_.Name -like "$testsPrefix*" } 
             Write-Host ($result | Format-Table | Out-String)
             $result | Should Not Be $null
         }
         Write-Host "Removing resourcegroup $testsResourceGroupName"
-        Remove-AzureRmResourceGroup -Name $testsResourceGroupName -Force
+        Remove-AzResourceGroup -Name $testsResourceGroupName -Force
 
     }
 

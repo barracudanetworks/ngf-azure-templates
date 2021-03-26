@@ -25,9 +25,9 @@ Function random-password ($length = 15)
     return $password
 }
 
-$templateName = "CGF-Custom-HA-2NIC-AS-ELB-ILB-STD"
-$sourcePath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName"
-$scriptPath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName\test"
+$templateName = "CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD"
+$sourcePath = "$env:BUILD_SOURCESDIRECTORY\$templateName"
+$scriptPath = "$env:BUILD_SOURCESDIRECTORY\$templateName\test"
 $templateFileName = "azuredeploy.json"
 $templateFileLocation = "$sourcePath\$templateFileName"
 $templateMetadataFileName = "metadata.json"
@@ -62,42 +62,38 @@ Describe "[$templateName] Template validation & test" {
             $templateProperties | Should Be $expectedProperties
         }
         
-        It 'Creates the expected Azure resources' {
-            $expectedResources = 'Microsoft.Authorization/roleAssignments',
-                                 'Microsoft.Authorization/roleAssignments',
-                                 'Microsoft.Network/networksecurityGroups',
-                                 'Microsoft.Network/virtualNetworks',
+               It 'Creates the expected Azure resources' {
+            $expectedResources = 'Microsoft.Compute/availabilitySets',
+                                'Microsoft.Authorization/roleAssignments',
+                                'Microsoft.Network/networkSecurityGroups',
                                  'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/loadBalancers',
-                                 'Microsoft.Network/loadBalancers',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Compute/virtualMachines',
-                                 'Microsoft.Compute/virtualMachines'
+                                'Microsoft.Network/loadBalancers',
+                                'Microsoft.Network/loadBalancers',
+                                'Microsoft.Network/publicIPAddresses',
+                                'Microsoft.Network/publicIPAddresses',
+                                'Microsoft.Network/networkInterfaces',
+                                'Microsoft.Network/networkInterfaces',
+                                'Microsoft.Compute/virtualMachines',
+                                'Microsoft.Compute/virtualMachines'
             $templateResources = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Resources.type
             $templateResources | Should Be $expectedResources
         }
-
+        
         It 'Contains the expected parameters' {
             $expectedTemplateParameters = 'adminPassword',
-                                           'backendSubnetName',
-                                           'backendSubnetRange',
-                                           'ccClusterName',
-                                           'ccIpAddress',
-                                           'ccManaged',
-                                           'ccRangeId',
-                                           'ccSecret',
-                                           'enableAccelerated',
-                                           'enableREST',
-                                           'frontendSubnetName'.
-                                           'frontendSubnetRange',
-                                           'imageSKU',
-                                           'prefix',
-                                           'version',
+                                            'ccClusterName',
+                                            'ccIpAddress',
+                                            'ccManaged',
+                                            'ccRangeId',
+                                            'ccSecret',
+                                            'enableAccelerated',
+                                            'enableREST',
+                                            'imageSKU',
+                                            'managedIdentities',
+                                            'prefix',
+                                            'subnetCGF',
+                                            'subnetNameCGF',
+                                            'version',
                                             'vmSize',
                                             'vNetName',
                                             'vNetResourceGroup'
@@ -105,17 +101,20 @@ Describe "[$templateName] Template validation & test" {
             $templateParameters | Should Be $expectedTemplateParameters
         }
 
+    
+
     }
 
     Context  "[$templateName] Template test deployment" {
 
         # Basic Variables
         $testsRandom = Get-Random 10001
-        $testsPrefix = "CUDAQA-$testsRandom"
+        $testsPrefix = "CUDAQA$testsRandom"
         $testsResourceGroupName = "CUDAQA-$testsRandom-$templateName"
         $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
         $testsVM = "$testsPrefix-VM-CGF"
         $testsResourceGroupLocation = "East US2"
+
 
         # List of all scripts + parameter files
         $testsTemplateList=@()
@@ -124,28 +123,37 @@ Describe "[$templateName] Template validation & test" {
 
         # Set working directory & create resource group
         Set-Location $sourcePath
-        New-AzureRmResourceGroup -Name $testsResourceGroupName -Location "$testsResourceGroupLocation"
+        New-AzResourceGroup -Name $testsResourceGroupName -Location "$testsResourceGroupLocation"
+
+
+        #***************************************************************************************************************************************************************# 
+        #Creates Custom VNET and Subnet
+        $testsCGFSubnetConf = New-AzVirtualNetworkSubnetConfig -Name "CUDA-SUBNET-CGF" -AddressPrefix "172.16.136.0/24" 
+        $testsredSubnetConf = New-AzVirtualNetworkSubnetConfig -Name "CUDA-SUBNET-RED" -AddressPrefix "172.16.137.0/24" 
+        $testgreenSubnetConf = New-AzVirtualNetworkSubnetConfig -Name "CUDA-SUBNET-GREEN" -AddressPrefix "172.16.138.0/24" 
+        New-AzVirtualNetwork -ResourceGroupName $testsResourceGroupName -Location "$testsResourceGroupLocation" -Name "CUDAQA-$testsRandom-VNET" -AddressPrefix "172.16.136.0/22" -Subnet $testsCGFSubnetConf,$testgreenSubnetConf,$testsredSubnetConf -ErrorAction Stop
+        #***************************************************************************************************************************************************************# 
 
         # Validate all ARM templates one by one
         $testsErrorFound = $false
 
         It "Test Deployment of ARM template $templateFileName with parameter file $templateParameterFileName" {
-            (Test-AzureRmResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsPrefix).Count | Should not BeGreaterThan 0
+            (Test-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsPrefix -vNetResourceGroup $testsResourceGroupName -vNetName "CUDAQA-$testsRandom-VNET" -managedIdentities $true ).Count | Should not BeGreaterThan 0
         }
         It "Deployment of ARM template $templateFileName with parameter file $templateParameterFileName" {
-            $resultDeployment = New-AzureRmResourceGroupDeployment -ResourceGroupName $testSResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsprefix
+            $resultDeployment = New-AzResourceGroupDeployment -ResourceGroupName $testSResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsprefix -vNetResourceGroup $testsResourceGroupName -vNetName "CUDAQA-$testsRandom-VNET" -managedIdentities $true
             Write-Host "Provisioning result:"
             Write-Host ($resultDeployment | Format-Table | Out-String)
             Write-Host ("Provisioning state: " + $resultDeployment.ProvisioningState)
             $resultDeployment.ProvisioningState | Should Be "Succeeded"
         }
         It "Deployment in Azure validation" {
-            $result = Get-AzureRmVM | Where-Object { $_.Name -like "$testsPrefix*" } 
+            $result = Get-AzVM | Where-Object { $_.Name -like "$testsPrefix*" } 
             Write-Host ($result | Format-Table | Out-String)
             $result | Should Not Be $null
         }
         Write-Host "Removing resourcegroup $testsResourceGroupName"
-        Remove-AzureRmResourceGroup -Name $testsResourceGroupName -Force
+        Remove-AzResourceGroup -Name $testsResourceGroupName -Force
 
     }
 
