@@ -1,77 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="9" errors="0" failures="8" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2021-03-26" time="16:24:19">
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="9" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2021-03-26" time="16:58:06">
   <environment user-domain="EU" platform="Microsoft Windows 10 Enterprise|C:\WINDOWS|\Device\Harddisk0\Partition4" machine-name="SLZ-GALLEN-LT" os-version="10.0.19041" user="gallen" cwd="C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard" nunit-version="2.5.8.0" clr-version="Unknown" />
   <culture-info current-culture="en-GB" current-uiculture="en-US" />
-  <test-suite type="TestFixture" name="Pester" executed="True" result="Failure" success="False" time="53.5961" asserts="0" description="Pester">
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="145.2153" asserts="0" description="Pester">
     <results>
-      <test-suite type="TestFixture" name="C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1" executed="True" result="Failure" success="False" time="53.5961" asserts="0" description="C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1">
+      <test-suite type="TestFixture" name="C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1" executed="True" result="Success" success="True" time="145.2153" asserts="0" description="C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1">
         <results>
-          <test-suite type="TestFixture" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test" executed="True" result="Failure" success="False" time="53.5723" asserts="0" description="[CGW-LogAnalytics-Dashboard] Template validation &amp; test">
+          <test-suite type="TestFixture" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test" executed="True" result="Success" success="True" time="145.202" asserts="0" description="[CGW-LogAnalytics-Dashboard] Template validation &amp; test">
             <results>
-              <test-suite type="TestFixture" name="[CGW-LogAnalytics-Dashboard] Template validation" executed="True" result="Failure" success="False" time="0.3255" asserts="0" description="[CGW-LogAnalytics-Dashboard] Template validation">
+              <test-suite type="TestFixture" name="[CGW-LogAnalytics-Dashboard] Template validation" executed="True" result="Success" success="True" time="0.2002" asserts="0" description="[CGW-LogAnalytics-Dashboard] Template validation">
                 <results>
-                  <test-case description="Has a JSON template" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Has a JSON template" time="0.0042" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected path 'cd \azuredeploy.json' to exist, but it did not exist.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 43
-43:             $templateFileLocation | Should Exist</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Has a parameters file" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Has a parameters file" time="0.0045" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected path 'cd \azuredeploy.parameters.json' to exist, but it did not exist.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 47
-47:             $templateParameterFileLocation | Should Exist</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Has a metadata file" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Has a metadata file" time="0.004" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected path 'cd \metadata.json' to exist, but it did not exist.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 51
-51:             $templateMetadataFileLocation | Should Exist</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Converts from JSON and has the expected properties" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Converts from JSON and has the expected properties" time="0.0591" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected @('$schema', 'contentVersion', 'outputs', 'parameters', 'resources', 'variables'), but got $null.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 62
-62:             $templateProperties | Should Be $expectedProperties</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Creates the expected Azure resources" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Creates the expected Azure resources" time="0.0226" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected @('Microsoft.OperationalInsights/workspaces', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.OperationalInsights/workspaces/savedSearches', 'Microsoft.Resources/deployments'), but got $null.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 72
-72:             $templateResources | Should Be $expectedResources</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Contains the expected parameters" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Contains the expected parameters" time="0.0466" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected @('neworExisting', 'workspaceName'), but got $null.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 79
-79:             $templateParameters | Should Be $expectedTemplateParameters</stack-trace>
-                    </failure>
-                  </test-case>
+                  <test-case description="Has a JSON template" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Has a JSON template" time="0.0027" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Has a parameters file" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Has a parameters file" time="0.0045" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Has a metadata file" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Has a metadata file" time="0.0099" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Converts from JSON and has the expected properties" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Converts from JSON and has the expected properties" time="0.0192" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Creates the expected Azure resources" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Creates the expected Azure resources" time="0.0123" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Contains the expected parameters" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template validation.Contains the expected parameters" time="0.0202" asserts="0" success="True" result="Success" executed="True" />
                 </results>
               </test-suite>
-              <test-suite type="TestFixture" name="[CGW-LogAnalytics-Dashboard] Template test deployment" executed="True" result="Failure" success="False" time="53.1768" asserts="0" description="[CGW-LogAnalytics-Dashboard] Template test deployment">
+              <test-suite type="TestFixture" name="[CGW-LogAnalytics-Dashboard] Template test deployment" executed="True" result="Success" success="True" time="144.8864" asserts="0" description="[CGW-LogAnalytics-Dashboard] Template test deployment">
                 <results>
-                  <test-case description="Test Deployment of ARM template  with parameter file " name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template test deployment.Test Deployment of ARM template  with parameter file " time="1.9062" asserts="0" success="True" result="Success" executed="True" />
-                  <test-case description="Deployment of ARM template  with parameter file " name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template test deployment.Deployment of ARM template  with parameter file " time="0.0032" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Cannot retrieve the dynamic parameters for the cmdlet. Cannot find path 'C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\cd \azuredeploy.json' because it does not exist.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 110
-110:             $resultDeployment = New-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -workspaceName "$workspace"
-</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Deployment in Azure validation" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template test deployment.Deployment in Azure validation" time="0.5833" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected $null to be different from the actual value, but got the same value.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Store\ngf-azure-templates\CGW-LogAnalytics-Dashboard\test\azuredeploy.tests.ps1: line 118
-118:             $result | Should Not Be $null</stack-trace>
-                    </failure>
-                  </test-case>
+                  <test-case description="Test Deployment of ARM template  with parameter file " name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template test deployment.Test Deployment of ARM template  with parameter file " time="1.9877" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Deployment of ARM template  with parameter file " name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template test deployment.Deployment of ARM template  with parameter file " time="31.3903" asserts="0" success="True" result="Success" executed="True" />
+                  <test-case description="Deployment in Azure validation" name="[CGW-LogAnalytics-Dashboard] Template validation &amp; test.[CGW-LogAnalytics-Dashboard] Template test deployment.Deployment in Azure validation" time="0.71" asserts="0" success="True" result="Success" executed="True" />
                 </results>
               </test-suite>
             </results>

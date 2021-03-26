@@ -11,8 +11,8 @@ The Barracuda CloudGen Firewall (CGF) can be installed in different ways into th
 |---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:
 | ![Build Status](https://dev.azure.com/gallen0262/cudasedevops/_apis/build/status/CGF-Custom-HA-1NIC-AS-ELB-ILB-STD) | [CGF-Custom-HA-1NIC-AS-ELB-ILB-STD](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-Custom-HA-1NIC-AS-ELB-ILB-STD) | X | X | - | X | X | - | X | - 
 | ![Build status](https://dev.azure.com/gallen0262/cudasedevops/_apis/build/status/CGF-Quickstart-HA-1NIC-AS-ELB-ILB-STD) | [CGF-Quickstart-HA-1NIC-AZ-ELB-ILB-STD](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-Quickstart-HA-1NIC-AZ-ELB-ILB-STD) | - | X | - | X | X | X | X | - 
-| | [CGF-LogAnalytics-Dashboard](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-LogAnalytics-Dashboard) | - | - | - |- | - | -| - | - 
-
+| ![Build status](https://dev.azure.com/gallen0262/cudasedevops/_apis/build/status/CGF-LogAnalytics-Dashboard)| [CGF-LogAnalytics-Dashboard](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGF-LogAnalytics-Dashboard) | - | - | - |- | - | -| - | - 
+| ![Build status](https://dev.azure.com/gallen0262/cudasedevops/_apis/build/status/CGW-LogAnalytics-Dashboard) | [CGW-LogAnalytics-Dashboard](https://github.com/barracudanetworks/ngf-azure-templates/tree/master/CGW-LogAnalytics-Dashboard) | - | X | - | X | X | X | X | - 
 More templates can be found within the Contrib directory.
 
 
