@@ -66,5 +66,16 @@ To deploy via Azure Portal you can use the button below to deploy this Log Analy
 - If you have previously imported this Log Analytics template, you may receive a conflict for the SavedSearches which are already present. ![Example Error 1](images/exampleerror1.png) You can delete these prior to importing via the Query Explorer in the Logs page of Log Analytics.  ![Apply](images/savedsearches.png)
 
 
+- If there is no data populating the Block Firewall graphs and your devices are not newly deployed perform the following steps. 
+
+1. Enable the "Disable Log Analytics" for that site in the Site, Advanced Settings.
+![Apply](images/omson.png)
+2. Wait 5 minutes for the config to sync
+3. Disable the Enable Log Analytics radio button
+![Apply](images/omsoff.png)
+
+-If there is no data populating the SDWAN data and your device is an upgrade from 8.1.0 then please contact Barracuda Support for assistance.
+
+<a href="https://www.barracuda.com/support">https://www.barracuda.com/support</a>
 
 ##### DISCLAIMER: ALL OF THE SOURCE CODE ON THIS REPOSITORY IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL BARRACUDA BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOURCE CODE. #####
