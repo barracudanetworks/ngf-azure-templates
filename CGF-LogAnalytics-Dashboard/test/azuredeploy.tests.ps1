@@ -72,7 +72,9 @@ Describe "[$templateName] Template validation & test" {
                                  'Microsoft.OperationalInsights/workspaces/views',
                                  'Microsoft.OperationsManagement/solutions',
                                  'Microsoft.OperationsManagement/solutions',
-                                 'Microsoft.OperationsManagement/solutions'
+                                 'Microsoft.OperationsManagement/solutions',
+                                 'Microsoft.OperationsManagement/solutions',
+                                 'Microsoft.Resources/deployments'
             $templateResources = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Resources.type
             $templateResources | Should Be $expectedResources
         }
