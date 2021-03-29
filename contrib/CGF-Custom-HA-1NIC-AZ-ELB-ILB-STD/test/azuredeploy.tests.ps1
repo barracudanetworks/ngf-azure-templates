@@ -26,8 +26,8 @@ Function random-password ($length = 15)
 }
 
 $templateName = "CGF-Custom-HA-1NIC-AZ-ELB-ILB-STD"
-$sourcePath = "$env:BUILD_SOURCESDIRECTORY\$templateName"
-$scriptPath = "$env:BUILD_SOURCESDIRECTORY\$templateName\test"
+$sourcePath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName"
+$scriptPath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName\test"
 $templateFileName = "azuredeploy.json"
 $templateFileLocation = "$sourcePath\$templateFileName"
 $templateMetadataFileName = "metadata.json"

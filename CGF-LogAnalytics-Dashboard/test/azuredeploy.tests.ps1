@@ -127,7 +127,7 @@ Describe "[$templateName] Template validation & test" {
             $result | Should Not Be $null
         }
         Write-Host "Removing resourcegroup $testsResourceGroupName"
-      #  Remove-AzResourceGroup -Name $testsResourceGroupName -Force
+        Remove-AzResourceGroup -Name $testsResourceGroupName -Force
 
     }
 
