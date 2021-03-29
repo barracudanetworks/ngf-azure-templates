@@ -23,7 +23,7 @@
 		}
 	},
 	"variables": {
-		
+		"singleQuote": "'",
 		"workbookDisplayName" : "Barracuda CloudGen WAN Dashboard"
 	},
 	"resources": [
