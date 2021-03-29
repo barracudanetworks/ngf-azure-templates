@@ -1093,9 +1093,6 @@
   ]
   ,
 "outputs": {
-    "workbookId": {
-      "type": "string",
-      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
-    }
+    
   }
 }

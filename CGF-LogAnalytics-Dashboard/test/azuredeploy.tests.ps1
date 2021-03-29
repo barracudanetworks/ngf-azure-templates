@@ -72,8 +72,7 @@ Describe "[$templateName] Template validation & test" {
                                  'Microsoft.OperationalInsights/workspaces/views',
                                  'Microsoft.OperationsManagement/solutions',
                                  'Microsoft.OperationsManagement/solutions',
-                                 'Microsoft.OperationsManagement/solutions',
-                                 'Microsoft.Resources/deployments'
+                                 'Microsoft.OperationsManagement/solutions'
             $templateResources = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Resources.type
             $templateResources | Should Be $expectedResources
         }
@@ -126,7 +125,7 @@ Describe "[$templateName] Template validation & test" {
             $result | Should Not Be $null
         }
         Write-Host "Removing resourcegroup $testsResourceGroupName"
-        Remove-AzResourceGroup -Name $testsResourceGroupName -Force
+      #  Remove-AzResourceGroup -Name $testsResourceGroupName -Force
 
     }
 
