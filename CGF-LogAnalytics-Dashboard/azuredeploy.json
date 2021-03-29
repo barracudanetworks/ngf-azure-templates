@@ -73,7 +73,7 @@
       }
     },
     "templateBaseUrl": "https://raw.githubusercontent.com/gallen-bar/ngf-azure-templates/master/CGF-LogAnalytics-Dashboard/Workbook/",
-    //"templateBaseUrl": "https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/master/CGF-LogAnalytics-Dashboard/Workbook/",
+    "templateBaseUrl2": "https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/master/CGF-LogAnalytics-Dashboard/Workbook/",
     "workbookTemplateUrl": "[uri(variables('templateBaseUrl'), 'workbook.json')]",
     "SourceID": "[Concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
 

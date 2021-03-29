@@ -21,7 +21,7 @@
   },
   "variables": {
    "templateBaseUrl": "https://raw.githubusercontent.com/gallen-bar/ngf-azure-templates/master/CGW-LogAnalytics-Dashboard/Workbook/",
-    //"templateBaseUrl": "https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/master/CGW-LogAnalytics-Dashboard/Workbook/",
+    "templateBaseUrl2": "https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/master/CGW-LogAnalytics-Dashboard/Workbook/",
     "workbookTemplateUrl": "[uri(variables('templateBaseUrl'), 'workbook.json')]"
   },
   "resources": [
