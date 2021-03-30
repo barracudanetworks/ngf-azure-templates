@@ -25,9 +25,9 @@ Function random-password ($length = 15)
     return $password
 }
 
-$templateName = "CGF-Quickstart-HA-2NIC-AZ-ELB-ILB-STD"
-$sourcePath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName"
-$scriptPath = "$env:BUILD_SOURCESDIRECTORY\contrib\$templateName\test"
+$templateName = "CGW-LogAnalytics-Dashboard"
+$sourcePath = "$env:BUILD_SOURCESDIRECTORY\$templateName"
+$scriptPath = "$env:BUILD_SOURCESDIRECTORY\$templateName\test"
 $templateFileName = "azuredeploy.json"
 $templateFileLocation = "$sourcePath\$templateFileName"
 $templateMetadataFileName = "metadata.json"
@@ -63,43 +63,18 @@ Describe "[$templateName] Template validation & test" {
         }
         
         It 'Creates the expected Azure resources' {
-            $expectedResources = 'Microsoft.Authorization/roleAssignments',
-                                 'Microsoft.Authorization/roleAssignments',
-                                 'Microsoft.Network/networksecurityGroups',
-                                 'Microsoft.Network/virtualNetworks',
-                                 'Microsoft.Network/routeTables',
-                                 'Microsoft.Network/routeTables',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/loadBalancers',
-                                 'Microsoft.Network/loadBalancers',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/publicIPAddresses',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Network/networkInterfaces',
-                                 'Microsoft.Compute/virtualMachines',
-                                 'Microsoft.Compute/virtualMachines'
+            $expectedResources = 'Microsoft.OperationalInsights/workspaces',
+                                 'Microsoft.OperationalInsights/workspaces/savedSearches',
+                                 'Microsoft.OperationalInsights/workspaces/savedSearches',
+                                 'Microsoft.OperationalInsights/workspaces/savedSearches',
+                                 'Microsoft.Resources/deployments'
             $templateResources = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Resources.type
             $templateResources | Should Be $expectedResources
         }
-
+        
         It 'Contains the expected parameters' {
-            $expectedTemplateParameters = 'adminPassword',
-                                          'ccClusterName',
-                                          'ccIpAddress',
-                                          'ccManaged',
-                                          'ccRangeId',
-                                          'ccSecret',
-                                          'imageSKU',
-                                          'prefix',
-                                          'subnetCGF-external',
-                                          'subnetCGF-internal',
-                                          'subnetGreen',
-                                          'subnetRed',
-                                          'version',
-                                          'vmSize',
-                                          'vNetAddressSpace'
+            $expectedTemplateParameters = 'neworExisting',
+                                            'workspaceName'
             $templateParameters = (get-content $templateFileLocation | ConvertFrom-Json -ErrorAction SilentlyContinue).Parameters | Get-Member -MemberType NoteProperty | % Name
             $templateParameters | Should Be $expectedTemplateParameters
         }
@@ -110,10 +85,10 @@ Describe "[$templateName] Template validation & test" {
 
         # Basic Variables
         $testsRandom = Get-Random 10001
-        $testsPrefix = "CUDAQA-$testsRandom"
+        $testsPrefix = "CUDAQA$testsRandom"
         $testsResourceGroupName = "CUDAQA-$testsRandom-$templateName"
-        $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
-        $testsVM = "$testsPrefix-VM-CGF"
+       # $testsAdminPassword = $testsResourceGroupName | ConvertTo-SecureString -AsPlainText -Force
+        $workspace = "$testsPrefix-CGWtest"
         $testsResourceGroupLocation = "East US2"
 
         # List of all scripts + parameter files
@@ -123,28 +98,27 @@ Describe "[$templateName] Template validation & test" {
 
         # Set working directory & create resource group
         Set-Location $sourcePath
-        New-AzureRmResourceGroup -Name $testsResourceGroupName -Location "$testsResourceGroupLocation"
+        New-AzResourceGroup -Name $testsResourceGroupName -Location "$testsResourceGroupLocation"
 
         # Validate all ARM templates one by one
         $testsErrorFound = $false
 
-        It "Test Deployment of ARM template $templateFileName with parameter file $templateParameterFileName" {
-            (Test-AzureRmResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsPrefix).Count | Should not BeGreaterThan 0
+        It "Test Deployment of ARM template $testsTemplateFile with parameter file $testsTemplateParemeterFile" {
+            (Test-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile "azuredeploy.json" -TemplateParameterFile "azuredeploy.parameters.json" -workspaceName "$workspace" ).Count | Should not BeGreaterThan 0
         }
-        It "Deployment of ARM template $templateFileName with parameter file $templateParameterFileName" {
-            $resultDeployment = New-AzureRmResourceGroupDeployment -ResourceGroupName $testSResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -adminPassword $testsAdminPassword -prefix $testsprefix
-            Write-Host "Provisioning result:"
+        It "Deployment of ARM template $testsTemplateFile with parameter file $testsTemplateParemeterFile" {
+            $resultDeployment = New-AzResourceGroupDeployment -ResourceGroupName $testsResourceGroupName -TemplateFile $templateFileLocation -TemplateParameterFile $templateParameterFileLocation -workspaceName "$workspace"
             Write-Host ($resultDeployment | Format-Table | Out-String)
-            Write-Host ("Provisioning state: " + $resultDeployment.ProvisioningState)
+            Write-Host $resultDeployment.ProvisioningState
             $resultDeployment.ProvisioningState | Should Be "Succeeded"
         }
         It "Deployment in Azure validation" {
-            $result = Get-AzureRmVM | Where-Object { $_.Name -like "$testsPrefix*" } 
+            $result = Get-AzResource -ResourceGroupName "$testsResourceGroupName" | Where-Object { $_.Name -like "$testsPrefix*" } 
             Write-Host ($result | Format-Table | Out-String)
             $result | Should Not Be $null
         }
         Write-Host "Removing resourcegroup $testsResourceGroupName"
-        Remove-AzureRmResourceGroup -Name $testsResourceGroupName -Force
+        Remove-AzResourceGroup -Name $testsResourceGroupName -Force
 
     }
 

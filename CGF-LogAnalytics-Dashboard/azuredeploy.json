@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "workspaceName": {
@@ -7,6 +7,27 @@
       "defaultValue": "",
       "metadata": {
         "description": "Specify the workspace name"
+      }
+    },
+    "neworExisting":{
+      "type": "string",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "metadata": {
+        "description": "Indicate if this should create a new or existing workspace"
+      }
+    },
+    "type": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "allowedValues": [
+        "view",
+        "workbook"
+      ],
+      "metadata": {
+        "description": "Deploy Workbook or Views"
       }
     }
   },
@@ -50,55 +71,71 @@
         "description": "Monitor and analyze your Barracuda Firewall Traffic",
         "author": "Barracuda"
       }
-    }
+    },
+    "templateBaseUrl2": "https://raw.githubusercontent.com/gallen-bar/ngf-azure-templates/master/CGF-LogAnalytics-Dashboard/Workbook/",
+    "templateBaseUrl": "https://raw.githubusercontent.com/barracudanetworks/ngf-azure-templates/master/CGF-LogAnalytics-Dashboard/Workbook/",
+    "workbookTemplateUrl": "[uri(variables('templateBaseUrl'), 'workbook.json')]",
+    "SourceID": "[Concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+
   },
   "resources": [
-    {
+{
+     "condition": "[equals(parameters('neworExisting'),'new')]",
       "apiVersion": "2015-11-01-preview",
-      "name": "[parameters('workspaceName')]",
       "type": "Microsoft.OperationalInsights/workspaces",
+      "name": "[parameters('workspaceName')]",
       "location": "[resourceGroup().location]",
-      "resources": [
-        {
-          "apiVersion": "2017-03-15-preview",
-          "type": "savedSearches",
-          "name": "CGFWFirewallActivity",
+      "properties": {
+        "sku": {
+          "Name": "Free"
+        }
+      }
+  },
+ { 
+          "apiVersion": "2020-08-01",
+          "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+          "name": "[concat(parameters('workspaceName'), '/CGFWFirewallActivity')]",
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-          ],
+                "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+      ],
           "properties": {
             "category": "Barracuda_FW",
             "displayName": "CGFWFirewallActivity",
             "query": "Syslog| where ProcessName == \"box_Firewall_Activity\" | extend Type = extract(\"type=([\\\\w\\\\s]+)\",1,SyslogMessage), L4Protocol = extract(\"proto=([\\\\w\\\\s]+)\",1,SyslogMessage) , SourceInterface = extract(\"srcIF=([\\\\w\\\\s]+)\",1,SyslogMessage), SourceIP = extract(\"srcIP=([\\\\d\\\\.]+)\",1,SyslogMessage), SourcePort = extract(\"srcPort=([\\\\d\\\\s]+)\",1,SyslogMessage), SourceMAC = extract(\"srcMAC=([\\\\w\\\\d:]+)\",1,SyslogMessage), DestinationIP = extract(\"dstIP=([\\\\d\\\\.]+)\",1,SyslogMessage), DestinationPort = extract(\"dstPort=([\\\\w\\\\s]+)\",1,SyslogMessage), DestinationService = extract(\"dstService=([\\\\w\\\\s]+)\",1,SyslogMessage), DestinationInterface = extract(\"dstIF=([\\\\w\\\\s]+)\",1,SyslogMessage), FirewallRule = extract(\"rule=([\\\\w\\\\s\\\\-]+)\",1,SyslogMessage), Info = extract(\"info=([\\\\w\\\\s]+)\",1,SyslogMessage), SourceNAT = extract(\"srcNAT=([\\\\d\\\\.]+)\",1,SyslogMessage), DestinationNAT = extract(\"dstNAT=([\\\\d\\\\.]+)\",1,SyslogMessage), Duration = extract(\"duration=([\\\\d]+)\",1,SyslogMessage), Count = extract(\"count=([\\\\d]+)\",1,SyslogMessage), ReceivedBytes = extract(\"receivedBytes=([\\\\d]+)\",1,SyslogMessage), SentBytes = extract(\"sentBytes=([\\\\d]+)\",1,SyslogMessage), ReceivedPackets = extract(\"receivedPackets=([\\\\d]+)\",1,SyslogMessage), SentPackets = extract(\"sentPackets=([\\\\d]+)\",1,SyslogMessage), User = extract(\"user=([\\\\w\\\\s]+)\",1,SyslogMessage), L7Protocol = extract(\"protocol=([\\\\w\\\\s]+)\",1,SyslogMessage), Application = extract(\"application=([\\\\w\\\\s]+)\",1,SyslogMessage), Target = extract(\"target=([\\\\w\\\\s]+)\",1,SyslogMessage), Content = extract(\"content=([\\\\w\\\\s]+)\",1,SyslogMessage), URLCategory = extract(\"urlcat=([\\\\w\\\\s]+)\",1,SyslogMessage)",
             "FunctionAlias": "CGFWFirewallActivity",
-            "version": 2
-          }
+            "version": 2,
+            "etag": "*"
+                      }
         },
+
         {
-          "apiVersion": "2017-03-15-preview",
-          "type": "savedSearches",
-          "name": "GetFWAvailabiltyFromLoad",
+          "apiVersion": "2020-08-01",
+          "type": "Microsoft.OperationalInsights/workspaces/savedSearches",
+          "name": "[concat(parameters('workspaceName'), '/GetFWAvailabiltyFromLoad')]",
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-          ],
+                "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+      ],
           "properties": {
             "category": "Barracuda_FW",
             "displayName": "GetFWAvailabiltyFromLoad",
             "query": "Perf | where TimeGenerated > now() - 30d and TimeGenerated < now() and InstanceName == \"BNGF\" and ObjectName == \"Load\" | summarize heartbeat_per_hour=count() by bin_at(TimeGenerated, 1h, now() - 30d), Computer | extend available_per_hour=iff(heartbeat_per_hour>0, true, false) | summarize total_available_hours=countif(available_per_hour==true) by Computer | extend total_number_of_buckets=round((now()-(now() - 30d))/1h)+1 | extend availability_rate=total_available_hours*100/total_number_of_buckets",
             "FunctionAlias": "GetFWAvailabiltyFromLoad",
-            "version": 2
+            "version": 2,
+            "etag": "*"
           }
         },
         {
-          "apiVersion": "2015-11-01-preview",
-          "name": "Barracuda Firewall Monitoring Solution",
-          "type": "views",
+          "condition": "[equals(parameters('type'),'view')]",
+          "apiVersion": "2020-08-01",
+          "name": "[concat(parameters('workspaceName'), '/Barracuda Firewall Monitoring Solution')]",
+          "type": "Microsoft.OperationalInsights/workspaces/views",
+          "id": "[Concat(variables('SourceID'), '/views/', 'Barracuda Firewall Monitoring Solution')]",
+                "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+      ],
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-          ],
           "properties": {
             "Name": "[variables('FWAvailabiltyView').customSolution.name]",
             "Author": "[variables('FWAvailabiltyView').customSolution.author]",
@@ -223,13 +260,15 @@
         },
 
         {
+          "condition": "[equals(parameters('type'),'view')]",
           "apiVersion": "2015-11-01-preview",
-          "name": "Barracuda Firewall VPN Monitoring Solution",
-          "type": "views",
+    "name": "[concat(parameters('workspaceName'), '/Barracuda Firewall VPN Monitoring Solution')]",
+          "type": "Microsoft.OperationalInsights/workspaces/views",
+          "id": "[Concat(variables('SourceID'), '/views/', 'Barracuda Firewall VPN Monitoring Solution')]",
+                "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+      ],
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-          ],
           "properties": {
             "Name": "[variables('VPNStatusView').customSolution.name]",
             "Author": "[variables('VPNStatusView').customSolution.author]",
@@ -352,13 +391,15 @@
           }
         },
         {
+          "condition": "[equals(parameters('type'),'view')]",
           "apiVersion": "2015-11-01-preview",
-          "name": "Barracuda Firewall Performance Monitoring Solution",
-          "type": "views",
+          "name": "[concat(parameters('workspaceName'), '/Barracuda Firewall Performance Monitoring Solution')]",
+           "type": "Microsoft.OperationalInsights/workspaces/views",
+          "id": "[Concat(variables('SourceID'), '/views/', 'Barracuda Firewall Performance Monitoring Solution')]",
+                "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+      ],
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-          ],
           "properties": {
             "Id": "Barracuda Firewall Performance Monitoring Solution",
             "Name": "Barracuda Firewall Performance Monitoring Solution",
@@ -563,13 +604,15 @@
           }
         },
         {
+          "condition": "[equals(parameters('type'),'view')]",
           "apiVersion": "2015-11-01-preview",
-          "name": "Barracuda Firewall Traffic Monitoring Solution",
-          "type": "views",
+          "name": "[concat(parameters('workspaceName'), '/Barracuda Firewall Traffic Monitoring Solution')]",
+                 "type": "Microsoft.OperationalInsights/workspaces/views",
+          "id": "[Concat(variables('SourceID'), '/views/', 'Barracuda Firewall Traffic Monitoring Solution')]",
+                "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+      ],
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
-          ],
           "properties": {
             "Id": "Firewall Traffic",
             "Name": "Firewall Traffic",
@@ -923,10 +966,10 @@
               }
             }
           }
-        }
-      ]
-    },
+        },
+      
     {
+       "condition": "[equals(parameters('type'),'view')]",
       "name": "[variables('FwAvailabiltyView').customSolution.solutionName]",
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
@@ -950,6 +993,7 @@
       }
     },
     {
+       "condition": "[equals(parameters('type'),'view')]",
       "name": "[variables('FwTrafficView').customSolution.solutionName]",
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
@@ -973,6 +1017,7 @@
       }
     },
     {
+       "condition": "[equals(parameters('type'),'view')]",
       "name": "[variables('FwPerformanceView').customSolution.solutionName]",
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
@@ -991,17 +1036,18 @@
         "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
         "referencedResources": [],
         "containedResources": [
+          "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
           "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('FwPerformanceView').customSolution.name)]"
         ]
       }
     },
     {
+       "condition": "[equals(parameters('type'),'view')]",
       "name": "[variables('VPNStatusView').customSolution.solutionName]",
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
         "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'), '/views/', variables('VPNStatusView').customSolution.name)]"
       ],
       "plan": {
@@ -1017,6 +1063,36 @@
           "[resourceId('Microsoft.OperationalInsights/workspaces/views/', parameters('workspaceName'), variables('VPNStatusView').customSolution.name)]"
         ]
       }
-    }
+    },
+
+ { 
+   "condition": "[equals(parameters('type'),'workbook')]",
+           "type": "Microsoft.Resources/deployments",
+           "apiVersion": "2020-06-01",
+            "name": "linkedTemplate",
+            "dependsOn": [
+        "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+      ],
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[variables('workbookTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                  "workbookSourceId": {
+                    "value" : "[Concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+                  },
+                  "workbookType": {
+                    "value" : "workbook"
+                  }
+                }
+            }
+        }
+
   ]
+  ,
+"outputs": {
+    
+  }
 }

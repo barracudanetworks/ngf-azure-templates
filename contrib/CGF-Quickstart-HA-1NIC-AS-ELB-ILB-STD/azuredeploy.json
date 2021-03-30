@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
@@ -100,6 +100,14 @@
     "ccSecret": {
       "type": "securestring",
       "defaultValue": "only used when ccManaged set to yes"
+    },
+  "managedIdentities": {
+      "type": "string",
+      "allowedValues": [
+        "yes",
+        "no"
+      ],
+      "defaultValue": "no"
     }
   },
   "variables": {
@@ -126,7 +134,7 @@
     "cgfVmName1": "[concat(parameters('prefix'),'-VM-CGF-A')]",
     "cgfVmName2": "[concat(parameters('prefix'),'-VM-CGF-B')]",
     "cgfroleGuid1": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
-    "cgfroleGuid2": "[guid(variables('cgfVmName1'),resourceGroup().id, deployment().name)]",
+    "cgfroleGuid2": "[guid(variables('cgfVmName2'),resourceGroup().id, deployment().name)]",
     "cgfNicName1": "[concat(variables('cgfVmName1'),'-NIC')]",
     "cgfNicName2": "[concat(variables('cgfVmName2'),'-NIC')]",
     "cgfPIPAddressName1": "[concat(variables('cgfVmName1'),'-PIP')]",
@@ -147,7 +155,10 @@
     "lbProbeID-external": "[concat(variables('lbID-external'),'/probes/HAProbe')]",
     "lbProbeID-internal": "[concat(variables('lbID-internal'),'/probes/HAProbe')]",
     "lbIPAddress-internal": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 4 ))]",
-
+    "Contributor": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+     "identity": {
+        "type": "SystemAssigned"
+     },
     "adminUsername": "notused",
     "singleQuotationMark": "'",
 
@@ -167,25 +178,28 @@
   },
   "resources": [
     {
+      "condition": "[equals(parameters('managedIdentities'),'yes')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "name": "[variables('cgfroleGuid1')]",
       "apiVersion": "2017-09-01",
       "properties": {
-        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "principalId": "[reference(variables('cgfVmName1'), '2018-06-01', 'Full').identity.principalId]"
+        "roleDefinitionId": "[variables('Contributor')]",
+        "principalId": "[reference(variables('cgfVmName1'), '2018-06-01', 'Full').identity.principalId]",
+        "scope": "[resourceGroup().id]"
       },
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName1'))]"
       ]
     },
     {
+      "condition": "[equals(parameters('managedIdentities'),'yes')]",
       "type": "Microsoft.Authorization/roleAssignments",
       "name": "[variables('cgfroleGuid2')]",
       "apiVersion": "2017-09-01",
       "properties": {
-        "roleDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "principalId": "[reference(variables('cgfVmName2'), '2018-06-01', 'Full').identity.principalId]"
-        
+        "roleDefinitionId": "[variables('Contributor')]",
+        "principalId": "[reference(variables('cgfVmName2'), '2018-06-01', 'Full').identity.principalId]",
+        "scope": "[resourceGroup().id]"
       },
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('cgfVmName2'))]"
@@ -645,9 +659,7 @@
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": {
-        "type": "SystemAssigned"
-      },
+      "identity": "[if(equals(parameters('managedIdentities'),'yes'),variables('identity'),json('null'))]",
       "name": "[variables('cgfVmName1')]",
       "location": "[resourceGroup().location]",
       "plan": {
@@ -700,9 +712,7 @@
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "identity": {
-        "type": "SystemAssigned"
-      },
+      "identity": "[if(equals(parameters('managedIdentities'),'yes'),variables('identity'),json('null'))]",
       "name": "[variables('cgfVmName2')]",
       "location": "[resourceGroup().location]",
       "plan": {

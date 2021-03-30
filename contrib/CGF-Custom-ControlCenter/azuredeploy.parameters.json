@@ -20,10 +20,7 @@
     "subnetCC": {
       "value": "172.16.137.0/25"
     },
-    "imageSKU": {
-      "value": "byol"
-    },
-    "imageVersion": {
+    "version": {
       "value": "latest"
     },
     "vmSize": {

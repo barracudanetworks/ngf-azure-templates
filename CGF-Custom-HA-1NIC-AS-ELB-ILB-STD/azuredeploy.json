@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
@@ -123,6 +123,7 @@
   "variables": {
     "computeApiVersion": "2017-03-30",
     "networkApiVersion": "2017-08-01",
+    "bloburi" : "[if(equals(contains(resourceGroup().location,'usgov'),'True'),'.blob.core.usgovcloudapi.net','.blob.core.windows.net')]",
 
     "imagePublisher": "barracudanetworks",
     "imageOffer": "barracuda-ng-firewall",
@@ -165,11 +166,16 @@
     "cgfSubnetDefaultGw": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 1 ))]",
     "cgfVmAddress1": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 5 ))]",
     "cgfVmAddress2": "[concat( variables( 'cgfSubnetAddrSplit' )[0], '.', variables( 'cgfSubnetAddrSplit' )[1], '.', variables( 'cgfSubnetAddrSplit' )[2], '.', add( int( variables( 'cgfSubnetAddrSplit' )[3]), 6 ))]",
-    "cgfCustomData1": "[Base64(concat( '#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ), '\n', 'echo ', variables('singleQuotationMark'), parameters( 'adminPassword' ), variables('singleQuotationMark'), ' | /opb/create-dha -s S1 -c -o ', variables('cgfVmAddress2'), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n'))]",
+
+    "cgfCustomDataStart": "[concat('#!/bin/bash\n\n/opb/cloud-setmip ', variables('cgfVmAddress1'), ' ', variables( 'cgfSubnetMask' ), ' ', variables( 'cgfSubnetDefaultGw' ))]",
+    "RESTenabled": "\n/opb/cloud-enable-rest\n",
+    "VirtualServerName": "[if(equals(parameters('version'),'7.2.5013201'),concat('S1'),concat('CSC'))]",
+    "cgfCustomDataEnd": "[concat( '\n', 'echo ', variables('singleQuotationMark'), parameters('adminPassword'), variables('singleQuotationMark'), ' | /opb/create-dha -s ', variables('VirtualServerName') ,' -c -o ', variables('cgfVmAddress2'), ' -g ', variables( 'cgfSubnetDefaultGw' ), '\n')]",
+    "cgfCustomData1": "[if(equals(parameters('version'),'7.2.5013201'),Base64(concat(variables('cgfCustomDataStart'),variables('cgfCustomDataEnd'))),if(equals(parameters('enableREST'), 'yes'),Base64(concat(variables('cgfCustomDataStart'),variables('RESTenabled'),variables('cgfCustomDataEnd'))),Base64(concat(variables('cgfCustomDataStart'),variables('cgfCustomDataEnd')))))]",
     "cgfCustomData2": "[Base64('\n')]",
     "cgfCustomDataCC1": "[base64(concat('#!/bin/bash\n\n', 'echo \"*/2 * * * * root echo \\\"', parameters( 'ccSecret' ), '\\\" | /opt/phion/bin/getpar -a ', parameters('ccIpAddress'), ' -r ', parameters( 'ccRangeId' ), ' -c ', parameters( 'ccClusterName' ), ' -b ', variables( 'cgfVmName1' ), ' -d /opt/phion/update/box.par -s --verbosity 10 >> /tmp/getpar.log && /etc/rc.d/init.d/phion stop && /etc/rc.d/init.d/phion start && rm /etc/cron.d/getpar\" > /etc/cron.d/getpar\n'))]",
     "cgfCustomDataCC2": "[base64(concat('#!/bin/bash\n\n', 'echo \"*/2 * * * * root echo \\\"', parameters( 'ccSecret' ), '\\\" | /opt/phion/bin/getpar -a ', parameters('ccIpAddress'), ' -r ', parameters( 'ccRangeId' ), ' -c ', parameters( 'ccClusterName' ), ' -b ', variables( 'cgfVmName2' ), ' -d /opt/phion/update/box.par -s --verbosity 10 >> /tmp/getpar.log && /etc/rc.d/init.d/phion stop && /etc/rc.d/init.d/phion start && rm /etc/cron.d/getpar\" > /etc/cron.d/getpar\n'))]",
-    "RESTenabled": "'\n/opb/cloud-enable-ssh\n/opb/cloud-enable-rest\n'",
+
     "defaultRouteTableName": "[concat( 'route-via-', parameters( 'prefix' ), 'VM-CGF-', resourceGroup().name )]"
   },
     "resources": [
@@ -617,7 +623,7 @@
           "diagnosticsProfile": {
             "bootDiagnostics": {
               "enabled": true,
-              "storageUri": "[concat('https://', variables('storageAccountName'), '.blob.core.windows.net')]"
+              "storageUri": "[concat('https://', variables('storageAccountName'), variables('bloburi'))]"
             }
             
           },
@@ -703,7 +709,7 @@
       },
       "CGF-B": {
         "type": "string",
-        "value": "[reference(variables('cgfPIPAddressName1')).ipAddress]"
+        "value": "[reference(variables('cgfPIPAddressName2')).ipAddress]"
       },
       "CGF-LB": {
         "type": "string",

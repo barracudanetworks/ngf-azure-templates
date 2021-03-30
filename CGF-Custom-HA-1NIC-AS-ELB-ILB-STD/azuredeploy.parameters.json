@@ -20,9 +20,6 @@
     "subnetCGF": {
       "value": "172.16.136.0/24"
     },
-    "imageSKU": {
-      "value": "byol"
-    },
     "vmSize": {
       "value": "Standard_DS2_v2"
     },
@@ -30,9 +27,9 @@
       "value": "yes"
     },
     "enableREST": {
-      "value": "no"
+      "value": "yes"
     },
-    "ccManaged": {
+        "ccManaged": {
       "value": "no"
     },
     "ccIpAddress": {

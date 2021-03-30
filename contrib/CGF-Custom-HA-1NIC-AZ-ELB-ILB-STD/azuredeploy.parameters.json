@@ -30,7 +30,7 @@
       "value": "yes"
     },
     "enableREST": {
-      "value": "no"
+      "value": false
     },
     "ccManaged": {
       "value": "no"
@@ -47,8 +47,8 @@
     "ccSecret": {
       "value": ""
     },
-    "diagstorageAccountType": {
-      "value": "Standard_LRS"
+    "managedIdentities": {
+      "value": false
     }
   }
 }

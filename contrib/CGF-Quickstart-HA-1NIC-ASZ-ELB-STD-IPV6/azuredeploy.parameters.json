@@ -11,14 +11,26 @@
     "vNetAddressSpace": {
       "value": "172.16.136.0/22"
     },
+    "vNetAddressSpacev6": {
+      "value": "fd4d:d0ea:8475::/48"
+    },
     "subnetCGF": {
       "value": "172.16.136.0/24"
+    },
+    "subnetCGFv6": {
+      "value": "fd4d:d0ea:8475:1::/64"
     },
     "subnetRed": {
       "value": "172.16.137.0/24"
     },
+    "subnetRedv6": {
+      "value": "fd4d:d0ea:8475:2::/64"
+    },
     "subnetGreen": {
       "value": "172.16.138.0/24"
+    },
+    "subnetGreenv6": {
+      "value": "fd4d:d0ea:8475:3::/64"
     },
     "imageSKU": {
       "value": "byol"
@@ -26,23 +38,15 @@
     "vmSize": {
       "value": "Standard_F1s"
     },
-    "ccManaged": {
+    "enableAccelerated": {
       "value": "no"
     },
-    "ccIpAddress": {
-      "value": ""
-    },
-    "ccClusterName": {
-      "value": ""
-    },
-    "ccRangeId": {
-      "value": ""
-    },
-    "ccSecret": {
-      "value": ""
-    },
     "managedIdentities": {
-      "value": "yes"
+      "value": "no"
+    },
+    "availabiltyType": {
+      "value": "Availability Zone"
     }
+
   }
-}
+  }

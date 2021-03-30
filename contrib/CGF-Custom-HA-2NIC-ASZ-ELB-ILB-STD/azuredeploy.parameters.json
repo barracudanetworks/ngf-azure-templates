@@ -9,16 +9,16 @@
       "value": "GEN-PREFIX"
     },
     "vNetResourceGroup": {
-      "value": "GEN-VNET-RG"
+      "value": "CUDA-VNET-RG"
     },
     "vNetName": {
-      "value": "GEN-VNET-NAME"
+      "value": "CUDA-VNET"
     },
     "frontendSubnetName": {
-      "value": "frontendSubnet"
+      "value": "CUDA-SUBNET-CGF-FRONT"
     },
     "backendSubnetName": {
-      "value": "backendSubnet"
+      "value": "CUDA-SUBNET-CGF-BACK"
     },
     "frontendSubnetRange": {
       "value": "172.16.136.0/25"
@@ -30,25 +30,13 @@
       "value": "byol"
     },
     "vmSize": {
-      "value": "Standard_B2ms"
+      "value": "Standard_D1_v2"
     },
     "enableAccelerated": {
       "value": "no"
     },
-    "ccManaged": {
-      "value": "no"
-    },
-    "ccIpAddress": {
-      "value": ""
-    },
-    "ccClusterName": {
-      "value": ""
-    },
-    "ccRangeId": {
-      "value": ""
-    },
-    "ccSecret": {
-      "value": ""
+    "managedIdentities": {
+        "value": "yes"
     }
   }
 }

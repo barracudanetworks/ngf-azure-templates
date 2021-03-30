@@ -1,0 +1,1666 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Barracuda CloudGen WAN dashboard\r\n\r\nThis workbook can be used to provide common status and performance information about your Barracuda CloudGen WAN Sites and Gateways\r\n\r\nAny Barracuda CloudGen WAN that has reporting into Log Analytics enabled can be viewed here.\r\nUse the dropdowns to move the reports between Subscriptions, Workspaces or Firewalls.",
+        "style": "info"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "997c84bc-c454-47f7-a288-99429173dfeb",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "/subscriptions/31de56f1-2378-43ae-bdf7-2c229adf2f7f"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            }
+          },
+          {
+            "id": "73638b3d-aa3f-4872-a56b-a0eaf3fc7714",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "isRequired": true,
+            "query": "Resources | where type =~ \"microsoft.operationalinsights/workspaces\" | order by name | project id, name, selected=row_number()==1, group=resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "96730b84-3f96-4838-ac95-6999dc7d6438",
+            "version": "KqlParameterItem/1.0",
+            "name": "Firewall",
+            "label": "Devices",
+            "type": 2,
+            "description": "Used to report on specific firewalls",
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "Heartbeat | where ComputerEnvironment == \"Non-Azure\" or Computer contains \"nva-gw\" and TimeGenerated > ago(30d)\r\n | distinct Computer",
+            "value": [
+              "site1",
+              "site2",
+              "site3"
+            ],
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.compute/virtualmachines": true
+              },
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 2592000000
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 0"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Perf | where TimeGenerated > now() - 30d and TimeGenerated < now() and Computer in~ ({Firewall}) and ObjectName == \"Load\" | summarize heartbeat_per_hour=count() by bin_at(TimeGenerated, 1h, now() - 30d), Computer | extend available_per_hour=iff(heartbeat_per_hour>0, true, false) | summarize total_available_hours=countif(available_per_hour==true) by Computer | extend total_number_of_buckets=round((now()-(now() - 30d))/1h)+1 | extend availability_rate=round(total_available_hours*100/total_number_of_buckets,2) | project Computer, availability_rate",
+        "size": 1,
+        "title": "CGW Device Availabilty",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "tiles",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "total_available_hours",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "total_number_of_buckets",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "availability_rate",
+              "formatter": 0,
+              "numberFormat": {
+                "unit": 1,
+                "options": {
+                  "style": "decimal"
+                }
+              }
+            }
+          ],
+          "filter": true,
+          "labelSettings": [
+            {
+              "columnId": "Computer"
+            },
+            {
+              "columnId": "availability_rate",
+              "label": "% Available"
+            }
+          ]
+        },
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "Computer",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "availability_rate",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 1,
+              "options": {
+                "style": "decimal",
+                "maximumFractionDigits": 2,
+                "maximumSignificantDigits": 3
+              }
+            }
+          },
+          "showBorder": true,
+          "sortCriteriaField": "Computer",
+          "sortOrderField": 1,
+          "size": "auto"
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "Computer",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "availability_rate",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        }
+      },
+      "name": "availability",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "VPN Status",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Perf | where ObjectName == \"Site_to_site_VPN_Tunnels_Up\" | where Computer in ({Firewall}) and Computer !contains \"nva-gw\" | project-rename Status = ObjectName | project-rename Firewall = Computer | summarize AggregatedValue = round(avg(CounterValue),1) by Firewall, Status | project-rename Qty = AggregatedValue",
+              "size": 1,
+              "title": "Up WAN connections by Device",
+              "color": "green",
+              "noDataMessage": "0",
+              "noDataMessageStyle": 4,
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "graph",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "TableName",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": false,
+                "rowLimit": 1
+              },
+              "graphSettings": {
+                "type": 2,
+                "topContent": {
+                  "columnMatch": "Firewall",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "Qty",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 0,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "nodeIdField": "Firewall",
+                "graphOrientation": 3,
+                "showOrientationToggles": false,
+                "nodeSize": null,
+                "staticNodeSize": 100,
+                "colorSettings": {
+                  "nodeColorField": "Qty",
+                  "type": 3,
+                  "thresholdsGrid": [
+                    {
+                      "operator": ">",
+                      "thresholdValue": "1",
+                      "representation": "green"
+                    },
+                    {
+                      "operator": "Default",
+                      "thresholdValue": null,
+                      "representation": "greenDark"
+                    }
+                  ]
+                },
+                "hivesMargin": 5
+              },
+              "mapSettings": {
+                "locInfo": "LatLong",
+                "sizeSettings": "Qty",
+                "sizeAggregation": "Sum",
+                "legendMetric": "Qty",
+                "legendAggregation": "Sum",
+                "itemColorSettings": {
+                  "type": "heatmap",
+                  "colorAggregation": "Sum",
+                  "nodeColorField": "Qty",
+                  "heatmapPalette": "greenRed"
+                }
+              }
+            },
+            "customWidth": "50",
+            "showPin": true,
+            "name": "WANbyDevice"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Perf | where ObjectName == \"Site_to_site_VPN_Tunnels_Down\" | where Computer in ({Firewall}) and Computer !contains \"nva-gw\" | project-rename Status = ObjectName | project-rename Firewall = Computer | summarize AggregatedValue = round(avg(CounterValue),1) by Firewall, Status | project-rename Qty = AggregatedValue",
+              "size": 1,
+              "title": "Down VPN Tunnels by Device",
+              "noDataMessage": "0",
+              "noDataMessageStyle": 3,
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "graph",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "TableName",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": false,
+                "rowLimit": 1
+              },
+              "graphSettings": {
+                "type": 2,
+                "topContent": {
+                  "columnMatch": "Firewall",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "Qty",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 0,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "nodeIdField": "Firewall",
+                "graphOrientation": 3,
+                "showOrientationToggles": false,
+                "nodeSize": null,
+                "staticNodeSize": 100,
+                "colorSettings": {
+                  "nodeColorField": "Qty",
+                  "type": 3,
+                  "thresholdsGrid": [
+                    {
+                      "operator": ">",
+                      "thresholdValue": "1",
+                      "representation": "yellow"
+                    },
+                    {
+                      "operator": ">",
+                      "thresholdValue": "2",
+                      "representation": "orange"
+                    },
+                    {
+                      "operator": ">",
+                      "thresholdValue": "4",
+                      "representation": "red"
+                    },
+                    {
+                      "operator": "Default",
+                      "thresholdValue": null,
+                      "representation": "gray"
+                    }
+                  ]
+                },
+                "hivesMargin": 5
+              },
+              "mapSettings": {
+                "locInfo": "LatLong",
+                "sizeSettings": "Qty",
+                "sizeAggregation": "Sum",
+                "legendMetric": "Qty",
+                "legendAggregation": "Sum",
+                "itemColorSettings": {
+                  "type": "heatmap",
+                  "colorAggregation": "Sum",
+                  "nodeColorField": "Qty",
+                  "heatmapPalette": "greenRed"
+                }
+              }
+            },
+            "customWidth": "50",
+            "showPin": true,
+            "name": "Down VPN Tunnels by Device"
+          }
+        ]
+      },
+      "customWidth": "50",
+      "name": "VPN Status Group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Device Traffic Overview",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "search * | where Type == \"CommonSecurityLog\" | where Computer in ({Firewall})  | summarize count() by Computer",
+              "size": 0,
+              "title": "Traffic per Device",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "chartSettings": {
+                "yAxis": [
+                  "count_"
+                ],
+                "group": "Computer",
+                "createOtherGroup": null,
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "name": "Traffic per Device"
+          }
+        ]
+      },
+      "customWidth": "25",
+      "name": "Firewall Traffic Overview"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Perf | where Computer in ({Firewall})  | where (ObjectName == \"Load\") | summarize max(CounterValue) by Computer",
+        "size": 0,
+        "aggregation": 2,
+        "title": "Device Load",
+        "timeContext": {
+          "durationMs": 1800000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "tiles",
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "Computer",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "max_CounterValue",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            }
+          },
+          "showBorder": false,
+          "sortCriteriaField": "Computer"
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "Computer",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "sum_CounterValue",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        }
+      },
+      "customWidth": "25",
+      "name": "Current Device Load"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Firewall Traffic Summary",
+        "expandable": true,
+        "expanded": true,
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let TotalRecords = toscalar(search * | where Type == \"CommonSecurityLog\" | where Computer in~ ({Firewall}) | where DeviceAction==\"Allow\" | count); search * | where Type == \"CommonSecurityLog\" | where Computer in~ ({Firewall}) | summarize Blocks=countif(DeviceAction == \"Allow\") ,count_=count(), percent=round(countif(DeviceAction == \"Allow\")*1.0/TotalRecords*100.0,2) by SourceIP | sort by percent desc | limit 10 | project SourceIP, percent",
+              "size": 0,
+              "title": "Allowed by Firewall",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "percent",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "turquoise"
+                    }
+                  }
+                ]
+              },
+              "tileSettings": {
+                "showBorder": false
+              }
+            },
+            "customWidth": "50",
+            "name": "Allowed by Firewall"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let TotalRecords = toscalar(search * | where Type == \"CommonSecurityLog\" | where Computer in~ ({Firewall}) | where DeviceAction==\"Block\" | count); search * | where Type == \"CommonSecurityLog\" | where Computer in~ ({Firewall}) | summarize Blocks=countif(DeviceAction == \"Block\") ,count_=count(), percent=round(countif(DeviceAction == \"Block\")*1.0/TotalRecords*100.0,2) by SourceIP | sort by percent desc | limit 10 | project SourceIP, percent ",
+              "size": 0,
+              "title": "Blocked by Firewall",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "percent",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  }
+                ],
+                "filter": true
+              },
+              "graphSettings": {
+                "type": 0,
+                "topContent": {
+                  "columnMatch": "SourceIP",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "percent",
+                  "formatter": 1,
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "nodeIdField": "SourceIP",
+                "sourceIdField": "percent",
+                "targetIdField": "SourceIP",
+                "graphOrientation": 3,
+                "showOrientationToggles": false,
+                "nodeSize": null,
+                "staticNodeSize": 100,
+                "colorSettings": {
+                  "nodeColorField": "percent",
+                  "type": 3,
+                  "thresholdsGrid": [
+                    {
+                      "operator": "Default",
+                      "thresholdValue": null,
+                      "representation": "blue"
+                    },
+                    {
+                      "operator": ">",
+                      "thresholdValue": "50",
+                      "representation": "orange"
+                    },
+                    {
+                      "operator": ">",
+                      "thresholdValue": "70",
+                      "representation": "redBright"
+                    }
+                  ]
+                },
+                "hivesMargin": 5
+              }
+            },
+            "customWidth": "50",
+            "name": "Blocked by Firewall"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---"
+            },
+            "name": "---"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "union Perf | where Computer in~ ({Firewall})| where ObjectName == \"Connections_New\"",
+              "size": 0,
+              "title": "New Connections",
+              "timeContext": {
+                "durationMs": 1800000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "timechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "CounterValue",
+                    "label": "Connections"
+                  }
+                ]
+              }
+            },
+            "customWidth": "45",
+            "name": "NewConnections",
+            "styleSettings": {
+              "margin": "10",
+              "showBorder": true
+            }
+          }
+        ]
+      },
+      "name": "Firewall Traffic Summary"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": []
+      },
+      "name": "Allowed Traffic Details"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "CloudGen WAN Sites",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "The below charts and graphs will display bandwidth in the Azure native measurement of Megabytes per Second and Latency in milliseconds. \r\nThe CloudGen WAN Site Performance Summary does display bandwidth additionally in Mbps for easy of comparison. ",
+              "style": "info"
+            },
+            "name": "CGWInfoText",
+            "styleSettings": {
+              "showBorder": true
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN | where host in~ ({Firewall}) and host !contains \"cudanva-gw\" | project toint(bwdownavg), toint(bwupavg), host, TimeGenerated | \r\nsummarize avg(bwdownavg/8), avg(bwupavg/8) by host ",
+              "size": 0,
+              "aggregation": 5,
+              "title": "Latest WAN Bandwidth Measurement",
+              "timeContext": {
+                "durationMs": 1800000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "unstackedbar",
+              "chartSettings": {
+                "xAxis": "host",
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "avg_",
+                    "label": "Download",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "avg_1",
+                    "label": "Upload",
+                    "color": "greenDark"
+                  }
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 46,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": false
+                    },
+                    "missingSparkDataOption": "Zero"
+                  }
+                }
+              }
+            },
+            "name": "WANBandwidth"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN\r\n| where host in~ ({Firewall}) | project TimeGenerated, host, toint(latencyavg), toint(latencymax), toint(latencymin), toint(bwdownmax), toint(bwupmax)\r\n| summarize  Max = round(max(latencymax),1), Min = round(min(latencymin),1), Average = round(avg(latencyavg),1), DMMbps = max(bwdownmax/1000), UPMbps = max(bwupmax/1000), DMKB = max(bwdownmax/8), UMKB = max(bwupmax/8)   by host\r\n//divide by 1000 to get Mbps, by 8 to get kilobytes ",
+              "size": 1,
+              "aggregation": 2,
+              "title": "CloudGen WAN Site Performance Summary",
+              "timeContext": {
+                "durationMs": 3600000
+              },
+              "exportFieldName": "latencyhost",
+              "exportParameterName": "host",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Max",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "aggregation": "Max"
+                    }
+                  },
+                  {
+                    "columnMatch": "DMMbps",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": false
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "DMKB",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UMKB",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "DM",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 12,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": false
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UM",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 12,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  }
+                ],
+                "sortBy": [
+                  {
+                    "itemKey": "host",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "host"
+                  },
+                  {
+                    "columnId": "Max",
+                    "label": "Latency (Max)"
+                  },
+                  {
+                    "columnId": "Min",
+                    "label": "(Min)"
+                  },
+                  {
+                    "columnId": "Average",
+                    "label": "(Avg.)"
+                  },
+                  {
+                    "columnId": "DMMbps",
+                    "label": "Download Max (Mbps)"
+                  },
+                  {
+                    "columnId": "UPMbps",
+                    "label": "Upload Max (Mbps)"
+                  },
+                  {
+                    "columnId": "DMKB",
+                    "label": "Download Max (MB/s)"
+                  },
+                  {
+                    "columnId": "UMKB",
+                    "label": "Upload Max (MB/s)"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "host",
+                  "sortOrder": 2
+                }
+              ],
+              "graphSettings": {
+                "type": 0,
+                "topContent": {
+                  "columnMatch": "host",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "Max",
+                  "formatter": 1,
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "nodeIdField": "host",
+                "sourceIdField": "TimeGenerated",
+                "targetIdField": "Avg",
+                "graphOrientation": 3,
+                "showOrientationToggles": false,
+                "nodeSize": null,
+                "staticNodeSize": 100,
+                "colorSettings": null,
+                "hivesMargin": 5
+              },
+              "chartSettings": {
+                "xAxis": "TimeGenerated",
+                "showDataPoints": true,
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 23,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "name": "Site Statistics"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN | where host in~ ({Firewall}) and  host !contains \"cudanva-gw\" and TimeGenerated > ago(15m) | project host, DeviceVersion | distinct *",
+              "size": 0,
+              "title": "CloudGen WAN Site Firmware",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "MaxLatency",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "MinLatency",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "AvgLatency",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 23,
+                      "options": {
+                        "style": "decimal",
+                        "useGrouping": false
+                      }
+                    }
+                  }
+                ]
+              },
+              "textSettings": {
+                "style": "header"
+              }
+            },
+            "customWidth": "20",
+            "name": "Site Firmware",
+            "styleSettings": {
+              "margin": "0"
+            }
+          }
+        ]
+      },
+      "name": "CGW Site Info"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "CloudGen WAN Detailed Charts",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "21d8b009-2367-464e-a974-2d3c087684ab",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "SiteDevice",
+                  "label": "Device",
+                  "type": 2,
+                  "description": "Used to report on specific firewalls",
+                  "isRequired": true,
+                  "query": "CGWextractSDWAN | project host | where host !contains \"-\" | distinct host",
+                  "value": "Site1",
+                  "typeSettings": {
+                    "resourceTypeFilter": {
+                      "microsoft.compute/virtualmachines": true
+                    },
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
+                }
+              ],
+              "style": "pills",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "customWidth": "20",
+            "name": "parameters - 0 - Copy"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "Please select from dropdown to the left the site that you wish to view more detailed information on. The below charts will display the Maximum, Average and Minimum figures over 24 hours for Latency and Bandwidth Download and Bandwidth Upload. \r\n<br> All bandwidth figures are displayed in MB/s\r\n<br>Latency is as measured between the Site Device and the Gateway it is connected to.",
+              "style": "warning"
+            },
+            "customWidth": "80",
+            "name": "DetailsInfoText",
+            "styleSettings": {
+              "showBorder": true
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN | where host ==  '{SiteDevice}' \r\n| project TimeGenerated, host, toint(latencyavg), toint(latencymax), toint(latencymin) \r\n| summarize  latency = arg_max(latencymax, latencymin, latencyavg) by bin(TimeGenerated, 1h)",
+              "size": 2,
+              "aggregation": 2,
+              "showAnnotations": true,
+              "title": "Detailed Latency Graph",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "showRefreshButton": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "linechart"
+            },
+            "conditionalVisibility": {
+              "parameterName": "SiteDevice",
+              "comparison": "isNotEqualTo",
+              "value": ""
+            },
+            "name": "Latency Graph"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN\r\n| where host == '{SiteDevice}' | project TimeGenerated, host, toint(useupstdmax), toint(useupstdavg), toint(useupstdmin)\r\n| summarize DM = max(useupstdmax/8), DA = avg(useupstdavg/8), DMin = min(useupstdmin/8) by bin(TimeGenerated, 1h)\r\n//divided by 8 to convert between kilobits and kilobytes, also due to reporting bug useupstd actually returns download",
+              "size": 0,
+              "aggregation": 2,
+              "title": "Download Usage",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "linechart",
+              "chartSettings": {
+                "xAxis": "TimeGenerated",
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "DM",
+                    "label": "Max"
+                  },
+                  {
+                    "seriesName": "DA",
+                    "label": "Average"
+                  },
+                  {
+                    "seriesName": "DMin",
+                    "label": "Minimum"
+                  }
+                ],
+                "showDataPoints": true,
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 46,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "name": "Download Usage"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN\r\n| where host == '{SiteDevice}' | project TimeGenerated, host, toint(usedownstdmax), toint(usedownstdavg), toint(usedownstdmin)\r\n| summarize UpMax = max(usedownstdmax/8), UpAvg = avg(usedownstdavg/8), UpMin = min(usedownstdmin/8) by bin(TimeGenerated, 1h)\r\n//values divided by 8 to convert kilobits to kilobytes, and due to bug usedownstd actually represents upload speed.",
+              "size": 0,
+              "aggregation": 2,
+              "title": "Upstream Bandwidth Utilisation",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "linechart",
+              "chartSettings": {
+                "xAxis": "TimeGenerated",
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "UpMax",
+                    "label": "Max"
+                  },
+                  {
+                    "seriesName": "UpAvg",
+                    "label": "Average"
+                  },
+                  {
+                    "seriesName": "UpMin",
+                    "label": "Min"
+                  }
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 46,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "SiteDevice",
+              "comparison": "isNotEqualTo"
+            },
+            "name": "Upstream Bandwidth Utilisation"
+          }
+        ]
+      },
+      "name": "CloudGen WAN Detailed Charts"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "CloudGen WAN Gateways",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "Select the regional gateways to report upon"
+            },
+            "customWidth": "50",
+            "name": "text - 1"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "7b5dbd10-4d96-459a-b2b9-06243779910f",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "gwregion",
+                  "label": "Region",
+                  "type": 2,
+                  "query": "where type =~ 'Microsoft.Solutions/applications' and plan contains \"barracuda_cloudgenwan_gateway\" | project location \n",
+                  "value": "uksouth",
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                {
+                  "id": "f7e39ad5-a681-4460-8a9b-94d906f573d7",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "gateway",
+                  "label": "Gateway",
+                  "type": 2,
+                  "query": "CommonSecurityLog | where Activity == \"SdWanData\" and Computer contains \"nva-gw\" | project Region = split(Computer,\".\")[4], Computer, AdditionalExtensions | where Region == \"{gwregion}\" | distinct Computer",
+                  "value": "20.49.206.89.uksouth.cudanva-gwlnsl2escpea000001",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
+                }
+              ],
+              "style": "pills",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "customWidth": "50",
+            "name": "gwparams"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN\r\n| where Computer in (\r\n(CommonSecurityLog | where Activity == \"SdWanData\" and Computer contains \"nva-gw\" | project Region = split(Computer,\".\")[4], Computer, AdditionalExtensions | where Region == \"{gwregion}\" | distinct Computer)\r\n)\r\n| project TimeGenerated, host, toint(latencyavg), toint(latencymax), toint(latencymin)\r\n| summarize  Max = round(max(latencymax),1), Min = round(min(latencymin),1), Average = round(avg(latencyavg),1) by host, bin(TimeGenerated, 1h) \r\n| extend Region = \"{gwregion}\" | project-reorder Region",
+              "size": 0,
+              "title": "CGW Gateway Latency for Region",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "linechart",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Region",
+                    "formatter": 17
+                  },
+                  {
+                    "columnMatch": "host",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "DstdM",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 12,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UpStdM",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UpMaxR",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UpMax",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  }
+                ],
+                "sortBy": [
+                  {
+                    "itemKey": "Region",
+                    "sortOrder": 1
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "TimeGenerated"
+                  },
+                  {
+                    "columnId": "Average"
+                  },
+                  {
+                    "columnId": "DstdM",
+                    "label": "User Download Max"
+                  },
+                  {
+                    "columnId": "UpStdM",
+                    "label": "Used Upload Max"
+                  },
+                  {
+                    "columnId": "DndMax",
+                    "label": "Used NoDelay Download Max"
+                  },
+                  {
+                    "columnId": "UndMax",
+                    "label": "Used NoDelay Upload Max"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "Region",
+                  "sortOrder": 1
+                }
+              ],
+              "graphSettings": {
+                "type": 0,
+                "topContent": {
+                  "columnMatch": "Region",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "Max",
+                  "formatter": 1,
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "gateway",
+              "comparison": "isNotEqualTo"
+            },
+            "name": "regionlatency"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGWextractSDWAN\r\n| where Computer in (\r\n(CommonSecurityLog | where Activity == \"SdWanData\" and Computer contains \"nva-gw\" | project Region = split(Computer,\".\")[4], Computer, AdditionalExtensions | where Region == \"{gwregion}\" | distinct Computer)\r\n)\r\n| project TimeGenerated, host, toint(usedownndmax), toint(useupndmax), toint(usedownstdmax), toint(useupstdmax)\r\n| summarize DstdM = max(usedownstdmax/8), UpStdM = max(useupstdmax/8),  DndMax = max(usedownndmax/8), UndMax = max(useupndmax/8)  by host, bin(TimeGenerated, 1h) | extend Region = \"{gwregion}\" | project-reorder Region",
+              "size": 0,
+              "aggregation": 3,
+              "title": "CGW Gateway Bandwidth Utilisation",
+              "timeContext": {
+                "durationMs": 86400000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "linechart",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Region",
+                    "formatter": 17
+                  },
+                  {
+                    "columnMatch": "host",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "TimeGenerated",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "DstdM",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 12,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UpStdM",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UpMaxR",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "UpMax",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 46,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  }
+                ],
+                "sortBy": [
+                  {
+                    "itemKey": "Region",
+                    "sortOrder": 1
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "TimeGenerated"
+                  },
+                  {
+                    "columnId": "Average"
+                  },
+                  {
+                    "columnId": "DstdM",
+                    "label": "User Download Max"
+                  },
+                  {
+                    "columnId": "UpStdM",
+                    "label": "Used Upload Max"
+                  },
+                  {
+                    "columnId": "DndMax",
+                    "label": "Used NoDelay Download Max"
+                  },
+                  {
+                    "columnId": "UndMax",
+                    "label": "Used NoDelay Upload Max"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "Region",
+                  "sortOrder": 1
+                }
+              ],
+              "graphSettings": {
+                "type": 0,
+                "topContent": {
+                  "columnMatch": "Region",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "Max",
+                  "formatter": 1,
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              },
+              "chartSettings": {
+                "xAxis": "TimeGenerated",
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "DstdM",
+                    "label": "Max Inbound Standard Bandwidth"
+                  },
+                  {
+                    "seriesName": "UpStdM",
+                    "label": "Max Outbound Standard Bandwidth"
+                  },
+                  {
+                    "seriesName": "DndMax",
+                    "label": "Max Inbound Realtime Bandwidth"
+                  },
+                  {
+                    "seriesName": "UndMax",
+                    "label": "Max Outbound Realtime"
+                  }
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 46,
+                    "options": {
+                      "style": "decimal",
+                      "useGrouping": true
+                    },
+                    "missingSparkDataOption": "Zero"
+                  }
+                }
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "gateway",
+              "comparison": "isNotEqualTo"
+            },
+            "name": "regionlatency - Copy"
+          }
+        ]
+      },
+      "name": "CGWGateway"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Device Performance Details",
+        "expandable": true,
+        "expanded": true,
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Perf | where Computer in~ ({Firewall})  | where (ObjectName == \"Load\") | summarize sum(CounterValue) by Computer, bin(TimeGenerated, 5m) ",
+              "size": 1,
+              "aggregation": 2,
+              "title": "Load over time",
+              "timeContext": {
+                "durationMs": 1800000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "areachart",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "Computer",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_CounterValue",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "name": "Load over time"
+          }
+        ]
+      },
+      "name": "Device Performance Details"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Firewall Traffic Details",
+        "expandable": true,
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGFWFirewallActivity \n| extend Rule = coalesce(FirewallRule, \"None\")\n| summarize count() by Rule\n| take 10",
+              "size": 3,
+              "title": "Rule Summary",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "None",
+                    "color": "green"
+                  }
+                ]
+              }
+            },
+            "customWidth": "33",
+            "name": "RuleSummary",
+            "styleSettings": {
+              "margin": "10",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGFWFirewallActivity \n| extend rule = coalesce(Info, \"None\")\n| summarize count() by rule\n| take 10\n",
+              "size": 3,
+              "title": "Drop Summary",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "DropSummary",
+            "styleSettings": {
+              "margin": "10",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---"
+            },
+            "name": "---"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGFWFirewallActivity \n| where Computer in~ ({Firewall})\n| where isnotempty(Application)\n| summarize count() by Application\n| take 10",
+              "size": 0,
+              "title": "Top 10 Applications",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "Application",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "count_",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "50",
+            "name": "TopApplications",
+            "styleSettings": {
+              "margin": "10",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGFWFirewallActivity\n| where Computer in~ ({Firewall})\n| extend User = coalesce(User, \"Unauthenticated\") \n| summarize count() by User\n| take 10",
+              "size": 3,
+              "title": "Top 10 Users",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "TopUsers",
+            "styleSettings": {
+              "margin": "10",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "CGFWFirewallActivity\n| where Computer in~ ({Firewall})\n| extend Protocol = coalesce(L4Protocol, \"Other\") \n| summarize count() by L4Protocol",
+              "size": 3,
+              "title": "Layer 4 Protocol Summary",
+              "noDataMessage": "No suitable data found for this firewall",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "33",
+            "name": "L4Summary",
+            "styleSettings": {
+              "margin": "10",
+              "showBorder": true
+            }
+          }
+        ]
+      },
+      "name": "Firewall Traffic Details"
+    }
+  ],
+  "fallbackResourceIds": [
+    "/subscriptions/31de56f1-2378-43ae-bdf7-2c229adf2f7f/resourceGroups/mms-weu/providers/Microsoft.OperationalInsights/workspaces/GAOMS"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
