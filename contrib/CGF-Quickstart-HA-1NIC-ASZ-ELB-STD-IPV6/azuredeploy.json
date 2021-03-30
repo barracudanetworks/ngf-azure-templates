@@ -93,6 +93,14 @@
         "description": "Size of the VMs to be created"
       }
     },
+        "enableAccelerated": {
+      "type": "string",
+      "allowedValues": [
+        "yes",
+        "no"
+      ],
+      "defaultValue": "no"
+    },
     "managedIdentities": {
       "type": "string",
       "allowedValues": [
@@ -771,6 +779,7 @@
       "comments": "NIC used by CGF-A, creates one IPv4 config and one IPv6 config",
       "properties": {
         "enableIPForwarding": true,
+        "enableAcceleratedNetworking": "[if(equals(parameters('enableAccelerated'), 'yes'), 'true', 'false')]",
         "ipConfigurations": [
           {
             "name": "ipconfigv4",

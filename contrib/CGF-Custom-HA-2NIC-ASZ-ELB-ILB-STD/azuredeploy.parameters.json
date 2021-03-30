@@ -21,7 +21,7 @@
       "value": "CUDA-SUBNET-CGF-BACK"
     },
     "frontendSubnetRange": {
-      "value": "172.16.137.0/25"
+      "value": "172.16.136.0/25"
     },
     "backendSubnetRange": {
       "value": "172.16.136.128/25"
@@ -30,28 +30,13 @@
       "value": "byol"
     },
     "vmSize": {
-      "value": "Standard_B2ms"
+      "value": "Standard_D1_v2"
     },
     "enableAccelerated": {
       "value": "no"
     },
-    "ccManaged": {
-      "value": "no"
-    },
-    "ccIpAddress": {
-      "value": ""
-    },
-    "ccClusterName": {
-      "value": ""
-    },
-    "ccRangeId": {
-      "value": ""
-    },
-    "ccSecret": {
-      "value": ""
-    },
     "managedIdentities": {
-        "value": false
+        "value": "yes"
     }
   }
 }
