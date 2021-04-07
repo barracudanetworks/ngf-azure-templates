@@ -86,6 +86,7 @@ Describe "[$templateName] Template validation & test" {
         It 'Contains the expected parameters' {
             $expectedTemplateParameters = 'adminPassword',
                                           'availabiltyType',
+                                          'enableAccelerated',
                                           'imageSKU',
                                           'managedIdentities',
                                           'prefix',
@@ -93,8 +94,8 @@ Describe "[$templateName] Template validation & test" {
                                           'subnetCGFv6',
                                           'subnetGreen',
                                           'subnetGreenv6',
-                                           'subnetRed',
-                                           'subnetRedv6',
+                                          'subnetRed',
+                                          'subnetRedv6',
                                           'version',
                                           'vmSize',
                                           'vNetAddressSpace',
