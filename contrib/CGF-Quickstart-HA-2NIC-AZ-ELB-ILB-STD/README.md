@@ -75,9 +75,9 @@ You need to create manually a firewall *App Redirect* rule for ILB Probe traffic
 
 ![Example firewall probe redirection rule](images/ProbeFirewallRule.png)
 
-For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/nextgenfirewallf/article/CGF71/FWCreateAppRedirRule/)
+For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026195/)
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/nextgenfirewallf/article/CGF71/ChangeRootPWandMgmtACL/)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
 
 ## Template Parameters
 | Parameter Name | Description

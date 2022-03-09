@@ -49,7 +49,7 @@ Otherwise;
 
 For more details on configuring these please see;
 
-(https://campus.barracuda.com/product/cloudgenfirewall/doc/79463292/how-to-configure-syslog-streaming/?sl=AW7vcc5m7X_svXEFw7Ox&so=10)
+(https://campus.barracuda.com/product/cloudgenfirewall/doc/96026562/)
 
 
 

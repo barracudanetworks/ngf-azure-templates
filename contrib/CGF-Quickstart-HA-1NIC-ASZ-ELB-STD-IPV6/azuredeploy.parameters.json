@@ -36,7 +36,7 @@
       "value": "byol"
     },
     "vmSize": {
-      "value": "Standard_F1s"
+      "value": "Standard_DS1_v2"
     },
     "enableAccelerated": {
       "value": "no"

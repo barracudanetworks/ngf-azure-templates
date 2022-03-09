@@ -62,7 +62,7 @@ Administration of the Barracuda CloudGen Firewall appliance is typically done wi
 
 Note: The username to login to the appliance is root and the password is the one you have configured on Azure portal while deploying the VM. Also a forward for TCP/807 and TCP-UDP/691 endpoints will be created automatically when you deploy this VM. Click here for more details.
 
-Note: Please be patient on the latest 8.0.1 release provisioning may take a while and until it completes you will get "access denied" until this completes.If boot diagnostics is enabled you can view the log to monitor progress.
+Note: Please be patient on the latest 8.3.0 release provisioning may take a while and until it completes you will get "access denied" until this completes.If boot diagnostics is enabled you can view the log to monitor progress.
 
 ## Post Deployment Configuration
 
@@ -71,9 +71,9 @@ In older version, you need to create manually a firewall *App Redirect* rule for
 
 ![Example firewall probe redirection rule](images/ProbeFirewallRule.png)
 
-For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/CloudGenfirewallf/article/CGF71/FWCreateAppRedirRule/)
+For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026195/)
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/CloudGenfirewallf/article/CGF71/ChangeRootPWandMgmtACL/)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
 
 ## Template Parameters
 | Parameter Name | Description
