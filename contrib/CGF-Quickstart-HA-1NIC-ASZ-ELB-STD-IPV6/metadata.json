@@ -3,5 +3,5 @@
   "description": "This template allows you to deploy a Barracuda cluster using IPv6 and external and internal load balancers",
   "summary": "This template takes a minimum amount of parameters",
   "githubUsername": "gallenbar",
-  "dateUpdated": "2021-02-26"
+  "dateUpdated": "2022-03-09"
 }

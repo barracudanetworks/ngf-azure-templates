@@ -61,12 +61,12 @@ Note: The username to login to the appliance is root and the password is the one
 This configuration of the Barracuda CloudGen Control Center is handled by the Ansible configuration script after deployment using ARM templates. Below some steps to get you going after the deployment.
 
 - License: By default the installation uses a BYOL installation. You can change the to PAYG by changing the "imageSKU" variable in the azuredeploy.parameters.json.
-  - Request a demo license for a 30 day trial via [the Barracuda eval page](https://www.barracuda.com/purchase/evaluation/product/bnccaz/)
-  - THe license token (xxxxx-xxxxx-xxxxx) will be send by email. To activate the Barracuda CloudGen Control Center you can follow the instructions [here](https://campus.barracuda.com/product/cloudgenfirewall/doc/79463375/how-to-activate-and-license-a-standalone-high-availability-cluster/)
+  - Request a demo license for a 30 day trial via [the Barracuda eval page](https://www.barracuda.com/download/products/)
+  - THe license token (xxxxx-xxxxx-xxxxx) will be send by email. To activate the Barracuda CloudGen Control Center you can follow the instructions [here](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026654/)
 - Create access rules from extrenal networks to access the installed VM's. Make sure to only allow specific source IP's to access the VM's or setup a VPN
 - Verify traffic is possible from the different networks 
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/53248329/how-to-change-the-root-password-and-management-acl)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
 
 ## Template Parameters
 | Parameter Name | Description

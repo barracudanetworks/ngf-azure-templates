@@ -41,9 +41,9 @@ After successful deployment you can manage them using Firewall Admin application
 
 ## Post Deployment Configuration
 
-Visit our [campus website](https://campus.barracuda.com/product/cloudgenfirewall/doc/53248931/implementation-guide-nextgen-firewall-in-azure/) for more in-depth information on deployment and management.
+Visit our [campus website](https://campus.barracuda.com/product/cloudgenfirewall/doc/96025943/) for more in-depth information on deployment and management.
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/CloudGenfirewallf/article/CGF71/ChangeRootPWandMgmtACL/)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
 
 ## Template Parameters
 | Parameter Name | Description

@@ -27,7 +27,7 @@
       "value": "latest"
     },
     "vmSize": {
-      "value": "Standard_F1s"
+      "value": "Standard_DS1_v2"
     },
     "ipAddressCGF": {
       "value": "172.16.136.10"

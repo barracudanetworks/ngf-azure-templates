@@ -3,5 +3,5 @@
   "description": "This template allows you to deploy a cluster of Barracuda CGF VM with a static IP",
   "summary": "This template takes a minimum amount of parameters",
   "githubUsername": "gallen-bar",
-  "dateUpdated": "2019-09-23"
+  "dateUpdated": "2022-03-09"
 }

@@ -108,9 +108,9 @@ In older versions, you need to create manually a firewall *App Redirect* rule fo
 
 ![Example firewall probe redirection rule](images/ProbeFirewallRule.png)
 
-For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/cloudgenfirewall/doc/73719211/how-to-create-an-app-redirect-access-rule/)
+For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026195/)
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/73719620/how-to-change-the-root-password-and-management-acl/)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
 
 ## Template Parameters
 | Parameter Name | Description

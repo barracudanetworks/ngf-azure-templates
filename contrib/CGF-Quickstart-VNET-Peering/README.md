@@ -1,6 +1,6 @@
-# Barracuda CloudGen Firewall 8.0 for Azure - High Availability Cluster with VNET Peering
+# Barracuda CloudGen Firewall 8.3 for Azure - High Availability Cluster with VNET Peering
 
-**Note** This ARM Template uses version 8.0 of the CGF. Barracuda CloudGen Firewall version 8.0 is a cloud-only version. It is currently not available for on-premises deployments and can only be deployed in Microsoft Azure, Amazon Web Services, or Google Cloud Platform public clouds.
+**Note** This ARM Template uses version 8.3 of the CGF. Barracuda CloudGen Firewall version 8.3 is a cloud-only version. It is currently not available for on-premises deployments and can only be deployed in Microsoft Azure, Amazon Web Services, or Google Cloud Platform public clouds.
 
 ## Introduction
 
@@ -71,14 +71,14 @@ Note: The username to login to the appliance is root and the password is the one
 This configuration of the Barracuda CloudGen Firewall is handled by the Ansible configuration script after deployment using ARM templates. Below some steps to get you going after the deployment.
 
 - License: By default the installation uses a BYOL installation. You can change the to PAYG by changing the "imageSKU" variable in the azuredeploy.parameters.json.
-  - Request a demo license for a 30 day trial via [the Barracuda eval page](https://www.barracuda.com/purchase/evaluation/products/BNGCAZ)
-  - THe license token (xxxxx-xxxxx-xxxxx) will be send by email. To activate the Barracuda CloudGen Firewall you can follow the instructions [here](https://campus.barracuda.com/product/cloudgenfirewall/doc/79463375/how-to-activate-and-license-a-standalone-high-availability-cluster/)
+  - Request a demo license for a 30 day trial via [the Barracuda eval page](https://www.barracuda.com/download/products/cloudgen-firewall)
+  - THe license token (xxxxx-xxxxx-xxxxx) will be send by email. To activate the Barracuda CloudGen Firewall you can follow the instructions [here](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026654/)
 - Verify that ELB and ILB are sending health probes on port 65000 and 691 towards the Barracuda CloudGen Firewall. In the Firewall Admin go to Firewall > History and search for the port. The health probes are coming from the Azure Virtual IP 168.63.129.16.
 - Install VM's in different networks. There are scripts available in the downloaded package called `deploy-support-linux.sh` and `deploy-support-windows.sh`. This deploy's either a windows or linux VM in all 4 subnets (red, green, spoke1 and spoke2)
 - Create access rules from extrenal networks to access the installed VM's. Make sure to only allow specific source IP's to access the VM's or setup a VPN
 - Verify traffic is possible from the different networks 
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/53248329/how-to-change-the-root-password-and-management-acl)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
 
 ## Template Parameters
 | Parameter Name | Description

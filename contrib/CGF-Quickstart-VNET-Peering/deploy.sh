@@ -134,11 +134,11 @@ echo "
 # Thank you for deploying the Barracuda CloudGen Firewall for more information:
 #
 # Campus website:
-# https://campus.barracuda.com/product/cloudgenfirewall/doc/73719655/microsoft-azure-deployment/
+# https://campus.barracuda.com/product/cloudgenfirewall/doc/96026610/
 #
-# Firewall Admin 8.0: https://d.barracudanetworks.com/ngfirewall/8.0.0/FirewallAdmin_8.0.0-819.exe
+# Firewall Admin 8.3.0: https://d.barracudanetworks.com/ngfirewall/8.3.0/FirewallAdmin_8.3.0-189.exe
 #
-# BYOL eval license: https://www.barracuda.com/purchase/evaluation/products/BNGCAZ
+# BYOL eval license: https://www.barracuda.com/download/products/cloudgen-firewall
 #
 # To complete this quickstart verify the "Post Deployment Configuration" list in the README
 #
