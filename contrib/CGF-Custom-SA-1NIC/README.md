@@ -5,7 +5,7 @@ This Azure Resource Manager (ARM) template will deploy the Barracuda CloudGen Fi
 
 To adapt this deployment to your requirements you can modify the azuredeploy.paramters.json file and/or the deployment script in Powershell or Azure CLI (Bash).
 
-![CGF Azure Network Architecture](images/cgf-sa.png)
+![CGF Azure Network Architecture](images/CGF-Custom-SA-1NIC.png)
 
 ## Prerequisites
 The solution does a check of the template when you use the provide scripts. It does require that [Programmatic Deployment](https://azure.microsoft.com/en-us/blog/working-with-marketplace-images-on-azure-resource-manager/) is enabled for the Barracuda CloudGen Firewall F BYOL or PAYG images. Barracuda recommends use of **D**, **D_v2**, **F** or newer series. 

@@ -8,7 +8,7 @@ The Azure Standard Load Balancer solves the above problems, providing failover c
 
 This template deploys a VNet with 2 CGF instances with managed disks, an any-port ILB instance, and 2 empty subnets routed through CGF cluster.
 
-![Network diagram](images/cgf-ha-1nic-elb-ilb.png)
+![Network diagram](images/CGF-Quickstart-HA-1NIC-AS-ELB-ILB-STD.png)
 
 ## Prerequisites
 
