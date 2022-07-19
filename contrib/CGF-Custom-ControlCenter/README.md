@@ -7,6 +7,8 @@
 
 This template provides a template to deploy a Barracuda Control Center instance into an existing VNET. 
 
+![CGF Azure Network Architecture](images/CGF-Custom-ControlCenter.png)
+
 ## Prerequisites
 
 The VNET and subnet into which Control Center should deploy should already exist, these should be seperate from any existing firewalls so that routing can be applied.
