@@ -33,7 +33,7 @@ Following resources will be created by the template:
 - An availabilty set containing both firewalls
 - One internal standard Azure Load Balancer as the default gateway for all traffic that needs inspection
 - One external standard Azure Load Balancer containing the deployed virtual machines with a public IP and services for IPSEC and TINA VPN tunnels available
-- Two Barracuda CloudGen Firewall virtual machines with 1 network interface each and public IP
+- Two Barracuda CloudGen Firewall virtual machines with 2 network interface each and public IP
 
 
 **Note** Additional backend subnets and resources are *not* automatically created by the template. This has to be done manually after template deployment has finished or by adapting the ARM template.
@@ -52,7 +52,7 @@ Switch the config to Advanced Mode.
 
 
 - Firewall Admin > Configuration > Network > IP configuration and switch the config to Advanced mode. 
-![Network diagram](images/enabledadvancedmode.png)
+![Network diagram](images/enableadvancedmode.png)
 
 - Firewall Admin > Configuration > Network > Additional Local IP's and add the private IP of the internal NIC in here linked to eth1. <br/>
 ![Network diagram](images/cgf-ha-2nic-network3.png) <br/>
@@ -76,7 +76,7 @@ Lock the config and right click and edit.
 
 Modify as below and activate the rule. 
 
-![Example firewall probe redirection rule](images/modifiedrule.png)
+![Example firewall probe redirection rule](images/modifiedlbrule.png)
 
 For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026195/)
 
