@@ -2,6 +2,6 @@
   "itemDisplayName": "Barracuda CGF Cluster with IPv6",
   "description": "This template allows you to deploy a Barracuda cluster using IPv6 and external and internal load balancers",
   "summary": "This template takes a minimum amount of parameters",
-  "githubUsername": "gallenbar",
-  "dateUpdated": "2022-03-09"
+  "githubUsername": "spatscheider",
+  "dateUpdated": "2023-08-28"
 }
