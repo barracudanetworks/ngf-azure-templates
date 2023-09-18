@@ -2,6 +2,6 @@
   "itemDisplayName": "Barracuda NextGen Firewall for Azure",
   "description": "Barracuda NGF - High Availability Cluster using Internal Load Balancer with Availability Zones",
   "summary": "This template takes a minimum amount of parameters",
-  "githubUsername": "jvhoof",
-  "dateUpdated": "2022-03-09"
+  "githubUsername": "spatscheider",
+  "dateUpdated": "2023-08-28"
 }
