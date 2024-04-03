@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "adminPassword": {
@@ -59,7 +59,7 @@
         "description": "Version of the Barracuda CloudGen Firewall to install"
       },
        "allowedValues": [ "latest", "9.0.1029901", "8.3.3023801", "8.3.1008602", "8.2.1016801", "8.0.6021101" ],
-      "defaultValue": "latest"
+       "defaultValue": "latest"
     },
     "vmSize": {
       "type": "string",
