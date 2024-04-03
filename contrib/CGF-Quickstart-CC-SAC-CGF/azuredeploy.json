@@ -86,10 +86,10 @@
     "imageSKU": {
       "type": "string",
       "metadata": {
-        "description": "SKU Hourly (PAYG) or BYOL (Bring your own license)"
+        "description": "SKU Cgf-Hourly (PAYG) or BYOL (Bring your own license)"
       },
       "allowedValues": [
-        "hourly",
+        "cgf-hourly",
         "byol"
       ],
       "defaultValue": "byol"
@@ -99,7 +99,7 @@
       "metadata": {
         "description": "Version of the Barracuda CloudGen Firewall to install"
       },
-      "allowedValues": [ "latest", "8.0.2011901", "8.0.1037602", "7.2.5013201" ],
+      "allowedValues": [ "latest", "9.0.1029901", "8.3.3023801", "8.3.1008602", "8.2.1016801", "8.0.6021101" ],
       "defaultValue": "latest"
     },
     "vmSize": {
