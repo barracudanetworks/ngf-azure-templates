@@ -17,7 +17,7 @@ The solution does a check of the template when you use the provided scripts. It 
 You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or hourly license requirement.
 
 `Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzMarketplaceTerms -Accept`
-`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "hourly" | Set-AzureRmMarketplaceTerms -Accept`
+`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "cgf-hourly" | Set-AzureRmMarketplaceTerms -Accept`
 
 
 ## Deployed resources
@@ -41,7 +41,7 @@ Deployment of the ARM template is possible via the Azure Portal or Azure CLI. Wh
 The package provides a deploy.sh for Azure CLI based deployments. This can be performed from the Azure Portal as well as the any system that has either of these scripting infrastructures installed. Or you can deploy from the Azure Portal using the provided link.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FQuickstart-CGF-VNET-Peering%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
+    <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 <a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FQuickstart-CGF-VNET-Peering%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
@@ -72,13 +72,13 @@ This configuration of the Barracuda CloudGen Firewall is handled by the Ansible 
 
 - License: By default the installation uses a BYOL installation. You can change the to PAYG by changing the "imageSKU" variable in the azuredeploy.parameters.json.
   - Request a demo license for a 30 day trial via [the Barracuda eval page](https://www.barracuda.com/download/products/cloudgen-firewall)
-  - THe license token (xxxxx-xxxxx-xxxxx) will be send by email. To activate the Barracuda CloudGen Firewall you can follow the instructions [here](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026654/)
+  - THe license token (xxxxx-xxxxx-xxxxx) will be send by email. To activate the Barracuda CloudGen Firewall you can follow the instructions [here](https://campus.barracuda.com/doc/98210666/)
 - Verify that ELB and ILB are sending health probes on port 65000 and 691 towards the Barracuda CloudGen Firewall. In the Firewall Admin go to Firewall > History and search for the port. The health probes are coming from the Azure Virtual IP 168.63.129.16.
 - Install VM's in different networks. There are scripts available in the downloaded package called `deploy-support-linux.sh` and `deploy-support-windows.sh`. This deploy's either a windows or linux VM in all 4 subnets (red, green, spoke1 and spoke2)
 - Create access rules from extrenal networks to access the installed VM's. Make sure to only allow specific source IP's to access the VM's or setup a VPN
 - Verify traffic is possible from the different networks 
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/doc/98210587/)
 
 ## Template Parameters
 | Parameter Name | Description
@@ -93,7 +93,7 @@ vNetAddressSpaceSpoke1 | Network range of the VNET Spoke 1 (e.g. 172.16.140.0/23
 vNetAddressSpaceSpoke2 | Network range of the VNET Spoke 2 (e.g. 172.16.142.0/23)
 subnetSpoke1 | Network range of the spoke1 subnet (e.g. 172.16.140.0/24)
 subnetSpoke2 | Network range of the spoke2 subnet (e.g. 172.16.142.0/24)
-imageSKU | SKU Hourly (PAYG) or BYOL (Bring your own license)
+imageSKU | SKU Cgf-Hourly (PAYG) or BYOL (Bring your own license)
 vmSize | Size of the VMs to be created
 ccManaged | Is this instance managed via a CloudGen Firewall Control Center (Yes/No)
 ccClusterName | The name of the cluster of this instance in the CloudGen Firewall Control Center

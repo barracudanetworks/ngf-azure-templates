@@ -8,7 +8,7 @@ This Barracuda Solution pack includes a Control Center for central management, a
 
 The Secure Access Concentrator requires the SC physical devices in order to be fully trialed as an IoT connectivity concentrator. You can request a 30 day evaluation device via:
 
-Please complete the form here to arrange a trial for the physical devices. [IoT Trial](https://www.barracuda.com/products/cloudgenfirewall?scroll=lead-form)
+Please complete the form here to arrange a trial for the physical devices. [IoT Trial](https://www.barracuda.com/products/network-protection/cloudgen-firewall/try-free)
 
 ![CGF Azure Network Architecture](images/cgf-custom-cc-sac-ha-cgf.png)
 
@@ -17,12 +17,12 @@ Please complete the form here to arrange a trial for the physical devices. [IoT 
 The solution does a check of the template when you use the provided scripts. It does require that [Programmatic Deployment](https://azure.microsoft.com/en-us/blog/working-with-marketplace-images-on-azure-resource-manager/) is enabled for the Barracuda CloudGen Firewall BYOL or PAYG images and the Barracuda CloudGen Firewall Control Center BYOL images. Barracuda recommends use of **D**, **D_v2**, **F**  series as these have the best power to throughput ratios 
 
 
-You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or hourly license requirement.
+You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or cgf-hourly license requirement.
 
 `Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzMarketplaceTerms -Accept`
 `Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-cc" -Name "byol" | Set-AzureRmMarketplaceTerms -Accept`
 
-`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "hourly" | Set-AzureRmMarketplaceTerms -Accept`
+`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "cgf-hourly" | Set-AzureRmMarketplaceTerms -Accept`
  
 
 
@@ -64,7 +64,7 @@ The package provides a deploy.ps1 and deploy.sh for Powershell or Azure CLI base
 
 To deploy via Azure Portal you can use the button below to deploy this reference architecture into your Azure subscription. Once you click on this the Azure Portal will ask you for your credentials and you are presented with a page to fill in minimal variables: Resource Group, Location, Admin password and Prefix.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-CC-SAC-CGF%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-CC-SAC-CGF%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 <a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Custom-CC-SAC-CGF%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
@@ -108,9 +108,9 @@ In older versions, you need to create manually a firewall *App Redirect* rule fo
 
 ![Example firewall probe redirection rule](images/ProbeFirewallRule.png)
 
-For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026195/)
+For more information on App Redirect rule consult Barracuda Campus: [How to Create an App Redirect Access Rule](https://campus.barracuda.com/doc/98210201/)
 
-It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/product/cloudgenfirewall/doc/96026575/)
+It is also recommended you harden management access by enabling multifactor or key authentication and by restricting access to management interface using Management ACL: [How to Change the Root Password and Management ACL](https://campus.barracuda.com/doc/98210587/)
 
 ## Template Parameters
 | Parameter Name | Description
@@ -122,7 +122,7 @@ vNetName | Name of the VNET to be deployed into
 subnetCGF | Network range of the subnet containing the CloudGen Firewall (e.g. 172.16.136.0/24)
 subnetCC | Network range of the Control Centers subnet e.g (172.16.138.0/25)
 subnetSAC | Network range of the Secure Access Connectors subnet (e.g. 172.16.138.128/25)
-imageSKU | SKU Hourly (PAYG) or BYOL (Bring your own license) for the Firewalls, CC and SAC will be BYOL
+imageSKU | SKU CGF-HOURLY (PAYG) or BYOL (Bring your own license) for the Firewalls, CC and SAC will be BYOL
 vmSize | Size of the VMs to be created - applies to all the boxes
 subnetNameCGF | Name of the subnet to deploy the firewall into
 subnetNameCC | Name of the subnet to deploy the Control Center into

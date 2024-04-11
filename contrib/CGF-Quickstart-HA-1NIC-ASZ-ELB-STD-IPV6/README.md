@@ -13,7 +13,7 @@ The solution does a check of the template when you use the provided scripts. It 
 You can enable programatic deployment via Powershell using the Cloud Shell feature in the portal. Below are two powershell examples for byol and hourly, please adapt as required to your version of powershell and byol or hourly license requirement.
 
 `Get-AzMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "byol" | Set-AzMarketplaceTerms -Accept`
-`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "hourly" | Set-AzureRmMarketplaceTerms -Accept`
+`Get-AzureRmMarketplaceTerms -Publisher "barracudanetworks" -Product "barracuda-ng-firewall" -Name "cgf-hourly" | Set-AzureRmMarketplaceTerms -Accept`
 
 
 
@@ -39,7 +39,7 @@ The package provides a deploy.ps1 and deploy.sh for Powershell or Azure CLI base
 To deploy via Azure Portal you can use the button below to deploy this reference architecture into your Azure subscription. Once you click on this the Azure Portal will ask you for your credentials and you are presented with a page to fill in minimal variables: Resource Group, Location, Admin password and Prefix.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Quickstart-HA-1NIC-ASZ-ELB-STD-IPV6%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
+    <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 <a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fbarracudanetworks%2Fngf-azure-templates%2Fmaster%2Fcontrib%2FCGF-Quickstart-HA-1NIC-ASZ-ELB-STD-IPV6%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
@@ -64,7 +64,7 @@ Administration of the Barracuda CloudGen Firewall appliance is typically done wi
 
 Note: The username to login to the appliance is root and the password is the one you have configured on Azure portal while deploying the VM. Also a forward for TCP/807 and TCP-UDP/691 endpoints will be created automatically when you deploy this VM. Click here for more details.
 
-Note: Please be patient on the latest 8.3.0 release provisioning may take a while and until it completes you will get "access denied" until this completes. If boot diagnostics is enabled you can view the log to monitor progress.
+Note: Please be patient on the latest 9.x release provisioning may take a while and until it completes you will get "access denied" until this completes. If boot diagnostics is enabled you can view the log to monitor progress.
 
 ## Post Deployment Configuration
 
@@ -91,7 +91,7 @@ subnetCgfv6 | IPv6 network range of the Subnet containing the NextGen Firewall (
 subnetRedv6 | IPv6 network range of the red subnet (e.g. fd4d:d0ea:8475:2::/64)
 subnetGreenv6 | IPv6 network range of the green subnet (e.g. fd4d:d0ea:8475:3::/64)
 version |  Version of the Barracuda CloudGen Firewall to install"
-imageSKU | SKU Hourly (PAYG) or BYOL (Bring your own license)
+imageSKU | SKU Cgf-Hourly (PAYG) or BYOL (Bring your own license)
 vmSize | Size of the VMs to be created
 managedIdentity | Set to yes or no to enable managed identity
 availabiltyType | Select Availabilty Zone or Availabilty Set
