@@ -24,7 +24,7 @@
       "value": "latest"
     },
     "vmSize": {
-      "value": "Standard_DS1_v2"
+      "value": "Standard_D2ds_v5"
     },
     "ipAddressCC": {
       "value": "172.16.137.4"

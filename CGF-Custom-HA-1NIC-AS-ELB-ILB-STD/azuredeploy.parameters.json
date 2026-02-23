@@ -21,7 +21,7 @@
       "value": "172.16.136.0/24"
     },
     "vmSize": {
-      "value": "Standard_DS2_v2"
+      "value": "Standard_D2ds_v5"
     },
     "enableAccelerated": {
       "value": "yes"
