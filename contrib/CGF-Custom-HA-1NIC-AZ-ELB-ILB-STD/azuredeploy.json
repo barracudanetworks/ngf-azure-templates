@@ -55,7 +55,7 @@
       "metadata": {
         "description": "Version of the Barracuda CloudGen Firewall to install"
       },
-      "allowedValues": [ "latest", "9.0.5026801", "8.3.3023801", "8.0.3013701" ],
+      "allowedValues": [ "latest", "10.0.1015302", "10.0.0099310", "9.0.5026801" ],
       "defaultValue": "latest"
     },
     "vmSize": {
