@@ -212,6 +212,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('lbPIPAddressName')]",
       "location": "[resourceGroup().location]",
+	  "sku": { "name": "Standard" },
       "properties": {
         "publicIPAllocationMethod": "[variables('cgfPIPAddressType')]",
         "dnsSettings": {
@@ -224,6 +225,9 @@
       "name": "[variables('lbName')]",
       "type": "Microsoft.Network/loadBalancers",
       "location": "[resourceGroup().location]",
+	   "sku": {
+        "name": "Standard"
+      },
       "comments":"LoadBalancer for the Barracuda Next Gen Firewall F cluster",            
       "tags": {
           "displayName": "cgfLB"
@@ -343,6 +347,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('cgfPIPAddressName1')]",
       "location": "[resourceGroup().location]",
+	  "sku": { "name": "Standard" },
       "properties": {
         "publicIPAllocationMethod": "[variables('cgfPIPAddressType')]"
       }
@@ -352,6 +357,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('cgfPIPAddressName2')]",
       "location": "[resourceGroup().location]",
+	  "sku": { "name": "Standard" },
       "properties": {
         "publicIPAllocationMethod": "[variables('cgfPIPAddressType')]"
       }

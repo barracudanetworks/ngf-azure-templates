@@ -187,6 +187,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('cgfPIPAddressName')]",
       "location": "[resourceGroup().location]",
+	  "sku": { "name": "Standard" },
       "properties": {
         "publicIPAllocationMethod": "[variables('cgfPIPAddressType')]"
       }
